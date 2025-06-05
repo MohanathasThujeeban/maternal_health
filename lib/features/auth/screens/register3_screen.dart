@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'welcome_screen.dart'; // Import WelcomeScreen
 
 class Register3Screen extends StatelessWidget {
   const Register3Screen({super.key});
@@ -72,9 +73,13 @@ class Register3Screen extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      // Perform sign-up action
-                      print('Sign Up button clicked');
-                      // Add your sign-up logic here, such as sending data to a server
+                      // Navigate to WelcomeScreen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen(),
+                        ),
+                      );
                     },
                     child: const Text('Sign Up'),
                   ),

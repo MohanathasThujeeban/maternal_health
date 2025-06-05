@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
+import 'Midwivesmodule/dashboard_screen.dart'; // Corrected import path for DashboardScreen
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Main content
           Center(
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [                
+                children: [
                   const SizedBox(height: 16),
                   // Logo
                   Image.asset(
@@ -25,19 +28,45 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 32),
                   // Username field
-                  _RoundedTextField(hint: 'user name'),
+                  _RoundedTextField(
+                    hint: 'Username',
+                    controller: usernameController,
+                  ),
                   const SizedBox(height: 16),
                   // Password field
-                  _RoundedTextField(hint: 'password', obscure: true),
+                  _RoundedTextField(
+                    hint: 'Password',
+                    obscure: true,
+                    controller: passwordController,
+                  ),
                   const SizedBox(height: 24),
                   // Login button
                   _RoundedButton(
                     text: 'Login',
-                    onPressed: () {},
+                    onPressed: () {
+                      // Check credentials
+                      if (usernameController.text == 'Mid_wife' &&
+                          passwordController.text == 'Mid123') {
+                        // Navigate to DashboardScreen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DashboardScreen(),
+                          ),
+                        );
+                      } else {
+                        // Show error message
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Invalid credentials'),
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    "if you don't have an account",
+                    "If you don't have an account",
                     style: TextStyle(
                       fontFamily: 'SpotifyCircular', // Use Spotify Circular font
                       fontSize: 13,
@@ -50,7 +79,9 @@ class LoginScreen extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
                       );
                     },
                     color: const Color(0xFF4FC3A1),
@@ -68,7 +99,12 @@ class LoginScreen extends StatelessWidget {
 class _RoundedTextField extends StatelessWidget {
   final String hint;
   final bool obscure;
-  const _RoundedTextField({required this.hint, this.obscure = false});
+  final TextEditingController controller;
+  const _RoundedTextField({
+    required this.hint,
+    this.obscure = false,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +122,7 @@ class _RoundedTextField extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
         obscureText: obscure,
         decoration: InputDecoration(
           border: InputBorder.none,

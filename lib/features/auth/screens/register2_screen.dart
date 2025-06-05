@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'register3_screen.dart'; // Import the Register3Screen
 
 class Register2Screen extends StatelessWidget {
   const Register2Screen({super.key});
@@ -126,7 +127,15 @@ class Register2Screen extends StatelessWidget {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      // Navigate to Register3Screen
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Register3Screen(),
+                        ),
+                      );
+                    },
                     child: const Text('Next'),
                   ),
                 ),
