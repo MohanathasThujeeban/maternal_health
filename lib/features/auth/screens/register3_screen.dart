@@ -1,8 +1,64 @@
 import 'package:flutter/material.dart';
-import 'welcome_screen.dart'; // Import WelcomeScreen
+import 'welcome_screen.dart';
+import 'registration_data.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class Register3Screen extends StatelessWidget {
-  const Register3Screen({super.key});
+class Register3Screen extends StatefulWidget {
+  final RegistrationData registrationData;
+  const Register3Screen({super.key, required this.registrationData});
+
+  @override
+  State<Register3Screen> createState() => _Register3ScreenState();
+}
+
+class _Register3ScreenState extends State<Register3Screen> {
+  final nicController = TextEditingController();
+  final phoneController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    nicController.text = widget.registrationData.nicNumber;
+    phoneController.text = widget.registrationData.phoneNumber3;
+    passwordController.text = widget.registrationData.password;
+  }
+
+  @override
+  void dispose() {
+    nicController.dispose();
+    phoneController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> submitRegistration() async {
+    widget.registrationData.nicNumber = nicController.text;
+    widget.registrationData.phoneNumber3 = phoneController.text;
+    widget.registrationData.password = passwordController.text;
+
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:8080/api/registration'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(widget.registrationData.toJson()),
+    );
+
+    // Debug prints to help you see what happens
+    print('Status: ${response.statusCode}');
+    print('Body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration failed: ${response.body}')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +70,6 @@ class Register3Screen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back button
               IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
@@ -24,35 +79,35 @@ class Register3Screen extends StatelessWidget {
               const Text(
                 'NIC Number',
                 style: TextStyle(
-                  fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+                  fontFamily: 'SpotifyCircular',
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              _RoundedTextField(hint: 'Enter NIC Number'),
+              _RoundedTextField(hint: 'Enter NIC Number', controller: nicController),
               const SizedBox(height: 12),
               const Text(
                 'Phone Number',
                 style: TextStyle(
-                  fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+                  fontFamily: 'SpotifyCircular',
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              _RoundedTextField(hint: 'Enter Phone Number'),
+              _RoundedTextField(hint: 'Enter Phone Number', controller: phoneController),
               const SizedBox(height: 12),
               const Text(
                 'Password',
                 style: TextStyle(
-                  fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+                  fontFamily: 'SpotifyCircular',
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 8),
-              _RoundedTextField(hint: 'Enter Password'),
+              _RoundedTextField(hint: 'Enter Password', controller: passwordController, obscureText: true),
               const SizedBox(height: 24),
               Center(
                 child: SizedBox(
@@ -67,20 +122,12 @@ class Register3Screen extends StatelessWidget {
                       elevation: 6,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       textStyle: const TextStyle(
-                        fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+                        fontFamily: 'SpotifyCircular',
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    onPressed: () {
-                      // Navigate to WelcomeScreen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WelcomeScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: submitRegistration,
                     child: const Text('Sign Up'),
                   ),
                 ),
@@ -95,7 +142,9 @@ class Register3Screen extends StatelessWidget {
 
 class _RoundedTextField extends StatelessWidget {
   final String hint;
-  const _RoundedTextField({required this.hint});
+  final TextEditingController? controller;
+  final bool obscureText;
+  const _RoundedTextField({required this.hint, this.controller, this.obscureText = false});
 
   @override
   Widget build(BuildContext context) {
@@ -112,13 +161,15 @@ class _RoundedTextField extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
+        obscureText: obscureText,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
         style: const TextStyle(
-          fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+          fontFamily: 'SpotifyCircular',
           fontSize: 16,
         ),
       ),

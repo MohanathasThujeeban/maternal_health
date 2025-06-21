@@ -1,8 +1,38 @@
 import 'package:flutter/material.dart';
-import 'register2_screen.dart'; // Import Register2Screen
+import 'register2_screen.dart';
+import 'registration_data.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final motherNameController = TextEditingController();
+  final fatherNameController = TextEditingController();
+  final addressController = TextEditingController();
+  final phoneController = TextEditingController();
+  final ageController = TextEditingController();
+  final occupationController = TextEditingController();
+  final ethnicityController = TextEditingController();
+  final religionController = TextEditingController();
+  final educationController = TextEditingController();
+
+  @override
+  void dispose() {
+    motherNameController.dispose();
+    fatherNameController.dispose();
+    addressController.dispose();
+    phoneController.dispose();
+    ageController.dispose();
+    occupationController.dispose();
+    ethnicityController.dispose();
+    religionController.dispose();
+    educationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,38 +44,37 @@ class RegisterScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Back button
               IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
                 color: Colors.black54,
               ),
               const SizedBox(height: 8),
-              _RoundedTextField(hint: 'Full Name of mother'),
+              _RoundedTextField(hint: 'Full Name of mother', controller: motherNameController),
               const SizedBox(height: 12),
-              _RoundedTextField(hint: 'Full Name of father'),
+              _RoundedTextField(hint: 'Full Name of father', controller: fatherNameController),
               const SizedBox(height: 12),
-              _RoundedTextField(hint: 'Address'),
+              _RoundedTextField(hint: 'Address', controller: addressController),
               const SizedBox(height: 12),
-              _RoundedTextField(hint: 'Phone number'),
+              _RoundedTextField(hint: 'Phone number', controller: phoneController),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _RoundedTextField(hint: 'Age')),
+                  Expanded(child: _RoundedTextField(hint: 'Age', controller: ageController)),
                   const SizedBox(width: 12),
-                  Expanded(child: _RoundedTextField(hint: 'Occupation')),
+                  Expanded(child: _RoundedTextField(hint: 'Occupation', controller: occupationController)),
                 ],
               ),
               const SizedBox(height: 12),
               Row(
                 children: [
-                  Expanded(child: _RoundedTextField(hint: 'Ethnicity')),
+                  Expanded(child: _RoundedTextField(hint: 'Ethnicity', controller: ethnicityController)),
                   const SizedBox(width: 12),
-                  Expanded(child: _RoundedTextField(hint: 'Religion')),
+                  Expanded(child: _RoundedTextField(hint: 'Religion', controller: religionController)),
                 ],
               ),
               const SizedBox(height: 12),
-              _RoundedTextField(hint: 'Educational level'),
+              _RoundedTextField(hint: 'Educational level', controller: educationController),
               const SizedBox(height: 24),
               Center(
                 child: SizedBox(
@@ -60,16 +89,28 @@ class RegisterScreen extends StatelessWidget {
                       elevation: 6,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       textStyle: const TextStyle(
-                        fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+                        fontFamily: 'SpotifyCircular',
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     onPressed: () {
-                      // Navigate to Register2Screen
+                      final registrationData = RegistrationData();
+                      registrationData.motherFullName = motherNameController.text;
+                      registrationData.fatherFullName = fatherNameController.text;
+                      registrationData.address = addressController.text;
+                      registrationData.phoneNumber = phoneController.text;
+                      registrationData.age = ageController.text;
+                      registrationData.occupation = occupationController.text;
+                      registrationData.ethnicity = ethnicityController.text;
+                      registrationData.religion = religionController.text;
+                      registrationData.educationLevel = educationController.text;
+
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const Register2Screen()),
+                        MaterialPageRoute(
+                          builder: (context) => Register2Screen(registrationData: registrationData),
+                        ),
                       );
                     },
                     child: const Text('Next'),
@@ -86,7 +127,8 @@ class RegisterScreen extends StatelessWidget {
 
 class _RoundedTextField extends StatelessWidget {
   final String hint;
-  const _RoundedTextField({required this.hint});
+  final TextEditingController? controller;
+  const _RoundedTextField({required this.hint, this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -103,13 +145,14 @@ class _RoundedTextField extends StatelessWidget {
         ],
       ),
       child: TextField(
+        controller: controller,
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: hint,
           contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         ),
         style: const TextStyle(
-          fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
+          fontFamily: 'SpotifyCircular',
           fontSize: 16,
         ),
       ),
