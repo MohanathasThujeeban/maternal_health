@@ -27,7 +27,7 @@ class _Register3ScreenState extends State<Register3Screen> {
     nicController.text = widget.registrationData.nicNumber;
     phoneController.text = widget.registrationData.phoneNumber3;
     passwordController.text = widget.registrationData.password;
-    emailController.text = widget.registrationData.email ?? '';
+    emailController.text = widget.registrationData.email;
   }
 
   @override

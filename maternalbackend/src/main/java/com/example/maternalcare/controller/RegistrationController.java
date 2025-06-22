@@ -1,6 +1,4 @@
 package com.example.maternalcare.controller;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +21,6 @@ public class RegistrationController {
     private final EmailService emailService;
     private final EmailVerificationTokenRepository tokenRepository;
 
-    @Autowired
     public RegistrationController(
             RegistrationRepository repository,
             EmailService emailService,
