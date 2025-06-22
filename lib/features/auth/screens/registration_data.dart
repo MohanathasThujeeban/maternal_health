@@ -22,6 +22,7 @@ class RegistrationData {
   String nicNumber = '';
   String phoneNumber3 = '';
   String password = '';
+  String email = '';
 
   Map<String, dynamic> toJson() => {
     "motherFullName": motherFullName,
@@ -47,5 +48,6 @@ class RegistrationData {
     "nicNumber": nicNumber,
     "phoneNumber3": phoneNumber3,
     "password": password,
+    "email": email,
   };
 }
