@@ -120,7 +120,7 @@ class _Register3ScreenState extends State<Register3Screen> {
               ),
               const SizedBox(height: 8),
               _RoundedTextField(
-                hint: 'Enter NIC Number',
+                hint: 'Enter NIC Number (e.g., 200201901851)',
                 controller: nicController,
               ),
               const SizedBox(height: 12),
@@ -199,7 +199,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                 hint: 'Enter Password',
                 controller: passwordController,
                 obscureText: true,
-              ),
+              ),//_RounderText
               const SizedBox(height: 24),
               Center(
                 child: SizedBox(
