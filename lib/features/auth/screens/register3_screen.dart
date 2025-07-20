@@ -3,6 +3,7 @@ import 'welcome_screen.dart';
 import 'registration_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 
 class Register3Screen extends StatefulWidget {
   final RegistrationData registrationData;
@@ -20,6 +21,7 @@ class _Register3ScreenState extends State<Register3Screen> {
 
   bool emailVerified = false;
   bool verifying = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -39,28 +41,39 @@ class _Register3ScreenState extends State<Register3Screen> {
     super.dispose();
   }
 
+  bool validateForm() {
+    if (nicController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return false;
+    }
+    return true;
+  }
+
   Future<void> verifyEmail() async {
     setState(() {
       verifying = true;
     });
-    // Simulate verification delay
     await Future.delayed(const Duration(seconds: 1));
-    // Simple email validation
     final email = emailController.text.trim();
     if (email.contains('@') && email.contains('.')) {
       setState(() {
         emailVerified = true;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Email verified!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email verified!')),
+      );
     } else {
       setState(() {
         emailVerified = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid email address')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email address')),
+      );
     }
     setState(() {
       verifying = false;
@@ -68,29 +81,64 @@ class _Register3ScreenState extends State<Register3Screen> {
   }
 
   Future<void> submitRegistration() async {
-    widget.registrationData.nicNumber = nicController.text;
-    widget.registrationData.phoneNumber3 = phoneController.text;
-    widget.registrationData.password = passwordController.text;
-    widget.registrationData.email = emailController.text;
+    try {
+      if (!validateForm()) return;
 
-    final response = await http.post(
-      Uri.parse('http://192.168.1.5:8080/api/registration'), // Update with your backend URL
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(widget.registrationData.toJson()),
-    );
+      setState(() {
+        isLoading = true;
+      });
 
-    print('Status: ${response.statusCode}');
-    print('Body: ${response.body}');
+      widget.registrationData.nicNumber = nicController.text;
+      widget.registrationData.phoneNumber3 = phoneController.text;
+      widget.registrationData.password = passwordController.text;
+      widget.registrationData.email = emailController.text;
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+      print('Sending registration data: ${jsonEncode(widget.registrationData.toJson())}');
+
+      final response = await http.post(
+        Uri.parse('http://10.11.20.8:8080/api/api/registration'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(widget.registrationData.toJson()),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Connection timed out');
+        },
       );
-    } else {
+
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (!mounted) return;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registration successful!')),
+        );
+        
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        );
+      } else {
+        throw Exception('Registration failed: ${response.body}');
+      }
+    } catch (e) {
+      print('Error during registration: $e');
+      if (!mounted) return;
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration failed: ${response.body}')),
+        SnackBar(content: Text('Registration error: $e')),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -199,14 +247,14 @@ class _Register3ScreenState extends State<Register3Screen> {
                 hint: 'Enter Password',
                 controller: passwordController,
                 obscureText: true,
-              ),//_RounderText
+              ),
               const SizedBox(height: 24),
               Center(
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: emailVerified
+                      backgroundColor: emailVerified && !isLoading
                           ? const Color(0xFF4FC3A1)
                           : Colors.grey,
                       foregroundColor: Colors.white,
@@ -221,8 +269,17 @@ class _Register3ScreenState extends State<Register3Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    onPressed: emailVerified ? submitRegistration : null,
-                    child: const Text('Sign Up'),
+                    onPressed: emailVerified && !isLoading ? submitRegistration : null,
+                    child: isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text('Sign Up'),
                   ),
                 ),
               ),

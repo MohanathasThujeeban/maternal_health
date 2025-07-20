@@ -1,116 +1,136 @@
 package com.example.maternalcare.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "registration")
 public class Registration {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String motherFullName;
-    private String fatherFullName;
-    private String address;
-    private String phoneNumber;
-    private String age;
-    private String occupation;
-    private String ethnicity;
-    private String religion;
-    private String educationLevel;
-
-    private String gravida;
-    private String para;
-    private String lmp;
-    private String edd;
-    private String previousPregnancies;
-    private String year;
-    private String duration;
-    private String modeOfDelivery;
-    private String birthWeight;
-    private String sex;
-    private String status;
-
+    
+    @Column(nullable = false, unique = true, length = 12)
+    @NotBlank(message = "NIC number is required")
+    @Pattern(regexp = "^[0-9]{9}[vVxX]$|^[0-9]{12}$", 
+             message = "Invalid NIC format. Use old format (9 digits + V/X) or new format (12 digits)")
     private String nicNumber;
+    
+    @Column(nullable = false, length = 15)
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = "^0[0-9]{9}$", message = "Invalid phone number format")
     private String phoneNumber3;
+    
+    @Column(nullable = false)
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
-
-    @Column(unique = true) // Ensures email is unique in the database
+    
+    @Column(nullable = false, unique = true, length = 100)
+    @NotBlank(message = "Email is required")
+    @Email(message = "Invalid email format")
     private String email;
-
+    
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @Column(name = "is_active", nullable = false)
+    private Boolean isActive = true;
+    
+    // Default constructor
+    public Registration() {}
+    
+    // Constructor with essential fields
+    public Registration(String nicNumber, String phoneNumber3, String password, String email) {
+        this.nicNumber = nicNumber;
+        this.phoneNumber3 = phoneNumber3;
+        this.password = password;
+        this.email = email;
+    }
+    
     // Getters and setters for all fields
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getMotherFullName() { return motherFullName; }
-    public void setMotherFullName(String motherFullName) { this.motherFullName = motherFullName; }
-
-    public String getFatherFullName() { return fatherFullName; }
-    public void setFatherFullName(String fatherFullName) { this.fatherFullName = fatherFullName; }
-
-    public String getAddress() { return address; }
-    public void setAddress(String address) { this.address = address; }
-
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
-
-    public String getAge() { return age; }
-    public void setAge(String age) { this.age = age; }
-
-    public String getOccupation() { return occupation; }
-    public void setOccupation(String occupation) { this.occupation = occupation; }
-
-    public String getEthnicity() { return ethnicity; }
-    public void setEthnicity(String ethnicity) { this.ethnicity = ethnicity; }
-
-    public String getReligion() { return religion; }
-    public void setReligion(String religion) { this.religion = religion; }
-
-    public String getEducationLevel() { return educationLevel; }
-    public void setEducationLevel(String educationLevel) { this.educationLevel = educationLevel; }
-
-    public String getGravida() { return gravida; }
-    public void setGravida(String gravida) { this.gravida = gravida; }
-
-    public String getPara() { return para; }
-    public void setPara(String para) { this.para = para; }
-
-    public String getLmp() { return lmp; }
-    public void setLmp(String lmp) { this.lmp = lmp; }
-
-    public String getEdd() { return edd; }
-    public void setEdd(String edd) { this.edd = edd; }
-
-    public String getPreviousPregnancies() { return previousPregnancies; }
-    public void setPreviousPregnancies(String previousPregnancies) { this.previousPregnancies = previousPregnancies; }
-
-    public String getYear() { return year; }
-    public void setYear(String year) { this.year = year; }
-
-    public String getDuration() { return duration; }
-    public void setDuration(String duration) { this.duration = duration; }
-
-    public String getModeOfDelivery() { return modeOfDelivery; }
-    public void setModeOfDelivery(String modeOfDelivery) { this.modeOfDelivery = modeOfDelivery; }
-
-    public String getBirthWeight() { return birthWeight; }
-    public void setBirthWeight(String birthWeight) { this.birthWeight = birthWeight; }
-
-    public String getSex() { return sex; }
-    public void setSex(String sex) { this.sex = sex; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getNicNumber() { return nicNumber; }
-    public void setNicNumber(String nicNumber) { this.nicNumber = nicNumber; }
-
-    public String getPhoneNumber3() { return phoneNumber3; }
-    public void setPhoneNumber3(String phoneNumber3) { this.phoneNumber3 = phoneNumber3; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public Long getId() {
+        return id;
+    }
+    
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public String getNicNumber() {
+        return nicNumber;
+    }
+    
+    public void setNicNumber(String nicNumber) {
+        this.nicNumber = nicNumber;
+    }
+    
+    public String getPhoneNumber3() {
+        return phoneNumber3;
+    }
+    
+    public void setPhoneNumber3(String phoneNumber3) {
+        this.phoneNumber3 = phoneNumber3;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+    
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+    
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+    
+    public Boolean getIsActive() {
+        return isActive;
+    }
+    
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    @Override
+    public String toString() {
+        return "Registration{" +
+                "id=" + id +
+                ", nicNumber='" + nicNumber + '\'' +
+                ", phoneNumber3='" + phoneNumber3 + '\'' +
+                ", email='" + email + '\'' +
+                ", isActive=" + isActive +
+                ", createdAt=" + createdAt +
+                '}';
+    }
 }

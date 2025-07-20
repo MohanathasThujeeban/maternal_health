@@ -12,7 +12,8 @@ public class EmailService {
 
     public void sendVerificationEmail(String to, String token) {
         String subject = "Verify your email";
-        String verificationUrl = "http://localhost:8080/api/registration/verify?token=" + token;
+        // Change 'localhost' to your PC's IP address
+        String verificationUrl = "http://10.11.20.8:8080/api/registration/verify?token=" + token;
         String text = "Click the link to verify your email: " + verificationUrl;
 
         SimpleMailMessage message = new SimpleMailMessage();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart';
-import 'Midwivesmodule/dashboard_screen.dart'; // Corrected import path for DashboardScreen
+import 'register3_screen.dart';
+import 'registration_data.dart';
+import 'Midwivesmodule/dashboard_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -44,10 +45,8 @@ class LoginScreen extends StatelessWidget {
                   _RoundedButton(
                     text: 'Login',
                     onPressed: () {
-                      // Check credentials
                       if (usernameController.text == 'Mid_wife' &&
                           passwordController.text == 'Mid123') {
-                        // Navigate to DashboardScreen
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -55,32 +54,46 @@ class LoginScreen extends StatelessWidget {
                           ),
                         );
                       } else {
-                        // Show error message
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Invalid credentials'),
+                            backgroundColor: Colors.red,
                           ),
                         );
                       }
                     },
                   ),
                   const SizedBox(height: 12),
+                  // Create account text
                   const Text(
                     "If you don't have an account",
                     style: TextStyle(
-                      fontFamily: 'SpotifyCircular', // Use Spotify Circular font
+                      fontFamily: 'SpotifyCircular',
                       fontSize: 13,
                       color: Colors.black54,
                     ),
                   ),
                   const SizedBox(height: 8),
+                  // Create account button
                   _RoundedButton(
                     text: 'Create account',
                     onPressed: () {
+                      final registrationData = RegistrationData(
+                        // Replace the following with the correct parameter names as defined in RegistrationData
+                        // Example:
+                        // nic: '',
+                        // phone: '',
+                        // emailAddress: '',
+                        // pass: '',
+                        // ...etc
+                      );
+                      
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const RegisterScreen(),
+                          builder: (context) => Register3Screen(
+                            registrationData: registrationData,
+                          ),
                         ),
                       );
                     },
@@ -100,6 +113,7 @@ class _RoundedTextField extends StatelessWidget {
   final String hint;
   final bool obscure;
   final TextEditingController controller;
+
   const _RoundedTextField({
     required this.hint,
     this.obscure = false,
@@ -108,30 +122,24 @@ class _RoundedTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 36),
-      decoration: BoxDecoration(
-        color: const Color(0xFFE0F7FA),
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 4,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return SizedBox(
+      width: 250,
       child: TextField(
         controller: controller,
         obscureText: obscure,
         decoration: InputDecoration(
-          border: InputBorder.none,
           hintText: hint,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1)),
+          ),
+          filled: true,
+          fillColor: Colors.grey[200],
         ),
         style: const TextStyle(
-          fontFamily: 'SpotifyCircular', // Use Spotify Circular font
-          fontSize: 16,
+          fontFamily: 'SpotifyCircular',
+          fontSize: 15,
         ),
       ),
     );
@@ -142,34 +150,34 @@ class _RoundedButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
   final Color color;
+
   const _RoundedButton({
     required this.text,
     required this.onPressed,
-    this.color = const Color(0xFF4DD0E1),
+    this.color = const Color(0xFF1DB954),
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 36),
-      width: double.infinity,
+    return SizedBox(
+      width: 250,
+      height: 48,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
-          foregroundColor: Colors.black87,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          elevation: 4,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          textStyle: const TextStyle(
-            fontFamily: 'SpotifyCircular', // Use Spotify Circular font
-            fontSize: 18,
-            fontWeight: FontWeight.w500,
-          ),
         ),
         onPressed: onPressed,
-        child: Text(text),
+        child: Text(
+          text,
+          style: const TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
