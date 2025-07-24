@@ -1,5 +1,5 @@
 
-package main.java.com.example.maternalcare.config;
+package com.example.maternalcare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

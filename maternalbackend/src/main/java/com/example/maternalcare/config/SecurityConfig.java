@@ -21,8 +21,12 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/test").permitAll()
+                .requestMatchers("/registration").permitAll()
+                .requestMatchers("/registration/**").permitAll()
                 .requestMatchers("/api/**").permitAll()
                 .requestMatchers("/error").permitAll()
+                .requestMatchers("/**").permitAll() // Allow all paths for now
                 .anyRequest().permitAll()
             );
 

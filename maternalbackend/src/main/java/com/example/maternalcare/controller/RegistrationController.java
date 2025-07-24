@@ -10,7 +10,7 @@ import com.example.maternalcare.repository.RegistrationRepository;
 import com.example.maternalcare.repository.EmailVerificationTokenRepository;
 import com.example.maternalcare.services.EmailService;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/") // Changed from "/api" to "/" since context path is already "/api"
+@RequestMapping("/") // Changed back to root to handle /api/api paths from Flutter
 @CrossOrigin(origins = "*") // Move this to class level for all endpoints
 public class RegistrationController {
     
