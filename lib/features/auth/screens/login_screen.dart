@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Welcome back! ${result['message']}'),
-            backgroundColor: Colors.green,
+            backgroundColor: const Color(0xFF4FC3A1),
           ),
         );
 
@@ -91,92 +91,107 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 16),
-                  // Logo
-                  Image.asset('assets/logo.png', width: 250, height: 250),
-                  const SizedBox(height: 32),
-                  // NIC Number field
-                  _RoundedTextField(
-                    hint: 'NIC Number',
-                    controller: nicController,
-                  ),
-                  const SizedBox(height: 16),
-                  // Password field
-                  _RoundedTextField(
-                    hint: 'Password',
-                    obscure: true,
-                    controller: passwordController,
-                  ),
-                  const SizedBox(height: 24),
-                  // Login button
-                  _RoundedButton(
-                    text: isLoading ? 'Logging in...' : 'Login',
-                    onPressed: isLoading ? () {} : _handleLogin,
-                  ),
-                  const SizedBox(height: 12),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFE8F5F2), // Light mint
+              Color(0xFFF0F9F7), // Very light mint
+              Color(0xFFFFFFFF), // White
+              Color(0xFFF5FFFE), // Almost white with hint of mint
+            ],
+            stops: [0.0, 0.3, 0.7, 1.0],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Center(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 16),
+                    // Logo
+                    Image.asset('assets/logo.png', width: 250, height: 250),
+                    const SizedBox(height: 32),
+                    // NIC Number field
+                    _RoundedTextField(
+                      hint: 'NIC Number',
+                      controller: nicController,
+                    ),
+                    const SizedBox(height: 16),
+                    // Password field
+                    _RoundedTextField(
+                      hint: 'Password',
+                      obscure: true,
+                      controller: passwordController,
+                    ),
+                    const SizedBox(height: 24),
+                    // Login button
+                    _RoundedButton(
+                      text: isLoading ? 'Logging in...' : 'Login',
+                      onPressed: isLoading ? () {} : _handleLogin,
+                      color: const Color(0xFF4FC3A1),
+                    ),
+                    const SizedBox(height: 13),
 
-                  // Forgot Password button
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ForgotPasswordScreen(),
+                    // Forgot Password button
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontSize: 17,
+                          color: Color(0xFF4FC3A1),
+                          fontWeight: FontWeight.w500,
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        fontFamily: 'SpotifyCircular',
-                        fontSize: 14,
-                        color: Color(0xFF4FC3A1),
-                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 8),
-                  // Create account text
-                  const Text(
-                    "If you don't have an account",
-                    style: TextStyle(
-                      fontFamily: 'SpotifyCircular',
-                      fontSize: 13,
-                      color: Colors.black54,
+                    const SizedBox(height: 8),
+                    // Create account text
+                    const Text(
+                      "If you don't have an account",
+                      style: TextStyle(
+                        fontFamily: 'SpotifyCircular',
+                        fontSize: 17,
+                        color: Colors.black54,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Create account button
-                  _RoundedButton(
-                    text: 'Create account',
-                    onPressed: () {
-                      final registrationData = RegistrationData();
+                    const SizedBox(height: 8),
+                    // Create account button
+                    _RoundedButton(
+                      text: 'Create account',
+                      onPressed: () {
+                        final registrationData = RegistrationData();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Register3Screen(
-                            registrationData: registrationData,
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Register3Screen(
+                              registrationData: registrationData,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    color: const Color(0xFF4FC3A1),
-                  ),
-                ],
+                        );
+                      },
+                      color: const Color(0xFF4FC3A1),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -196,22 +211,30 @@ class _RoundedTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 250,
+      width: 300,
       child: TextField(
         controller: controller,
         obscureText: obscure,
         decoration: InputDecoration(
           hintText: hint,
           contentPadding: const EdgeInsets.symmetric(
-            vertical: 14,
-            horizontal: 20,
+            vertical: 18,
+            horizontal: 24,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: const BorderSide(color: Color(0xFF4FC3A1)),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2.0),
           ),
           filled: true,
-          fillColor: Colors.grey[200],
+          fillColor: Colors.white.withOpacity(0.9),
         ),
         style: const TextStyle(fontFamily: 'SpotifyCircular', fontSize: 15),
       ),
@@ -233,8 +256,8 @@ class _RoundedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 250,
-      height: 48,
+      width: 300,
+      height: 55,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
