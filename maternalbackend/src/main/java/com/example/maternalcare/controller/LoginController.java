@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/")
-@CrossOrigin(origins = "*")
 public class LoginController {
     
     private final RegistrationRepository registrationRepository;

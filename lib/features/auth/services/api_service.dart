@@ -123,4 +123,56 @@ class ApiService {
       };
     }
   }
+
+  // Forgot Password method
+  static Future<Map<String, dynamic>> forgotPassword(String email) async {
+    try {
+      print('Attempting forgot password for email: $email');
+
+      final Map<String, dynamic> forgotPasswordData = {'email': email};
+
+      print('Sending forgot password data: ${jsonEncode(forgotPasswordData)}');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/auth/forgot-password'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(forgotPasswordData),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          'success': responseData['success'],
+          'message': responseData['message'],
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Failed to send reset email',
+        };
+      }
+    } on SocketException {
+      return {
+        'success': false,
+        'message': 'No internet connection. Please check your network.',
+      };
+    } on http.ClientException {
+      return {
+        'success': false,
+        'message': 'Failed to connect to server. Please try again.',
+      };
+    } catch (e) {
+      print('Error during forgot password: $e');
+      return {
+        'success': false,
+        'message': 'Forgot password failed: ${e.toString()}',
+      };
+    }
+  }
 }

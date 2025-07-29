@@ -19,7 +19,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/") // Changed back to root to handle /api/api paths from Flutter
-@CrossOrigin(origins = "*") // Move this to class level for all endpoints
 public class RegistrationController {
     
     private final RegistrationRepository repository;

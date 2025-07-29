@@ -18,8 +18,6 @@ class _Register3ScreenState extends State<Register3Screen> {
   final passwordController = TextEditingController();
   final emailController = TextEditingController();
 
-  bool emailVerified = false;
-  bool verifying = false;
   bool isLoading = false;
   bool showPassword = false;
 
@@ -79,33 +77,32 @@ class _Register3ScreenState extends State<Register3Screen> {
       return false;
     }
 
+    // Validate email
+    if (!validateEmail()) {
+      return false;
+    }
+
     return true;
   }
 
-  Future<void> verifyEmail() async {
-    setState(() {
-      verifying = true;
-    });
-    await Future.delayed(const Duration(seconds: 1));
+  bool validateEmail() {
     final email = emailController.text.trim();
-    if (email.contains('@') && email.contains('.')) {
-      setState(() {
-        emailVerified = true;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Email verified!')));
-    } else {
-      setState(() {
-        emailVerified = false;
-      });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Invalid email address')));
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an email address')),
+      );
+      return false;
     }
-    setState(() {
-      verifying = false;
-    });
+
+    if (!email.contains('@') || !email.contains('.')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      return false;
+    }
+
+    return true;
   }
 
   Future<void> submitRegistration() async {
@@ -183,7 +180,6 @@ class _Register3ScreenState extends State<Register3Screen> {
                       phoneController.text = '0777777777';
                       emailController.text = 'demo@example.com';
                       passwordController.text = 'Demo123';
-                      emailVerified = true; // Auto-verify for demo
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Demo data filled!')),
@@ -245,43 +241,10 @@ class _Register3ScreenState extends State<Register3Screen> {
                 ),
               ),
               const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _RoundedTextField(
-                      hint: 'Enter Email',
-                      controller: emailController,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: verifying ? null : verifyEmail,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: emailVerified
-                          ? Colors.green
-                          : const Color(0xFF4FC3A1),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                    ),
-                    child: verifying
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(emailVerified ? 'Verified' : 'Verify'),
-                  ),
-                ],
+              _RoundedTextField(
+                hint: 'Enter Email (e.g., user@example.com)',
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 12),
               const Text(
@@ -334,7 +297,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: emailVerified && !isLoading
+                      backgroundColor: !isLoading
                           ? const Color(0xFF4FC3A1)
                           : Colors.grey,
                       foregroundColor: Colors.white,
@@ -349,9 +312,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    onPressed: emailVerified && !isLoading
-                        ? submitRegistration
-                        : null,
+                    onPressed: !isLoading ? submitRegistration : null,
                     child: isLoading
                         ? const SizedBox(
                             width: 20,

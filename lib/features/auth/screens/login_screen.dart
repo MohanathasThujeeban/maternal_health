@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register3_screen.dart';
 import 'registration_data.dart';
+import 'forgot_password_screen.dart';
 import 'Midwivesmodule/dashboard_screen.dart';
 import '../services/api_service.dart';
 
@@ -121,6 +122,29 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: isLoading ? () {} : _handleLogin,
                   ),
                   const SizedBox(height: 12),
+
+                  // Forgot Password button
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        fontFamily: 'SpotifyCircular',
+                        fontSize: 14,
+                        color: Color(0xFF4FC3A1),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
                   // Create account text
                   const Text(
                     "If you don't have an account",
