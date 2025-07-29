@@ -9,6 +9,7 @@ import com.example.maternalcare.model.EmailVerificationToken;
 import com.example.maternalcare.repository.RegistrationRepository;
 import com.example.maternalcare.repository.EmailVerificationTokenRepository;
 import com.example.maternalcare.services.EmailService;
+import com.example.maternalcare.services.EmailVerificationService;
 
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -24,14 +25,17 @@ public class RegistrationController {
     private final RegistrationRepository repository;
     private final EmailService emailService;
     private final EmailVerificationTokenRepository tokenRepository;
+    private final EmailVerificationService emailVerificationService;
 
     public RegistrationController(
             RegistrationRepository repository,
             EmailService emailService,
-            EmailVerificationTokenRepository tokenRepository) {
+            EmailVerificationTokenRepository tokenRepository,
+            EmailVerificationService emailVerificationService) {
         this.repository = repository;
         this.emailService = emailService;
         this.tokenRepository = tokenRepository;
+        this.emailVerificationService = emailVerificationService;
     }
 
     // Add a test endpoint to verify the controller is working
@@ -90,6 +94,12 @@ public class RegistrationController {
                 return createErrorResponse("NIC number already registered", HttpStatus.CONFLICT);
             }
 
+            // Check if email is verified
+            if (!emailVerificationService.isEmailVerified(request.getEmail().trim().toLowerCase())) {
+                System.out.println("Email not verified: " + request.getEmail());
+                return createErrorResponse("Email not verified. Please verify your email before registering.", HttpStatus.BAD_REQUEST);
+            }
+
             // Create new registration
             Registration reg = new Registration();
             reg.setNicNumber(request.getNicNumber().trim());
@@ -138,20 +148,16 @@ public class RegistrationController {
                 return createErrorResponse("Email already registered", HttpStatus.CONFLICT);
             }
             
-            String token = UUID.randomUUID().toString();
-
-            EmailVerificationToken verificationToken = new EmailVerificationToken();
-            verificationToken.setEmail(email);
-            verificationToken.setToken(token);
-            verificationToken.setExpiryDate(LocalDateTime.now().plusHours(24));
-            verificationToken.setVerified(false);
-            tokenRepository.save(verificationToken);
-
-            emailService.sendVerificationEmail(email, token);
+            boolean success = emailVerificationService.sendVerificationEmail(email);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Verification email sent");
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Verification email sent successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "Failed to send verification email");
+            }
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.ok(response);
             
@@ -167,37 +173,44 @@ public class RegistrationController {
         System.out.println("=== VERIFY EMAIL ENDPOINT HIT ===");
         
         try {
-            Optional<EmailVerificationToken> optionalToken = tokenRepository.findByToken(token);
-            if (optionalToken.isEmpty()) {
-                return createErrorResponse("Invalid or expired token", HttpStatus.BAD_REQUEST);
-            }
-            
-            EmailVerificationToken verificationToken = optionalToken.get();
-            if (verificationToken.isVerified()) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Email already verified!");
-                response.put("timestamp", LocalDateTime.now());
-                return ResponseEntity.ok(response);
-            }
-            
-            if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-                return createErrorResponse("Token expired", HttpStatus.BAD_REQUEST);
-            }
-            
-            verificationToken.setVerified(true);
-            tokenRepository.save(verificationToken);
+            boolean success = emailVerificationService.verifyEmail(token);
             
             Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("message", "Email verified successfully!");
+            if (success) {
+                response.put("success", true);
+                response.put("message", "Email verified successfully!");
+            } else {
+                response.put("success", false);
+                response.put("message", "Invalid or expired verification token");
+            }
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.err.println("Email verification error: " + e.getMessage());
+            System.err.println("Verify email error: " + e.getMessage());
             e.printStackTrace();
-            return createErrorResponse("Email verification failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            return createErrorResponse("Failed to verify email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/registration/check-verification")
+    public ResponseEntity<?> checkVerificationStatus(@RequestParam String email) {
+        System.out.println("=== CHECK VERIFICATION STATUS ENDPOINT HIT ===");
+        
+        try {
+            boolean isVerified = emailVerificationService.isEmailVerified(email);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("verified", isVerified);
+            response.put("message", isVerified ? "Email is verified" : "Email is not verified");
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Check verification status error: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Failed to check verification status: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

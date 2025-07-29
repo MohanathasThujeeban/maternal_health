@@ -175,4 +175,92 @@ class ApiService {
       };
     }
   }
+
+  // Send email verification
+  static Future<Map<String, dynamic>> sendVerificationEmail(
+    String email,
+  ) async {
+    try {
+      print('Sending verification email to: $email');
+
+      final Map<String, dynamic> requestData = {'email': email};
+
+      print('Sending verification data: ${jsonEncode(requestData)}');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/registration/send-verification'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(requestData),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Verification Response Status: ${response.statusCode}');
+      print('Verification Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          'success': responseData['success'] ?? false,
+          'message': responseData['message'] ?? 'Verification email sent',
+        };
+      } else {
+        return {
+          'success': false,
+          'message':
+              'Failed to send verification email. Status: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print('Error sending verification email: $e');
+      return {
+        'success': false,
+        'message': 'Error sending verification email: ${e.toString()}',
+      };
+    }
+  }
+
+  // Check email verification status
+  static Future<Map<String, dynamic>> checkEmailVerification(
+    String email,
+  ) async {
+    try {
+      print('Checking verification status for: $email');
+
+      final response = await http
+          .get(
+            Uri.parse(
+              '$baseUrl/registration/check-verification?email=${Uri.encodeComponent(email)}',
+            ),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Check Verification Response Status: ${response.statusCode}');
+      print('Check Verification Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          'success': responseData['success'] ?? false,
+          'verified': responseData['verified'] ?? false,
+          'message': responseData['message'] ?? 'Verification status checked',
+        };
+      } else {
+        return {
+          'success': false,
+          'verified': false,
+          'message':
+              'Failed to check verification status. Status: ${response.statusCode}',
+        };
+      }
+    } catch (e) {
+      print('Error checking verification status: $e');
+      return {
+        'success': false,
+        'verified': false,
+        'message': 'Error checking verification status: ${e.toString()}',
+      };
+    }
+  }
 }

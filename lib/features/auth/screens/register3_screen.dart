@@ -20,6 +20,9 @@ class _Register3ScreenState extends State<Register3Screen> {
 
   bool isLoading = false;
   bool showPassword = false;
+  bool isEmailVerified = false;
+  bool isVerifying = false;
+  bool isCheckingVerification = false;
 
   @override
   void initState() {
@@ -29,6 +32,19 @@ class _Register3ScreenState extends State<Register3Screen> {
     phoneController.text = widget.registrationData.phoneNumber3;
     passwordController.text = widget.registrationData.password;
     emailController.text = widget.registrationData.email;
+
+    // Add listener to email field to check verification status
+    emailController.addListener(() {
+      // Only check verification if email is valid and not empty
+      final email = emailController.text.trim();
+      if (email.isNotEmpty && email.contains('@') && email.contains('.')) {
+        checkEmailVerificationStatus();
+      } else {
+        setState(() {
+          isEmailVerified = false;
+        });
+      }
+    });
   }
 
   @override
@@ -78,27 +94,31 @@ class _Register3ScreenState extends State<Register3Screen> {
     }
 
     // Validate email
-    if (!validateEmail()) {
+    if (!validateEmail(showErrors: true)) {
       return false;
     }
 
     return true;
   }
 
-  bool validateEmail() {
+  bool validateEmail({bool showErrors = true}) {
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an email address')),
-      );
+      if (showErrors) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter an email address')),
+        );
+      }
       return false;
     }
 
     if (!email.contains('@') || !email.contains('.')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid email address')),
-      );
+      if (showErrors) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter a valid email address')),
+        );
+      }
       return false;
     }
 
@@ -108,6 +128,17 @@ class _Register3ScreenState extends State<Register3Screen> {
   Future<void> submitRegistration() async {
     try {
       if (!validateForm()) return;
+
+      // Check if email is verified before proceeding
+      if (!isEmailVerified) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please verify your email before registering'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
 
       setState(() {
         isLoading = true;
@@ -154,179 +185,408 @@ class _Register3ScreenState extends State<Register3Screen> {
     }
   }
 
+  Future<void> sendVerificationEmail() async {
+    if (!validateEmail(showErrors: true)) return;
+
+    setState(() {
+      isVerifying = true;
+    });
+
+    try {
+      final response = await ApiService.sendVerificationEmail(
+        emailController.text.trim(),
+      );
+
+      if (response['success']) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: const Color(0xFF4FC3A1),
+          ),
+        );
+
+        // Start checking verification status
+        _startVerificationPolling();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error sending verification email: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isVerifying = false;
+      });
+    }
+  }
+
+  void _startVerificationPolling() {
+    Timer.periodic(const Duration(seconds: 3), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      try {
+        final response = await ApiService.checkEmailVerification(
+          emailController.text.trim(),
+        );
+
+        if (response['success'] && response['verified']) {
+          setState(() {
+            isEmailVerified = true;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Email verified successfully! You can now complete registration.',
+              ),
+              backgroundColor: Color(0xFF4FC3A1),
+            ),
+          );
+
+          timer.cancel();
+        }
+      } catch (e) {
+        print('Error checking verification status: $e');
+      }
+    });
+  }
+
+  Future<void> checkEmailVerificationStatus() async {
+    if (emailController.text.trim().isEmpty) return;
+
+    setState(() {
+      isCheckingVerification = true;
+    });
+
+    try {
+      final response = await ApiService.checkEmailVerification(
+        emailController.text.trim(),
+      );
+
+      if (response['success']) {
+        setState(() {
+          isEmailVerified = response['verified'];
+        });
+
+        if (isEmailVerified) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Email is already verified!'),
+              backgroundColor: Color(0xFF4FC3A1),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error checking verification status: $e');
+    } finally {
+      setState(() {
+        isCheckingVerification = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => Navigator.pop(context),
-                color: Colors.black54,
-              ),
-              const SizedBox(height: 8),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFFE8F5F2), // Light mint
+              Color(0xFFF0F9F7), // Very light mint
+              Color(0xFFFFFFFF), // White
+              Color(0xFFF5FFFE), // Almost white with hint of mint
+            ],
+            stops: [0.0, 0.3, 0.7, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.pop(context),
+                  color: Colors.black54,
+                ),
+                const SizedBox(height: 8),
 
-              // Add "Fill Demo Data" button
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      nicController.text = '200201901851';
-                      phoneController.text = '0777777777';
-                      emailController.text = 'demo@example.com';
-                      passwordController.text = 'Demo123';
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Demo data filled!')),
-                    );
-                  },
-                  icon: const Icon(Icons.auto_fix_high, size: 18),
-                  label: const Text('Fill Demo Data'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4FC3A1),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'NIC Number',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _RoundedTextField(
-                hint: 'Enter 12-digit NIC Number (e.g., 200201901851)',
-                controller: nicController,
-                keyboardType: TextInputType.number,
-                maxLength: 12,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Phone Number',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _RoundedTextField(
-                hint: 'Enter Phone Number (e.g., 0777777777)',
-                controller: phoneController,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Email',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              _RoundedTextField(
-                hint: 'Enter Email (e.g., user@example.com)',
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Password',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _RoundedTextField(
-                      hint: 'Enter Password (min 6 characters)',
-                      controller: passwordController,
-                      obscureText: !showPassword,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
+                // Add "Fill Demo Data" button
+                Center(
+                  child: ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        showPassword = !showPassword;
+                        nicController.text = '200201901851';
+                        phoneController.text = '0777777777';
+                        emailController.text = 'demo@example.com';
+                        passwordController.text = 'Demo123';
                       });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Demo data filled!')),
+                      );
                     },
+                    icon: const Icon(Icons.auto_fix_high, size: 18),
+                    label: const Text('Fill Demo Data'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4FC3A1),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      elevation: 4,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
+                        horizontal: 16,
+                        vertical: 8,
                       ),
                     ),
-                    child: Icon(
-                      showPassword ? Icons.visibility_off : Icons.visibility,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Center(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: !isLoading
-                          ? const Color(0xFF4FC3A1)
-                          : Colors.grey,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 6,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      textStyle: const TextStyle(
-                        fontFamily: 'SpotifyCircular',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    onPressed: !isLoading ? submitRegistration : null,
-                    child: isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text('Sign Up'),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                const Text(
+                  'NIC Number',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _RoundedTextField(
+                  hint: 'Enter 12-digit NIC Number (e.g., 200201901851)',
+                  controller: nicController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 12,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Phone Number',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _RoundedTextField(
+                  hint: 'Enter Phone Number (e.g., 0777777777)',
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Email',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _RoundedTextField(
+                        hint: 'Enter Email (e.g., user@example.com)',
+                        controller: emailController,
+                        keyboardType: TextInputType.emailAddress,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Email verification button
+                    ElevatedButton.icon(
+                      onPressed: isVerifying ? null : sendVerificationEmail,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isEmailVerified
+                            ? Colors.green
+                            : (isVerifying
+                                  ? Colors.grey
+                                  : const Color(0xFF4FC3A1)),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                      ),
+                      icon: isVerifying
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Icon(
+                              isEmailVerified
+                                  ? Icons.check_circle
+                                  : Icons.email,
+                              size: 18,
+                            ),
+                      label: Text(
+                        isEmailVerified
+                            ? 'Verified'
+                            : (isVerifying ? 'Sending...' : 'Verify'),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+                if (isEmailVerified)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.green.withOpacity(0.3)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'Email verified successfully!',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (!isEmailVerified && emailController.text.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.warning, color: Colors.orange, size: 20),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Please verify your email to continue with registration',
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Password',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _RoundedTextField(
+                        hint: 'Enter Password (min 6 characters)',
+                        controller: passwordController,
+                        obscureText: !showPassword,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          showPassword = !showPassword;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4FC3A1),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: Icon(
+                        showPassword ? Icons.visibility_off : Icons.visibility,
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Center(
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: !isLoading
+                            ? const Color(0xFF4FC3A1)
+                            : Colors.grey,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 6,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        textStyle: const TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      onPressed: !isLoading ? submitRegistration : null,
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Sign Up'),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -352,8 +612,8 @@ class _RoundedTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 300,
       decoration: BoxDecoration(
-        color: const Color(0xFFE0F7FA),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
@@ -365,11 +625,24 @@ class _RoundedTextField extends StatelessWidget {
         keyboardType: keyboardType,
         maxLength: maxLength,
         decoration: InputDecoration(
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 1.5),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30),
+            borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2.0),
+          ),
+          filled: true,
+          fillColor: Colors.white.withOpacity(0.9),
           hintText: hint,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 24,
-            vertical: 16,
+            vertical: 18,
           ),
           counterText: maxLength != null ? '' : null, // Hide character counter
           hintStyle: const TextStyle(

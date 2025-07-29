@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification Error</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff6b6b, #ffa8a8);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+        }
+        .error-icon {
+            font-size: 60px;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .button {
+            display: inline-block;
+            background: #4FC3A1;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            transition: background 0.3s;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #3ea188;
+        }
+        .button.secondary {
+            background: #6c757d;
+        }
+        .button.secondary:hover {
+            background: #545b62;
+        }
+        .app-name {
+            color: #4FC3A1;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-icon">❌</div>
+        <h1 class="title">Verification Failed</h1>
+        <p class="message">
+            Sorry, we couldn't verify your email address. This could happen if:
+        </p>
+        <ul style="text-align: left; color: #666; margin-bottom: 30px;">
+            <li>The verification link has expired (links expire after 24 hours)</li>
+            <li>The link has already been used</li>
+            <li>The link is invalid or corrupted</li>
+        </ul>
+        <p class="message">
+            Please return to the <span class="app-name">Maternal Health App</span> and request a new verification email.
+        </p>
+        
+        <a href="maternal://app" class="button">Return to App</a>
+        
+        <p style="margin-top: 30px; font-size: 14px; color: #999;">
+            If you continue to have issues, please contact our support team.
+        </p>
+    </div>
+</body>
+</html>
