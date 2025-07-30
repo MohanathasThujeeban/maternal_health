@@ -96,10 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           content: const Text(
             'Are you sure you want to logout?',
-            style: TextStyle(
-              fontFamily: 'SpotifyCircular',
-              fontSize: 16,
-            ),
+            style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
           ),
           actions: [
             TextButton(
@@ -153,11 +150,7 @@ class MidwifeDashboardTab extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFE8F5F2),
-            Color(0xFFF0F9F7),
-            Color(0xFFFFFFFF),
-          ],
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
         ),
       ),
       child: Padding(
@@ -175,7 +168,7 @@ class MidwifeDashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Statistics Cards
             Row(
               children: [
@@ -198,9 +191,9 @@ class MidwifeDashboardTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             Row(
               children: [
                 Expanded(
@@ -222,9 +215,9 @@ class MidwifeDashboardTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Recent Activities
             const Text(
               'Recent Activities',
@@ -236,13 +229,14 @@ class MidwifeDashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             Expanded(
               child: ListView(
                 children: [
                   _ActivityCard(
                     title: 'Prenatal Checkup',
-                    subtitle: 'Jane Smith - 32 weeks, routine checkup completed',
+                    subtitle:
+                        'Jane Smith - 32 weeks, routine checkup completed',
                     time: '11:00 AM',
                     icon: Icons.medical_services,
                   ),
@@ -308,11 +302,7 @@ class _StatCard extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 20,
-                ),
+                child: Icon(icon, color: color, size: 20),
               ),
             ],
           ),
@@ -379,11 +369,7 @@ class _ActivityCard extends StatelessWidget {
               color: const Color(0xFF4FC3A1).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF4FC3A1),
-              size: 24,
-            ),
+            child: Icon(icon, color: const Color(0xFF4FC3A1), size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
