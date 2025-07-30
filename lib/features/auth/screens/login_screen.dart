@@ -3,6 +3,8 @@ import 'register3_screen.dart';
 import 'registration_data.dart';
 import 'forgot_password_screen.dart';
 import 'Midwivesmodule/dashboard_screen.dart';
+import 'Mothermodule/motherhome.dart';
+import 'Doctormodule/doctor_dashboard.dart';
 import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -21,9 +23,18 @@ class _LoginScreenState extends State<LoginScreen> {
     // Check for hardcoded midwife credentials first
     if (nicController.text == 'Mid_wife' &&
         passwordController.text == 'Mid123') {
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const DashboardScreen()),
+      );
+      return;
+    }
+
+    // Check for hardcoded doctor credentials
+    if (nicController.text == 'Doctor' && passwordController.text == 'Doc123') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DoctorDashboard()),
       );
       return;
     }
@@ -58,13 +69,10 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
 
-        // Navigate to dashboard or home screen
+        // Navigate to mother home for regular users (NIC + password)
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (context) =>
-                const DashboardScreen(), // You can create a user dashboard
-          ),
+          MaterialPageRoute(builder: (context) => const MotherHomeScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
