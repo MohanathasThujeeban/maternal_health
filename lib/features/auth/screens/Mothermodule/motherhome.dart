@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../widgets/language_selector.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -20,11 +22,13 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Mother Dashboard',
-          style: TextStyle(
+        title: Text(
+          localizations.appTitle,
+          style: const TextStyle(
             fontFamily: 'SpotifyCircular',
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -33,6 +37,8 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         backgroundColor: const Color(0xFF4FC3A1),
         elevation: 0,
         actions: [
+          const LanguageSelector(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.white),
             onPressed: () {
@@ -58,21 +64,27 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF4FC3A1),
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.child_care),
-            label: 'Baby Growth',
+            icon: const Icon(Icons.home),
+            label: localizations.home,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.medical_services),
-            label: 'Health Records',
+            icon: const Icon(Icons.child_care),
+            label: localizations.babyGrowth,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Appointments',
+            icon: const Icon(Icons.medical_services),
+            label: localizations.healthRecords,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.calendar_today),
+            label: localizations.appointments,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.chat),
+            label: localizations.chat,
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -87,6 +99,8 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
   }
 
   void _showLogoutDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -94,26 +108,26 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
-          title: const Text(
-            'Logout',
-            style: TextStyle(
+          title: Text(
+            localizations.logout,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontWeight: FontWeight.w600,
               color: Color(0xFF2E7D5A),
             ),
           ),
-          content: const Text(
-            'Are you sure you want to logout?',
-            style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
+          content: Text(
+            localizations.logoutConfirm,
+            style: const TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
           ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
+              child: Text(
+                localizations.cancel,
+                style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   color: Colors.grey,
                 ),
@@ -132,9 +146,9 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: const Text(
-                'Logout',
-                style: TextStyle(
+              child: Text(
+                localizations.logout,
+                style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   color: Colors.white,
                 ),
@@ -152,6 +166,8 @@ class MotherDashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -165,9 +181,9 @@ class MotherDashboardTab extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Welcome, Mom! 💕',
-              style: TextStyle(
+            Text(
+              localizations.welcomeMom,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
@@ -181,8 +197,8 @@ class MotherDashboardTab extends StatelessWidget {
               children: [
                 Expanded(
                   child: _StatCard(
-                    title: 'Baby\'s Age',
-                    value: '8 months',
+                    title: localizations.babyAge,
+                    value: '8 ${localizations.months}',
                     icon: Icons.child_care,
                     color: const Color(0xFF4FC3A1),
                   ),
@@ -190,8 +206,8 @@ class MotherDashboardTab extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _StatCard(
-                    title: 'Next Checkup',
-                    value: '3 days',
+                    title: localizations.nextCheckup,
+                    value: '3 ${localizations.days}',
                     icon: Icons.calendar_today,
                     color: const Color(0xFF9C27B0),
                   ),
@@ -205,8 +221,8 @@ class MotherDashboardTab extends StatelessWidget {
               children: [
                 Expanded(
                   child: _StatCard(
-                    title: 'Weight Today',
-                    value: '8.2 kg',
+                    title: localizations.weightToday,
+                    value: '8.2 ${localizations.kg}',
                     icon: Icons.monitor_weight,
                     color: const Color(0xFF2196F3),
                   ),
@@ -214,7 +230,7 @@ class MotherDashboardTab extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: _StatCard(
-                    title: 'Vaccinations',
+                    title: localizations.vaccinations,
                     value: '6/8',
                     icon: Icons.vaccines,
                     color: const Color(0xFF4CAF50),
@@ -226,9 +242,9 @@ class MotherDashboardTab extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Recent Activities
-            const Text(
-              'Recent Activities',
-              style: TextStyle(
+            Text(
+              localizations.recentActivity,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
@@ -618,14 +634,16 @@ class ChatTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Health Assistant',
-            style: TextStyle(
+          Text(
+            localizations.healthAssistant,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -674,9 +692,9 @@ class ChatTab extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Quick Questions
-          const Text(
-            'Quick Questions',
-            style: TextStyle(
+          Text(
+            localizations.quickQuestions,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -689,7 +707,7 @@ class ChatTab extends StatelessWidget {
             child: ListView(
               children: [
                 _QuickQuestionCard(
-                  question: 'Is my baby\'s weight normal?',
+                  question: localizations.isWeightNormal,
                   onTap: () {
                     Navigator.pushNamed(
                       context,
@@ -699,7 +717,7 @@ class ChatTab extends StatelessWidget {
                   },
                 ),
                 _QuickQuestionCard(
-                  question: 'When should I introduce solid foods?',
+                  question: localizations.introduceSolidFoods,
                   onTap: () {
                     Navigator.pushNamed(
                       context,
@@ -709,7 +727,7 @@ class ChatTab extends StatelessWidget {
                   },
                 ),
                 _QuickQuestionCard(
-                  question: 'How much sleep does my baby need?',
+                  question: localizations.howMuchSleep,
                   onTap: () {
                     Navigator.pushNamed(
                       context,
@@ -719,7 +737,7 @@ class ChatTab extends StatelessWidget {
                   },
                 ),
                 _QuickQuestionCard(
-                  question: 'What vaccines are due next?',
+                  question: localizations.whatVaccinesDue,
                   onTap: () {
                     Navigator.pushNamed(
                       context,
