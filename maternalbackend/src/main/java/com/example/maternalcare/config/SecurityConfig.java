@@ -40,7 +40,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(false); // Disable credentials for simplicity
-        configuration.addAllowedOrigin("*"); // Now we can use * since credentials are false
+        configuration.addAllowedOriginPattern("*"); // Use pattern instead of origin
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setMaxAge(3600L);

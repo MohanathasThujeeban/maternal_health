@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../widgets/language_selector.dart';
+import '../../../../models/appointment.dart';
+import '../../../../services/appointment_service.dart';
+import '../../../../services/user_service.dart';
+import '../../../appointments/schedule_appointment_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -272,7 +276,7 @@ class MotherDashboardTab extends StatelessWidget {
                   ),
                   _ActivityCard(
                     title: 'Appointment Scheduled',
-                    subtitle: 'Pediatric checkup with Dr. Smith',
+                    subtitle: 'Medical checkup with Dr. Prasad Wickramasinghe',
                     time: '2 days ago',
                     icon: Icons.event,
                     color: const Color(0xFF4FC3A1),
@@ -548,11 +552,82 @@ class HealthRecordsTab extends StatelessWidget {
   }
 }
 
-class AppointmentsTab extends StatelessWidget {
+class AppointmentsTab extends StatefulWidget {
   const AppointmentsTab({super.key});
 
   @override
+  State<AppointmentsTab> createState() => _AppointmentsTabState();
+}
+
+class _AppointmentsTabState extends State<AppointmentsTab> {
+  List<Appointment> appointments = [];
+  bool isLoading = true;
+  String? motherNic;
+  String? motherName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAppointments();
+  }
+
+  Future<void> _loadAppointments() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    // Force fix user data first
+    await UserService.forceFixUserData();
+
+    // Get current user data from UserService
+    final userData = await UserService.getUserData();
+    motherNic = userData['nic'];
+    motherName = userData['name'];
+
+    if (motherNic == null || motherNic!.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    final result = await AppointmentService.getAppointmentsByNic(motherNic!);
+
+    setState(() {
+      isLoading = false;
+      if (result['success']) {
+        appointments = result['appointments'];
+      }
+    });
+  }
+
+  List<Appointment> get pendingAppointments =>
+      appointments.where((a) => a.status == 'pending').toList();
+
+  List<Appointment> get completedAppointments =>
+      appointments.where((a) => a.status == 'completed').toList();
+
+  Future<void> _cancelAppointment(String appointmentId) async {
+    final result = await AppointmentService.cancelAppointment(appointmentId);
+    if (result['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Appointment cancelled successfully'),
+          backgroundColor: Color(0xFF4FC3A1),
+        ),
+      );
+      _loadAppointments(); // Refresh the list
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message']), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -561,9 +636,9 @@ class AppointmentsTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Appointments',
-                style: TextStyle(
+              Text(
+                localizations.appointments,
+                style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -572,7 +647,12 @@ class AppointmentsTab extends StatelessWidget {
               ),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Schedule new appointment
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ScheduleAppointmentScreen(),
+                    ),
+                  ).then((_) => _loadAppointments());
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
@@ -593,34 +673,142 @@ class AppointmentsTab extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          Expanded(
-            child: ListView(
-              children: [
-                _AppointmentCard(
-                  doctorName: 'Dr. Sarah Smith',
-                  specialty: 'Pediatrician',
-                  date: 'August 3, 2025',
-                  time: '10:00 AM',
-                  type: 'Vaccination',
-                  status: 'Upcoming',
-                ),
-                _AppointmentCard(
-                  doctorName: 'Dr. Michael Johnson',
-                  specialty: 'General Practitioner',
-                  date: 'August 15, 2025',
-                  time: '2:30 PM',
-                  type: 'Check-up',
-                  status: 'Scheduled',
-                ),
-                _AppointmentCard(
-                  doctorName: 'Dr. Emily Davis',
-                  specialty: 'Nutritionist',
-                  date: 'July 25, 2025',
-                  time: '11:00 AM',
-                  type: 'Consultation',
-                  status: 'Completed',
-                ),
-              ],
+          // Appointment Categories
+          DefaultTabController(
+            length: 3,
+            child: Expanded(
+              child: Column(
+                children: [
+                  TabBar(
+                    labelColor: const Color(0xFF4FC3A1),
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: const Color(0xFF4FC3A1),
+                    labelStyle: const TextStyle(fontFamily: 'SpotifyCircular'),
+                    tabs: [
+                      Tab(text: 'All (${appointments.length})'),
+                      Tab(text: 'Pending (${pendingAppointments.length})'),
+                      Tab(text: 'Completed (${completedAppointments.length})'),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: isLoading
+                        ? const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF4FC3A1),
+                            ),
+                          )
+                        : TabBarView(
+                            children: [
+                              _buildAppointmentsList(appointments),
+                              _buildAppointmentsList(pendingAppointments),
+                              _buildAppointmentsList(completedAppointments),
+                            ],
+                          ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAppointmentsList(List<Appointment> appointmentList) {
+    if (appointmentList.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(
+              'No appointments found',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Tap the Schedule button to book your first appointment',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadAppointments,
+      color: const Color(0xFF4FC3A1),
+      child: ListView.builder(
+        itemCount: appointmentList.length,
+        itemBuilder: (context, index) {
+          final appointment = appointmentList[index];
+          return _RealAppointmentCard(
+            appointment: appointment,
+            onCancel: appointment.status == 'pending'
+                ? () => _showCancelDialog(appointment.id)
+                : null,
+          );
+        },
+      ),
+    );
+  }
+
+  void _showCancelDialog(String appointmentId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        title: const Text(
+          'Cancel Appointment',
+          style: TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2E7D5A),
+          ),
+        ),
+        content: const Text(
+          'Are you sure you want to cancel this appointment? This action cannot be undone.',
+          style: TextStyle(fontFamily: 'SpotifyCircular'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'No',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _cancelAppointment(appointmentId);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text(
+              'Yes, Cancel',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                color: Colors.white,
+              ),
             ),
           ),
         ],
@@ -1099,30 +1287,29 @@ class _VaccinationCard extends StatelessWidget {
   }
 }
 
-class _AppointmentCard extends StatelessWidget {
-  final String doctorName;
-  final String specialty;
-  final String date;
-  final String time;
-  final String type;
-  final String status;
+class _RealAppointmentCard extends StatelessWidget {
+  final Appointment appointment;
+  final VoidCallback? onCancel;
 
-  const _AppointmentCard({
-    required this.doctorName,
-    required this.specialty,
-    required this.date,
-    required this.time,
-    required this.type,
-    required this.status,
-  });
+  const _RealAppointmentCard({required this.appointment, this.onCancel});
 
   @override
   Widget build(BuildContext context) {
-    Color statusColor = status == 'Completed'
+    Color statusColor = appointment.status == 'completed'
         ? Colors.green
-        : status == 'Upcoming'
+        : appointment.status == 'pending'
         ? Colors.orange
+        : appointment.status == 'cancelled'
+        ? Colors.red
         : Colors.blue;
+
+    String statusText = appointment.status == 'completed'
+        ? 'Completed'
+        : appointment.status == 'pending'
+        ? 'Pending'
+        : appointment.status == 'cancelled'
+        ? 'Cancelled'
+        : 'Unknown';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -1145,13 +1332,15 @@ class _AppointmentCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                doctorName,
-                style: const TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D5A),
+              Expanded(
+                child: Text(
+                  appointment.providerName,
+                  style: const TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2E7D5A),
+                  ),
                 ),
               ),
               Container(
@@ -1161,7 +1350,7 @@ class _AppointmentCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  status,
+                  statusText,
                   style: TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 12,
@@ -1174,7 +1363,9 @@ class _AppointmentCard extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            specialty,
+            appointment.appointmentType == 'doctor'
+                ? 'Doctor Consultation'
+                : 'Midwife Consultation',
             style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 14,
@@ -1187,7 +1378,7 @@ class _AppointmentCard extends StatelessWidget {
               Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
               const SizedBox(width: 4),
               Text(
-                date,
+                _formatDate(appointment.appointmentDate),
                 style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 14,
@@ -1198,7 +1389,7 @@ class _AppointmentCard extends StatelessWidget {
               Icon(Icons.access_time, size: 16, color: Colors.grey.shade600),
               const SizedBox(width: 4),
               Text(
-                time,
+                appointment.timeSlot,
                 style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 14,
@@ -1207,26 +1398,114 @@ class _AppointmentCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8F5F2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              type,
-              style: const TextStyle(
-                fontFamily: 'SpotifyCircular',
-                fontSize: 12,
-                color: Color(0xFF4FC3A1),
-                fontWeight: FontWeight.w500,
+          if (appointment.additionalProblems != null &&
+              appointment.additionalProblems!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F5F2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Additional Notes:',
+                    style: TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 12,
+                      color: Color(0xFF2E7D5A),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    appointment.additionalProblems!,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 12,
+                      color: Color(0xFF4FC3A1),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
+          ],
+          if (appointment.notes != null && appointment.notes!.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Doctor\'s Notes:',
+                    style: TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 12,
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    appointment.notes!,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 12,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (onCancel != null && appointment.status == 'pending') ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onCancel,
+                icon: const Icon(Icons.cancel_outlined, size: 16),
+                label: const Text('Cancel Appointment'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.red,
+                  side: const BorderSide(color: Colors.red),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 }
 

@@ -53,7 +53,7 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
       case 'vaccines':
         initialMessage = 'What vaccines are due next?';
         botResponse =
-            'According to your vaccination schedule, your baby\'s MMR vaccine is due in 3 days (August 3rd). This vaccine protects against measles, mumps, and rubella. Make sure to keep the appointment with Dr. Sarah Smith. After MMR, the next vaccine will be Varicella in September.';
+            'According to your vaccination schedule, your baby\'s MMR vaccine is due in 3 days (August 3rd). This vaccine protects against measles, mumps, and rubella. Make sure to keep the appointment with Dr. Prasad Wickramasinghe. After MMR, the next vaccine will be Varicella in September.';
         break;
     }
 

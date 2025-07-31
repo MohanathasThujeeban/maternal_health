@@ -6,6 +6,7 @@ public class LoginResponse {
     private boolean success;
     private String message;
     private Long userId;
+    private String fullName;
     private String email;
     private String nicNumber;
     private String phoneNumber;
@@ -15,10 +16,11 @@ public class LoginResponse {
     public LoginResponse() {}
 
     // Constructor for success response
-    public LoginResponse(boolean success, String message, Long userId, String email, String nicNumber, String phoneNumber) {
+    public LoginResponse(boolean success, String message, Long userId, String fullName, String email, String nicNumber, String phoneNumber) {
         this.success = success;
         this.message = message;
         this.userId = userId;
+        this.fullName = fullName;
         this.email = email;
         this.nicNumber = nicNumber;
         this.phoneNumber = phoneNumber;
@@ -55,6 +57,14 @@ public class LoginResponse {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {

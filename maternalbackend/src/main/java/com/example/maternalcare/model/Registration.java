@@ -14,6 +14,11 @@ public class Registration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @Column(nullable = false, length = 100)
+    @NotBlank(message = "Full name is required")
+    @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
+    private String fullName;
+    
     @Column(nullable = false, unique = true, length = 12)
     @NotBlank(message = "NIC number is required")
     @Pattern(regexp = "^[0-9]{9}[vVxX]$|^[0-9]{12}$", 
@@ -50,7 +55,8 @@ public class Registration {
     public Registration() {}
     
     // Constructor with essential fields
-    public Registration(String nicNumber, String phoneNumber3, String password, String email) {
+    public Registration(String fullName, String nicNumber, String phoneNumber3, String password, String email) {
+        this.fullName = fullName;
         this.nicNumber = nicNumber;
         this.phoneNumber3 = phoneNumber3;
         this.password = password;
@@ -64,6 +70,14 @@ public class Registration {
     
     public void setId(Long id) {
         this.id = id;
+    }
+    
+    public String getFullName() {
+        return fullName;
+    }
+    
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
     
     public String getNicNumber() {

@@ -42,7 +42,7 @@ public class EmailService {
             logger.info("Verification email sent successfully to: {}", to);
         } catch (Exception e) {
             logger.error("Failed to send verification email to: {}", to, e);
-            throw new RuntimeException("Failed to send verification email", e);
+            // Don't throw exception - let caller handle gracefully
         }
     }
     
@@ -69,7 +69,7 @@ public class EmailService {
             logger.info("Password reset email sent successfully to: {}", to);
         } catch (Exception e) {
             logger.error("Failed to send password reset email to: {}", to, e);
-            throw new RuntimeException("Failed to send password reset email", e);
+            // Don't throw exception - let caller handle gracefully
         }
     }
     
@@ -87,7 +87,7 @@ public class EmailService {
             logger.info("HTML email sent successfully to: {}", to);
         } catch (Exception e) {
             logger.error("Failed to send HTML email to: {}", to, e);
-            throw new RuntimeException("Failed to send email", e);
+            // Don't throw exception - let the calling service handle the failure gracefully
         }
     }
     

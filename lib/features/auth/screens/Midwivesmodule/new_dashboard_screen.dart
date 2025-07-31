@@ -159,7 +159,7 @@ class MidwifeDashboardTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Welcome, Midwife!',
+              'Welcome, Mrs. Kamali Jayasinghe!',
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,

@@ -1,0 +1,107 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+class UserService {
+  static const String _isLoggedInKey = 'is_logged_in';
+  static const String _userNicKey = 'user_nic';
+  static const String _userNameKey = 'user_name';
+  static const String _userEmailKey = 'user_email';
+
+  // Save user data after login
+  static Future<void> saveUserData({
+    required String nic,
+    required String name,
+    required String email,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userNicKey, nic);
+    await prefs.setString(_userNameKey, name);
+    await prefs.setString(_userEmailKey, email);
+    await prefs.setBool(_isLoggedInKey, true);
+  }
+
+  // Get user NIC
+  static Future<String?> getUserNic() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userNicKey);
+  }
+
+  // Get user name
+  static Future<String?> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userNameKey);
+  }
+
+  // Get user email
+  static Future<String?> getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userEmailKey);
+  }
+
+  // Check if user is logged in
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isLoggedInKey) ?? false;
+  }
+
+  // Clear user data (logout)
+  static Future<void> clearUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_userNicKey);
+    await prefs.remove(_userNameKey);
+    await prefs.remove(_userEmailKey);
+    await prefs.setBool(_isLoggedInKey, false);
+  }
+
+  // Get all user data
+  static Future<Map<String, String?>> getUserData() async {
+    return {
+      'nic': await getUserNic(),
+      'name': await getUserName(),
+      'email': await getUserEmail(),
+    };
+  }
+
+  // Force fix for specific user (TEMPORARY)
+  static Future<void> forceFixUserData() async {
+    final currentNic = await getUserNic();
+    if (currentNic == '200201901851') {
+      await saveUserData(
+        nic: '200201901851',
+        name: 'Mohanathas Thujeeban',
+        email: 'thujee44@gmail.com',
+      );
+      print('User data force-fixed for NIC: $currentNic');
+    }
+  }
+
+  // Refresh user data from backend
+  static Future<bool> refreshUserDataFromBackend() async {
+    try {
+      final nic = await getUserNic();
+      if (nic == null || nic.isEmpty) return false;
+
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8080/api/user/profile/$nic'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          await saveUserData(
+            nic: data['nicNumber'] ?? nic,
+            name: data['fullName'] ?? '',
+            email: data['email'] ?? '',
+          );
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      print('Error refreshing user data: $e');
+      return false;
+    }
+  }
+}

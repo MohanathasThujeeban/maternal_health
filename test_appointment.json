@@ -1,0 +1,13 @@
+{
+  "motherNic": "200201901851",
+  "motherName": "Mohanathas Thujeeban", 
+  "motherEmail": "thujee44@gmail.com",
+  "appointmentType": "DOCTOR",
+  "providerName": "Dr. Prasad Wickramasinghe",
+  "providerId": "DOC001",
+  "appointmentDate": "2025-08-02T10:00:00",
+  "timeSlot": "10:00 AM",
+  "status": "PENDING",
+  "additionalProblems": "Test appointment",
+  "createdAt": "2025-08-01T01:20:00"
+}

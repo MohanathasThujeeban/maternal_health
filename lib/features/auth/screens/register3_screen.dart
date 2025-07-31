@@ -13,6 +13,7 @@ class Register3Screen extends StatefulWidget {
 }
 
 class _Register3ScreenState extends State<Register3Screen> {
+  final fullNameController = TextEditingController();
   final nicController = TextEditingController();
   final phoneController = TextEditingController();
   final passwordController = TextEditingController();
@@ -23,11 +24,13 @@ class _Register3ScreenState extends State<Register3Screen> {
   bool isEmailVerified = false;
   bool isVerifying = false;
   bool isCheckingVerification = false;
+  bool hasShownVerificationMessage = false;
 
   @override
   void initState() {
     super.initState();
     // Only use data if it was provided from previous screens
+    fullNameController.text = widget.registrationData.fullName;
     nicController.text = widget.registrationData.nicNumber;
     phoneController.text = widget.registrationData.phoneNumber3;
     passwordController.text = widget.registrationData.password;
@@ -35,11 +38,19 @@ class _Register3ScreenState extends State<Register3Screen> {
 
     // Add listener to email field to check verification status
     emailController.addListener(() {
-      // Only check verification if email is valid and not empty
+      // Reset verification message flag when email changes
+      hasShownVerificationMessage = false;
+
+      // Only check verification if email is valid and not empty and not already checking
       final email = emailController.text.trim();
-      if (email.isNotEmpty && email.contains('@') && email.contains('.')) {
+      if (email.isNotEmpty &&
+          email.contains('@') &&
+          email.contains('.') &&
+          !isCheckingVerification) {
         checkEmailVerificationStatus();
-      } else {
+      } else if (email.isEmpty ||
+          !email.contains('@') ||
+          !email.contains('.')) {
         setState(() {
           isEmailVerified = false;
         });
@@ -57,13 +68,23 @@ class _Register3ScreenState extends State<Register3Screen> {
   }
 
   bool validateForm() {
-    if (nicController.text.isEmpty ||
+    if (fullNameController.text.isEmpty ||
+        nicController.text.isEmpty ||
         phoneController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return false;
+    }
+
+    // Validate full name (at least 2 characters, only letters and spaces)
+    if (fullNameController.text.length < 2 ||
+        !RegExp(r'^[a-zA-Z\s]+$').hasMatch(fullNameController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid full name')),
+      );
       return false;
     }
 
@@ -144,6 +165,7 @@ class _Register3ScreenState extends State<Register3Screen> {
         isLoading = true;
       });
 
+      widget.registrationData.fullName = fullNameController.text;
       widget.registrationData.nicNumber = nicController.text;
       widget.registrationData.phoneNumber3 = phoneController.text;
       widget.registrationData.password = passwordController.text;
@@ -280,7 +302,10 @@ class _Register3ScreenState extends State<Register3Screen> {
           isEmailVerified = response['verified'];
         });
 
-        if (isEmailVerified) {
+        if (isEmailVerified && !hasShownVerificationMessage) {
+          setState(() {
+            hasShownVerificationMessage = true;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Email is already verified!'),
@@ -358,6 +383,21 @@ class _Register3ScreenState extends State<Register3Screen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                const Text(
+                  'Full Name',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _RoundedTextField(
+                  hint: 'Enter your full name (e.g., Sarah Johnson)',
+                  controller: fullNameController,
+                  keyboardType: TextInputType.name,
+                ),
+                const SizedBox(height: 12),
                 const Text(
                   'NIC Number',
                   style: TextStyle(

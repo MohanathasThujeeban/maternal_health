@@ -6,6 +6,7 @@ import 'Midwivesmodule/dashboard_screen.dart';
 import 'Mothermodule/motherhome.dart';
 import 'Doctormodule/doctor_dashboard.dart';
 import '../services/api_service.dart';
+import '../../../services/user_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -62,6 +63,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (result['success']) {
+        // Save user data to local storage
+        await UserService.saveUserData(
+          nic: result['nicNumber'] ?? '',
+          name: result['fullName'] ?? '',
+          email: result['email'] ?? '',
+        );
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Welcome back! ${result['message']}'),

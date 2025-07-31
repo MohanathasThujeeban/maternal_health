@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api")
 public class LoginController {
     
     private final RegistrationRepository registrationRepository;
@@ -65,6 +65,7 @@ public class LoginController {
                 true,
                 "Login successful",
                 user.getId(),
+                user.getFullName(),
                 user.getEmail(),
                 user.getNicNumber(),
                 user.getPhoneNumber3()

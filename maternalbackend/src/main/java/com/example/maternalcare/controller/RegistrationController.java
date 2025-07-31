@@ -80,6 +80,11 @@ public class RegistrationController {
                 return createErrorResponse("Phone number is required", HttpStatus.BAD_REQUEST);
             }
 
+            if (request.getFullName() == null || request.getFullName().trim().isEmpty()) {
+                System.err.println("Full name is null or empty");
+                return createErrorResponse("Full name is required", HttpStatus.BAD_REQUEST);
+            }
+
             System.out.println("Received registration request for email: " + request.getEmail());
             
             // Check for duplicate email
@@ -102,6 +107,7 @@ public class RegistrationController {
 
             // Create new registration
             Registration reg = new Registration();
+            reg.setFullName(request.getFullName().trim());
             reg.setNicNumber(request.getNicNumber().trim());
             reg.setPhoneNumber3(request.getPhoneNumber3().trim());
             reg.setPassword(request.getPassword()); // Consider hashing the password

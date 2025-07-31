@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -96,10 +98,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           content: const Text(
             'Are you sure you want to logout?',
-            style: TextStyle(
-              fontFamily: 'SpotifyCircular',
-              fontSize: 16,
-            ),
+            style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
           ),
           actions: [
             TextButton(
@@ -153,11 +152,7 @@ class MidwifeDashboardTab extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFE8F5F2),
-            Color(0xFFF0F9F7),
-            Color(0xFFFFFFFF),
-          ],
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
         ),
       ),
       child: Padding(
@@ -166,7 +161,7 @@ class MidwifeDashboardTab extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Welcome, Midwife!',
+              'Welcome, Mrs. Kamali Jayasinghe!',
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
@@ -175,7 +170,7 @@ class MidwifeDashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Statistics Cards
             Row(
               children: [
@@ -198,9 +193,9 @@ class MidwifeDashboardTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             Row(
               children: [
                 Expanded(
@@ -222,9 +217,9 @@ class MidwifeDashboardTab extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             // Recent Activities
             const Text(
               'Recent Activities',
@@ -236,13 +231,14 @@ class MidwifeDashboardTab extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            
+
             Expanded(
               child: ListView(
                 children: [
                   _ActivityCard(
                     title: 'Prenatal Checkup',
-                    subtitle: 'Jane Smith - 32 weeks, routine checkup completed',
+                    subtitle:
+                        'Jane Smith - 32 weeks, routine checkup completed',
                     time: '11:00 AM',
                     icon: Icons.medical_services,
                   ),
@@ -308,11 +304,7 @@ class _StatCard extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: 20,
-                ),
+                child: Icon(icon, color: color, size: 20),
               ),
             ],
           ),
@@ -379,11 +371,7 @@ class _ActivityCard extends StatelessWidget {
               color: const Color(0xFF4FC3A1).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF4FC3A1),
-              size: 24,
-            ),
+            child: Icon(icon, color: const Color(0xFF4FC3A1), size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -443,19 +431,262 @@ class PatientsTab extends StatelessWidget {
   }
 }
 
-class AppointmentsTab extends StatelessWidget {
+class AppointmentsTab extends StatefulWidget {
   const AppointmentsTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Appointments Management',
-        style: TextStyle(
-          fontFamily: 'SpotifyCircular',
-          fontSize: 18,
-          color: Color(0xFF2E7D5A),
+  State<AppointmentsTab> createState() => _AppointmentsTabState();
+}
+
+class _AppointmentsTabState extends State<AppointmentsTab> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, dynamic>> appointments = [];
+  List<Map<String, dynamic>> filteredAppointments = [];
+  bool isLoading = false;
+  String selectedFilter = 'all'; // all, pending, completed
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTodayAppointments();
+  }
+
+  Future<void> _loadTodayAppointments() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'http://10.0.2.2:8080/api/appointments/provider/MID001/today',
         ),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          appointments = data.map((e) => Map<String, dynamic>.from(e)).toList();
+          _applyFilter();
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading appointments: $e')));
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _applyFilter() {
+    setState(() {
+      if (selectedFilter == 'all') {
+        filteredAppointments = appointments;
+      } else {
+        filteredAppointments = appointments
+            .where(
+              (apt) => apt['status'].toString().toLowerCase() == selectedFilter,
+            )
+            .toList();
+      }
+    });
+  }
+
+  void _searchByNic(String nic) {
+    if (nic.isEmpty) {
+      _loadTodayAppointments();
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    // Search in today's appointments for the midwife
+    http
+        .get(
+          Uri.parse(
+            'http://10.0.2.2:8080/api/appointments/provider/MID001/search?nic=$nic',
+          ),
+          headers: {'Content-Type': 'application/json'},
+        )
+        .then((response) {
+          if (response.statusCode == 200) {
+            final List<dynamic> data = jsonDecode(response.body);
+            setState(() {
+              appointments = data
+                  .map((e) => Map<String, dynamic>.from(e))
+                  .toList();
+              _applyFilter();
+            });
+          }
+        })
+        .catchError((e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error searching appointments: $e')),
+          );
+        })
+        .whenComplete(() {
+          setState(() {
+            isLoading = false;
+          });
+        });
+  }
+
+  Future<void> _updateAppointmentStatus(
+    int appointmentId,
+    String status,
+  ) async {
+    try {
+      final response = await http.put(
+        Uri.parse(
+          'http://10.0.2.2:8080/api/appointments/$appointmentId/status',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'status': status}),
+      );
+
+      if (response.statusCode == 200) {
+        _loadTodayAppointments(); // Refresh the list
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Appointment marked as $status')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error updating appointment: $e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Search and Filter Row
+          Row(
+            children: [
+              Expanded(
+                flex: 2,
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search by NIC number...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onChanged: _searchByNic,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: selectedFilter,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 'all', child: Text('All')),
+                    DropdownMenuItem(value: 'pending', child: Text('Pending')),
+                    DropdownMenuItem(
+                      value: 'completed',
+                      child: Text('Completed'),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      selectedFilter = value!;
+                      _applyFilter();
+                    });
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Appointments List
+          Expanded(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredAppointments.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No appointments found for today',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredAppointments.length,
+                    itemBuilder: (context, index) {
+                      final appointment = filteredAppointments[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        child: ListTile(
+                          title: Text(
+                            appointment['motherName'] ?? 'Unknown',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('NIC: ${appointment['motherNic']}'),
+                              Text('Time: ${appointment['timeSlot']}'),
+                              if (appointment['additionalProblems'] != null)
+                                Text(
+                                  'Notes: ${appointment['additionalProblems']}',
+                                ),
+                            ],
+                          ),
+                          trailing:
+                              appointment['status'].toString().toLowerCase() ==
+                                  'pending'
+                              ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.check,
+                                        color: Colors.green,
+                                      ),
+                                      onPressed: () => _updateAppointmentStatus(
+                                        appointment['id'],
+                                        'COMPLETED',
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Chip(
+                                  label: Text(
+                                    appointment['status']
+                                        .toString()
+                                        .toUpperCase(),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor:
+                                      appointment['status']
+                                              .toString()
+                                              .toLowerCase() ==
+                                          'completed'
+                                      ? Colors.green
+                                      : Colors.orange,
+                                ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
