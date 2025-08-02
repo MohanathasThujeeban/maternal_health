@@ -2,86 +2,232 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verified Successfully</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Email Verified Successfully - Maternal Health</title>
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #4FC3A1, #66D4B7);
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #4FC3A1, #66D4B7, #7BDCC4);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            background-attachment: fixed;
         }
+        
         .container {
             background: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(79, 195, 161, 0.3);
             text-align: center;
-            max-width: 500px;
+            width: 100%;
+            max-width: 450px;
             margin: 20px;
+            animation: slideUp 0.6s ease-out;
         }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         .success-icon {
-            font-size: 60px;
-            color: #4FC3A1;
-            margin-bottom: 20px;
+            font-size: 80px;
+            margin-bottom: 25px;
+            animation: bounce 1s ease-out;
         }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
         .title {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: bold;
+            font-size: 32px;
+            color: #2c5530;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.2;
         }
+        
         .message {
-            font-size: 16px;
-            color: #666;
+            font-size: 18px;
+            color: #555;
             line-height: 1.6;
             margin-bottom: 30px;
         }
-        .button {
-            display: inline-block;
-            background: #4FC3A1;
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: bold;
-            font-size: 16px;
-            transition: background 0.3s;
-        }
-        .button:hover {
-            background: #3ea188;
-        }
+        
         .app-name {
             color: #4FC3A1;
             font-weight: bold;
         }
+        
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4FC3A1, #3ea188);
+            color: white;
+            padding: 18px 35px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(79, 195, 161, 0.4);
+            border: none;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(79, 195, 161, 0.5);
+        }
+        
+        .countdown {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8fffe;
+            border-radius: 15px;
+            border-left: 4px solid #4FC3A1;
+        }
+        
+        .countdown-text {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .countdown-timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4FC3A1;
+        }
+        
+        .footer-text {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #888;
+            line-height: 1.5;
+        }
+        
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 30px 25px;
+                border-radius: 15px;
+            }
+            
+            .title {
+                font-size: 28px;
+            }
+            
+            .message {
+                font-size: 16px;
+            }
+            
+            .button {
+                padding: 16px 30px;
+                font-size: 16px;
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: #4FC3A1;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
     </style>
-    <script>
-        // Auto redirect to app after 5 seconds
-        setTimeout(function() {
-            window.location.href = 'maternal://verified';
-        }, 5000);
-    </script>
 </head>
 <body>
     <div class="container">
-        <div class="success-icon">✅</div>
+        <div class="logo">✓</div>
+        <div class="success-icon">🎉</div>
         <h1 class="title">Email Verified Successfully!</h1>
         <p class="message">
-            Thank you for verifying your email address. Your account is now active and you can complete your registration in the <span class="app-name">Maternal Health App</span>.
+            Congratulations! Your email has been verified successfully. Your account is now active and ready to use with the <span class="app-name">Maternal Health App</span>.
         </p>
-        <p class="message">
-            You will be automatically redirected to the app in 5 seconds, or you can click the button below.
-        </p>
-        <a href="maternal://verified" class="button">Return to App</a>
         
-        <p style="margin-top: 30px; font-size: 14px; color: #999;">
-            If the app doesn't open automatically, please open the Maternal Health App manually.
-        </p>
+        <a href="maternal://verified" class="button" onclick="tryOpenApp()">
+            🚀 Return to App
+        </a>
+        
+        <div class="countdown">
+            <div class="countdown-text">Auto-redirecting to app in:</div>
+            <div class="countdown-timer" id="countdown">5</div>
+        </div>
+        
+        <div class="footer-text">
+            If the app doesn't open automatically, please open the <strong>Maternal Health App</strong> manually and continue with your registration.
+        </div>
     </div>
+
+    <script>
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        function updateCountdown() {
+            countdownElement.textContent = countdown;
+            countdown--;
+            
+            if (countdown < 0) {
+                tryOpenApp();
+            }
+        }
+        
+        function tryOpenApp() {
+            // Try to open the app
+            window.location.href = 'maternal://verified';
+            
+            // Fallback: Show instruction after a delay
+            setTimeout(() => {
+                countdownElement.parentElement.innerHTML = 
+                    '<div style="color: #4FC3A1; font-weight: bold;">Please open the Maternal Health App manually</div>';
+            }, 2000);
+        }
+        
+        // Start the countdown
+        const timer = setInterval(() => {
+            updateCountdown();
+            if (countdown < 0) {
+                clearInterval(timer);
+            }
+        }, 1000);
+    </script>
 </body>
 </html>

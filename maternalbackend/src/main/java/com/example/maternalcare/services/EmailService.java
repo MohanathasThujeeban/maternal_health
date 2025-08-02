@@ -20,6 +20,9 @@ public class EmailService {
     
     @Value("${spring.mail.username}")
     private String fromEmail;
+    
+    @Value("${app.server.url:http://localhost:8080}")
+    private String serverUrl;
 
     public void sendVerificationEmail(String to, String token) {
         try {
@@ -49,21 +52,28 @@ public class EmailService {
     public void sendPasswordResetEmail(String to, String token) {
         try {
             String subject = "Maternal Health - Password Reset Request";
-            String resetUrl = "http://10.0.2.2:8080/api/auth/reset-password-form?token=" + token;
-            String text = "Hello,\n\n" +
-                         "You requested a password reset for your Maternal Health account.\n\n" +
-                         "Click the link below to reset your password:\n" +
-                         resetUrl + "\n\n" +
-                         "This link will expire in 1 hour.\n\n" +
-                         "If you did not request this password reset, please ignore this email.\n\n" +
-                         "Best regards,\n" +
-                         "Maternal Health Team";
+            String resetUrl = serverUrl + "/api/auth/reset-password-form?token=" + token;
+            
+            // Create HTML email for better mobile compatibility
+            String htmlContent = "<html><body>" +
+                               "<h2>Password Reset Request</h2>" +
+                               "<p>Hello,</p>" +
+                               "<p>You requested a password reset for your Maternal Health account.</p>" +
+                               "<p>Click the button below to reset your password:</p>" +
+                               "<p><a href=\"" + resetUrl + "\" style=\"background-color: #4CAF50; color: white; padding: 14px 20px; text-decoration: none; border-radius: 4px; display: inline-block;\">Reset Password</a></p>" +
+                               "<p>Or copy and paste this link in your browser:</p>" +
+                               "<p>" + resetUrl + "</p>" +
+                               "<p><strong>This link will expire in 1 hour.</strong></p>" +
+                               "<p>If you did not request this password reset, please ignore this email.</p>" +
+                               "<p>Best regards,<br>Maternal Health Team</p>" +
+                               "</body></html>";
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(text);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
             logger.info("Password reset email sent successfully to: {}", to);

@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class PasswordResetController {
     
     @Autowired

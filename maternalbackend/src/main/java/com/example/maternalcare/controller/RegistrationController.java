@@ -1,7 +1,9 @@
 package com.example.maternalcare.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.RegistrationRequest;
 import com.example.maternalcare.model.Registration;
@@ -26,6 +28,9 @@ public class RegistrationController {
     private final EmailService emailService;
     private final EmailVerificationTokenRepository tokenRepository;
     private final EmailVerificationService emailVerificationService;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public RegistrationController(
             RegistrationRepository repository,
@@ -110,7 +115,7 @@ public class RegistrationController {
             reg.setFullName(request.getFullName().trim());
             reg.setNicNumber(request.getNicNumber().trim());
             reg.setPhoneNumber3(request.getPhoneNumber3().trim());
-            reg.setPassword(request.getPassword()); // Consider hashing the password
+            reg.setPassword(passwordEncoder.encode(request.getPassword())); // Encrypt password
             reg.setEmail(request.getEmail().trim().toLowerCase());
 
             System.out.println("Attempting to save registration...");
@@ -175,27 +180,25 @@ public class RegistrationController {
     }
 
     @GetMapping("/registration/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+    public String verifyEmail(@RequestParam String token) {
         System.out.println("=== VERIFY EMAIL ENDPOINT HIT ===");
         
         try {
             boolean success = emailVerificationService.verifyEmail(token);
             
-            Map<String, Object> response = new HashMap<>();
             if (success) {
-                response.put("success", true);
-                response.put("message", "Email verified successfully!");
+                // Return success HTML template
+                return "email-verification-success";
             } else {
-                response.put("success", false);
-                response.put("message", "Invalid or expired verification token");
+                // Return error HTML template
+                return "email-verification-error";
             }
-            response.put("timestamp", LocalDateTime.now());
-            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             System.err.println("Verify email error: " + e.getMessage());
             e.printStackTrace();
-            return createErrorResponse("Failed to verify email: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            // Return error HTML template
+            return "email-verification-error";
         }
     }
     

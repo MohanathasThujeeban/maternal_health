@@ -213,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _RoundedTextField extends StatelessWidget {
+class _RoundedTextField extends StatefulWidget {
   final String hint;
   final bool obscure;
   final TextEditingController controller;
@@ -225,14 +225,27 @@ class _RoundedTextField extends StatelessWidget {
   });
 
   @override
+  State<_RoundedTextField> createState() => _RoundedTextFieldState();
+}
+
+class _RoundedTextFieldState extends State<_RoundedTextField> {
+  bool _isObscured = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isObscured = widget.obscure;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
       child: TextField(
-        controller: controller,
-        obscureText: obscure,
+        controller: widget.controller,
+        obscureText: _isObscured,
         decoration: InputDecoration(
-          hintText: hint,
+          hintText: widget.hint,
           contentPadding: const EdgeInsets.symmetric(
             vertical: 18,
             horizontal: 24,
@@ -251,6 +264,19 @@ class _RoundedTextField extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.white.withOpacity(0.9),
+          suffixIcon: widget.obscure
+              ? IconButton(
+                  icon: Icon(
+                    _isObscured ? Icons.visibility : Icons.visibility_off,
+                    color: const Color(0xFF4FC3A1),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isObscured = !_isObscured;
+                    });
+                  },
+                )
+              : null,
         ),
         style: const TextStyle(fontFamily: 'SpotifyCircular', fontSize: 15),
       ),

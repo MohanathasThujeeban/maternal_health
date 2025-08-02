@@ -1,7 +1,9 @@
 package com.example.maternalcare.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.LoginRequest;
 import com.example.maternalcare.dto.LoginResponse;
@@ -18,6 +20,9 @@ import java.util.Optional;
 public class LoginController {
     
     private final RegistrationRepository registrationRepository;
+    
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public LoginController(RegistrationRepository registrationRepository) {
         this.registrationRepository = registrationRepository;
@@ -52,8 +57,25 @@ public class LoginController {
 
             Registration user = userOptional.get();
             
-            // Check password (Note: In production, you should hash passwords)
-            if (!user.getPassword().equals(loginRequest.getPassword())) {
+            // Check password - handle both encrypted and plain text passwords
+            boolean passwordMatches = false;
+            String storedPassword = user.getPassword();
+            String inputPassword = loginRequest.getPassword();
+            
+            // First, try password encoder (for encrypted passwords)
+            try {
+                passwordMatches = passwordEncoder.matches(inputPassword, storedPassword);
+            } catch (Exception e) {
+                // If password encoder fails, it might be a plain text password
+                passwordMatches = false;
+            }
+            
+            // If encoder doesn't match, try direct comparison (for plain text passwords)
+            if (!passwordMatches) {
+                passwordMatches = storedPassword.equals(inputPassword);
+            }
+            
+            if (!passwordMatches) {
                 System.out.println("Invalid password for user: " + loginRequest.getNicNumber());
                 return createErrorResponse("Invalid NIC number or password", HttpStatus.UNAUTHORIZED);
             }
