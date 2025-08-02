@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/") // Changed back to root to handle /api/api paths from Flutter
+@RequestMapping("/api") // Fixed: Use /api prefix to match Flutter API calls
 public class RegistrationController {
     
     private final RegistrationRepository repository;

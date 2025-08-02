@@ -3,6 +3,7 @@ package com.example.maternalcare.services;
 import com.example.maternalcare.model.EmailVerificationToken;
 import com.example.maternalcare.repository.EmailVerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,9 @@ public class EmailVerificationService {
     @Autowired
     private EmailService emailService;
     
+    @Value("${app.server.url:http://localhost:8080}")
+    private String serverUrl;
+    
     public boolean sendVerificationEmail(String email) {
         try {
             // Delete any existing tokens for this email
@@ -30,8 +34,8 @@ public class EmailVerificationService {
             EmailVerificationToken verificationToken = new EmailVerificationToken(token, email);
             tokenRepository.save(verificationToken);
             
-            // Send verification email
-            String verificationUrl = "http://localhost:8080/api/auth/verify-email?token=" + token;
+            // Send verification email - Use configurable server URL for cross-device access
+            String verificationUrl = serverUrl + "/api/registration/verify?token=" + token;
             
             String subject = "Verify Your Email - Maternal Health App";
             String body = buildVerificationEmailBody(verificationUrl);
