@@ -55,6 +55,16 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
         botResponse =
             'According to your vaccination schedule, your baby\'s MMR vaccine is due in 3 days (August 3rd). This vaccine protects against measles, mumps, and rubella. Make sure to keep the appointment with Dr. Prasad Wickramasinghe. After MMR, the next vaccine will be Varicella in September.';
         break;
+      case 'teething':
+        initialMessage = 'Is it normal for my baby to be teething now?';
+        botResponse =
+            'Yes, teething usually begins between 6 to 10 months. Your baby may show signs like drooling, irritability, and a desire to chew on things. You can ease discomfort by giving a chilled teething ring or gently massaging the gums with a clean finger.';
+        break;
+      case 'diaperRash':
+        initialMessage = 'How can I treat diaper rash?';
+        botResponse =
+            'Diaper rash is common and usually caused by prolonged exposure to a wet or dirty diaper. Keep the area clean and dry, change diapers frequently, and apply a diaper rash cream containing zinc oxide. If the rash doesn’t improve in a few days, consult your pediatrician.';
+        break;
     }
 
     if (initialMessage.isNotEmpty) {
