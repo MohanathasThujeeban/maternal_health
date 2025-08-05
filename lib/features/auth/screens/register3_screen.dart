@@ -92,7 +92,7 @@ class _Register3ScreenState extends State<Register3Screen> {
     if (nicController.text.length != 12 ||
         !RegExp(r'^\d{12}$').hasMatch(nicController.text)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('NIC number must be exactly 12 digits')),
+        const SnackBar(content: Text('NIC number must be 12 digits')),
       );
       return false;
     }
@@ -107,9 +107,9 @@ class _Register3ScreenState extends State<Register3Screen> {
     }
 
     // Validate password length
-    if (passwordController.text.length < 6) {
+    if (passwordController.text.length < 8) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password must be at least 6 characters')),
+        const SnackBar(content: Text('Password must be at least 8 characters')),
       );
       return false;
     }
@@ -353,35 +353,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                 ),
                 const SizedBox(height: 8),
 
-                // Add "Fill Demo Data" button
-                Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        nicController.text = '200201901851';
-                        phoneController.text = '0777777777';
-                        emailController.text = 'demo@example.com';
-                        passwordController.text = 'Demo123';
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Demo data filled!')),
-                      );
-                    },
-                    icon: const Icon(Icons.auto_fix_high, size: 18),
-                    label: const Text('Fill Demo Data'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4FC3A1),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                    ),
-                  ),
-                ),
+                
                 const SizedBox(height: 16),
                 const Text(
                   'Full Name',
@@ -408,7 +380,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                 ),
                 const SizedBox(height: 8),
                 _RoundedTextField(
-                  hint: 'Enter 12-digit NIC Number (e.g., 200201901851)',
+                  hint: 'Enter 12-digit NIC (e.g., 200201901851)',
                   controller: nicController,
                   keyboardType: TextInputType.number,
                   maxLength: 12,
@@ -424,7 +396,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                 ),
                 const SizedBox(height: 8),
                 _RoundedTextField(
-                  hint: 'Enter Phone Number (e.g., 0777777777)',
+                  hint: 'Phone Number (e.g., 0777777777)',
                   controller: phoneController,
                   keyboardType: TextInputType.phone,
                 ),
@@ -442,7 +414,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                   children: [
                     Expanded(
                       child: _RoundedTextField(
-                        hint: 'Enter Email (e.g., user@example.com)',
+                        hint: 'Email (e.g., user@example.com)',
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -559,7 +531,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                   children: [
                     Expanded(
                       child: _RoundedTextField(
-                        hint: 'Enter Password (min 6 characters)',
+                        hint: 'Enter Password (min 8 characters)',
                         controller: passwordController,
                         obscureText: !showPassword,
                       ),
