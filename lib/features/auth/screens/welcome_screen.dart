@@ -22,15 +22,31 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 24),
               // Welcome Text
               const Text(
-                'Welcome Mother',
+                '🎉 Welcome Mother! 🎉',
                 style: TextStyle(
                   fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF4FC3A1), // Match theme color
                 ),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
+              // Subtitle
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Registration Successful!\nCheck your email for a special welcome message 📧',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 18,
+                    color: Color(0xFF666666),
+                    height: 1.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 32),
               // Back to Login Button
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -40,7 +56,10 @@ class WelcomeScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 6,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 14,
+                  ),
                   textStyle: const TextStyle(
                     fontFamily: 'SpotifyCircular', // Use SpotifyCircular font
                     fontSize: 20,

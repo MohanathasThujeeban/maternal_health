@@ -122,12 +122,23 @@ public class RegistrationController {
             Registration saved = repository.save(reg);
             System.out.println("Registration saved successfully with ID: " + saved.getId());
 
-            // Create success response
+            // Send congratulations email after successful registration
+            try {
+                emailService.sendRegistrationSuccessEmail(saved.getEmail(), saved.getFullName());
+                System.out.println("Congratulations email sent to: " + saved.getEmail());
+            } catch (Exception emailException) {
+                System.err.println("Failed to send congratulations email: " + emailException.getMessage());
+                // Continue with registration success even if email fails
+            }
+
+            // Create success response with welcome message
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Registration successful");
+            response.put("message", "🎉 Welcome to Maternal Health! 🎉");
+            response.put("welcomeMessage", "Registration successful! We're excited to have you join our maternal health community. Your journey to better health starts here!");
             response.put("id", saved.getId());
             response.put("email", saved.getEmail());
+            response.put("fullName", saved.getFullName());
             response.put("timestamp", LocalDateTime.now());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

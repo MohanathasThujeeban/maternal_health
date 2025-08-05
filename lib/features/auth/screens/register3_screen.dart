@@ -180,10 +180,8 @@ class _Register3ScreenState extends State<Register3Screen> {
       if (!mounted) return;
 
       if (result['success']) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(result['message'])));
-
+        // Registration successful - redirect to welcome screen
+        // Removed SnackBar popup as requested
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const WelcomeScreen()),
@@ -353,7 +351,6 @@ class _Register3ScreenState extends State<Register3Screen> {
                 ),
                 const SizedBox(height: 8),
 
-                
                 const SizedBox(height: 16),
                 const Text(
                   'Full Name',
