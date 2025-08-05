@@ -27,8 +27,8 @@ public class EmailService {
     public void sendVerificationEmail(String to, String token) {
         try {
             String subject = "Maternal Health - Verify your email";
-            // Change 'localhost' to your PC's IP address
-            String verificationUrl = "http://10.0.2.2:8080/api/registration/verify?token=" + token;
+            // Use configurable server URL for cross-device accessibility
+            String verificationUrl = serverUrl + "/api/registration/verify?token=" + token;
             String text = "Welcome to Maternal Health!\n\n" +
                          "Please click the link below to verify your email address:\n" +
                          verificationUrl + "\n\n" +
