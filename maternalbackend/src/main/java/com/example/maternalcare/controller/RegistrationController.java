@@ -190,26 +190,29 @@ public class RegistrationController {
         }
     }
 
-    @GetMapping("/registration/verify")
-    public String verifyEmail(@RequestParam String token) {
-        System.out.println("=== VERIFY EMAIL ENDPOINT HIT ===");
+    @GetMapping("/registration/verify-api")
+    public ResponseEntity<?> verifyEmailApi(@RequestParam String token) {
+        System.out.println("=== VERIFY EMAIL API ENDPOINT HIT ===");
         
         try {
             boolean success = emailVerificationService.verifyEmail(token);
             
+            Map<String, Object> response = new HashMap<>();
             if (success) {
-                // Return success HTML template
-                return "email-verification-success";
+                response.put("success", true);
+                response.put("message", "Email verified successfully");
             } else {
-                // Return error HTML template
-                return "email-verification-error";
+                response.put("success", false);
+                response.put("message", "Email verification failed");
             }
+            response.put("timestamp", LocalDateTime.now());
+            
+            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
             System.err.println("Verify email error: " + e.getMessage());
             e.printStackTrace();
-            // Return error HTML template
-            return "email-verification-error";
+            return createErrorResponse("Verification failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
