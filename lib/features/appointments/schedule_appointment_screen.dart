@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/appointment_service.dart';
 import '../../../services/user_service.dart';
+import '../../../widgets/custom_loading.dart';
 
 class ScheduleAppointmentScreen extends StatefulWidget {
   const ScheduleAppointmentScreen({super.key});
@@ -630,12 +631,7 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
-                              ),
-                            ),
+                            child: MiniLoading(size: 20, color: Colors.white),
                           )
                         : const Text(
                             'Schedule Appointment',

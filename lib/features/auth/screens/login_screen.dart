@@ -7,6 +7,7 @@ import 'Mothermodule/motherhome.dart';
 import 'Doctormodule/doctor_dashboard.dart';
 import '../services/api_service.dart';
 import '../../../services/user_service.dart';
+import '../../../widgets/custom_loading.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -106,6 +107,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show full-screen loading when logging in
+    if (isLoading) {
+      return Scaffold(
+        body: CustomLoading(
+          message: 'Logging you in...',
+          backgroundColor: const Color(0xFFF0F9F7),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -147,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     // Login button
                     _RoundedButton(
-                      text: isLoading ? 'Logging in...' : 'Login',
+                      text: 'Login',
                       onPressed: isLoading ? () {} : _handleLogin,
                       color: const Color(0xFF4FC3A1),
                     ),

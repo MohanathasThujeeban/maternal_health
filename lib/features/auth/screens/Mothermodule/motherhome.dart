@@ -5,6 +5,7 @@ import '../../../../models/appointment.dart';
 import '../../../../services/appointment_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../appointments/schedule_appointment_screen.dart';
+import '../../../../widgets/custom_loading.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -609,6 +610,8 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
 
   Future<void> _cancelAppointment(String appointmentId) async {
     final result = await AppointmentService.cancelAppointment(appointmentId);
+    if (!mounted) return;
+
     if (result['success']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -693,9 +696,11 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
                   const SizedBox(height: 16),
                   Expanded(
                     child: isLoading
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Color(0xFF4FC3A1),
+                        ? Center(
+                            child: CustomLoading(
+                              message: 'Loading appointments...',
+                              size: 100,
+                              backgroundColor: Colors.transparent,
                             ),
                           )
                         : TabBarView(
@@ -966,7 +971,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -979,7 +984,7 @@ class _StatCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -1034,7 +1039,7 @@ class _ActivityCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -1046,7 +1051,7 @@ class _ActivityCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -1319,7 +1324,7 @@ class _RealAppointmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -1346,7 +1351,7 @@ class _RealAppointmentCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(

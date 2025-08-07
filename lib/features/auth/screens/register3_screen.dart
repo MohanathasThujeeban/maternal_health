@@ -3,6 +3,7 @@ import 'welcome_screen.dart';
 import 'registration_data.dart';
 import '../services/api_service.dart';
 import 'dart:async';
+import '../../../widgets/custom_loading.dart';
 
 class Register3Screen extends StatefulWidget {
   final RegistrationData registrationData;
@@ -440,10 +441,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                           ? const SizedBox(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: MiniLoading(size: 16, color: Colors.white),
                             )
                           : Icon(
                               isEmailVerified
@@ -585,10 +583,7 @@ class _Register3ScreenState extends State<Register3Screen> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
+                              child: MiniLoading(size: 20, color: Colors.white),
                             )
                           : const Text('Sign Up'),
                     ),
