@@ -6,6 +6,8 @@ void main() {
 
 // Main App Setup
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -64,6 +66,8 @@ class Problem {
 
 // ✅ Main Screen Widget
 class ProblemsManagementScreen extends StatefulWidget {
+  const ProblemsManagementScreen({super.key});
+
   @override
   _ProblemsManagementScreenState createState() =>
       _ProblemsManagementScreenState();
@@ -224,7 +228,7 @@ class _ProblemsManagementScreenState extends State<ProblemsManagementScreen> {
                 ],
               ),
             );
-          }).toList(),
+          }),
           SizedBox(height: 16),
           if (problem.status == 'Pending')
             Row(
@@ -336,8 +340,8 @@ class _ProblemsManagementScreenState extends State<ProblemsManagementScreen> {
                 );
               }
             },
-            child: Text('Resolve'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            child: Text('Resolve'),
           ),
         ],
       ),

@@ -28,18 +28,17 @@ public class EmailService {
         try {
             String subject = "Maternal Health - Verify your email";
             // Use configurable server URL for cross-device accessibility
-            String verificationUrl = serverUrl + "/api/registration/verify?token=" + token;
-            String text = "Welcome to Maternal Health!\n\n" +
-                         "Please click the link below to verify your email address:\n" +
-                         verificationUrl + "\n\n" +
-                         "This link will expire in 24 hours.\n\n" +
-                         "If you did not create this account, please ignore this email.";
-
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(text);
+            String verificationUrl = serverUrl + "/api/auth/verify-email?token=" + token;
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            
+            String htmlContent = buildVerificationEmailHtml(verificationUrl);
+            helper.setText(htmlContent, true);
 
             mailSender.send(message);
             logger.info("Verification email sent successfully to: {}", to);
@@ -210,5 +209,43 @@ public class EmailService {
             logger.error("Email connection test failed", e);
             return false;
         }
+    }
+
+    private String buildVerificationEmailHtml(String verificationUrl) {
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }
+                        .container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                        .header { text-align: center; padding: 20px; }
+                        .logo { font-size: 24px; color: #4FC3A1; margin-bottom: 20px; }
+                        .button { display: inline-block; padding: 12px 30px; background-color: #4FC3A1; color: #ffffff; text-decoration: none; border-radius: 5px; margin: 20px 0; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 14px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">🤱 Maternal Health</div>
+                            <h2>Email Verification</h2>
+                        </div>
+                        <div style="text-align: center;">
+                            <p>Thank you for registering! Please click the button below to verify your email address:</p>
+                            <a href="%s" class="button" style="color: white;">Verify Email</a>
+                            <p style="font-size: 14px; color: #666;">Or copy and paste this link in your browser:</p>
+                            <p style="font-size: 12px; color: #999; word-break: break-all;">%s</p>
+                        </div>
+                        <div class="footer">
+                            <p>This link will expire in 24 hours.</p>
+                            <p>If you didn't request this verification, please ignore this email.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(verificationUrl, verificationUrl);
     }
 }

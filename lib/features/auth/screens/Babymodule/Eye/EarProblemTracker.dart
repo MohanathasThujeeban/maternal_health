@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -42,6 +44,8 @@ class ProblemRecord {
 }
 
 class BabyProblemsScreen extends StatefulWidget {
+  const BabyProblemsScreen({super.key});
+
   @override
   _BabyProblemsScreenState createState() => _BabyProblemsScreenState();
 }
@@ -417,7 +421,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                       SizedBox(height: 16),
                       ...problemRecords
                           .map((record) => _buildHistoryItem(record))
-                          .toList(),
+                          ,
                     ],
                   ),
                 ),
