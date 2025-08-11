@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -57,6 +59,8 @@ class PatientRecord {
 }
 
 class ViewUpdateRecordsScreen extends StatefulWidget {
+  const ViewUpdateRecordsScreen({super.key});
+
   @override
   _ViewUpdateRecordsScreenState createState() =>
       _ViewUpdateRecordsScreenState();
