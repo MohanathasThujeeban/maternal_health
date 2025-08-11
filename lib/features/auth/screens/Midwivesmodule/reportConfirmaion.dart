@@ -4,6 +4,7 @@ void main() {
   runApp(MyApp());
 }
 
+// Reports & Problems managements
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
