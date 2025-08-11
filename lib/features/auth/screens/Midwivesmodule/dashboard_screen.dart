@@ -65,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'RecordsR'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Records'),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Appointments',
