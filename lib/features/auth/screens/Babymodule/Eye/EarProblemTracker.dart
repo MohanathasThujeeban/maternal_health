@@ -55,7 +55,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
   final TextEditingController _remarksController = TextEditingController();
   final TextEditingController _diagnosisDateController =
       TextEditingController();
-  // Select problem
+
   List<ProblemRecord> problemRecords = [];
   String? selectedEyeProblem;
   String? selectedEarProblem;
