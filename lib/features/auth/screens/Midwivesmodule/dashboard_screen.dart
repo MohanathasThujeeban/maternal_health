@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:maternal_health/features/auth/screens/Babymodule/EarProblemTracker.dart';
 import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.dart';
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Doctormodule/doctor_dashboard.dart';
-import 'dart:convert';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
