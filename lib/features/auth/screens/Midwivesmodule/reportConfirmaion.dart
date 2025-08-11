@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }
@@ -58,6 +62,8 @@ class _MainScreenState extends State<MainScreen> {
 
 // REPORTS SCREEN
 class ReportsScreen extends StatefulWidget {
+  const ReportsScreen({super.key});
+
   @override
   _ReportsScreenState createState() => _ReportsScreenState();
 }
@@ -381,6 +387,8 @@ class Problem {
 }
 
 class ProblemsScreen extends StatefulWidget {
+  const ProblemsScreen({super.key});
+
   @override
   _ProblemsScreenState createState() => _ProblemsScreenState();
 }

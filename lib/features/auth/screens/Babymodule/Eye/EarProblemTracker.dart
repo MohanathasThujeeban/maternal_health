@@ -323,13 +323,11 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime.now(),
                         );
-                        if (pickedDate != null) {
-                          setState(() {
-                            _diagnosisDateController.text = pickedDate
-                                .toString()
-                                .split(' ')[0];
-                          });
-                        }
+                        setState(() {
+                          _diagnosisDateController.text = pickedDate
+                              .toString()
+                              .split(' ')[0];
+                        });
                       },
                     ),
                   ],
@@ -419,9 +417,9 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                         ),
                       ),
                       SizedBox(height: 16),
-                      ...problemRecords
-                          .map((record) => _buildHistoryItem(record))
-                          ,
+                      ...problemRecords.map(
+                        (record) => _buildHistoryItem(record),
+                      ),
                     ],
                   ),
                 ),
