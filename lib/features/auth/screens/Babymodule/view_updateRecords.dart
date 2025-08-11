@@ -264,12 +264,10 @@ class _ViewUpdateRecordsScreenState extends State<ViewUpdateRecordsScreen> {
       firstDate: DateTime(1950),
       lastDate: DateTime.now().add(Duration(days: 365)),
     );
-    if (pickedDate != null) {
-      setState(() {
-        controller.text = _formatDate(pickedDate);
-      });
+    setState(() {
+      controller.text = _formatDate(pickedDate);
+    });
     }
-  }
 
   @override
   Widget build(BuildContext context) {
