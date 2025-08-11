@@ -268,9 +268,11 @@ class _ViewUpdateRecordsScreenState extends State<ViewUpdateRecordsScreen> {
       firstDate: DateTime(1950),
       lastDate: DateTime.now().add(Duration(days: 365)),
     );
-    setState(() {
-      controller.text = _formatDate(pickedDate);
-    });
+    if (pickedDate != null) {
+      setState(() {
+        controller.text = _formatDate(pickedDate);
+      });
+    }
     }
 
   @override
