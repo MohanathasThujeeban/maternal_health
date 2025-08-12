@@ -35,7 +35,7 @@ public class EmailVerificationService {
             tokenRepository.save(verificationToken);
             
             // Send verification email - Use configurable server URL for cross-device access
-            String verificationUrl = serverUrl + "/api/registration/verify-api?token=" + token;
+            String verificationUrl = serverUrl + "/api/registration/verify-email?token=" + token;
             
             String subject = "Verify Your Email - Maternal Health App";
             String body = buildVerificationEmailBody(verificationUrl);

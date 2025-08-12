@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.RegistrationRequest;
 import com.example.maternalcare.model.Registration;
@@ -22,7 +23,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/api") // Fixed: Use /api prefix to match Flutter API calls
 public class RegistrationController {
     
@@ -47,6 +48,7 @@ public class RegistrationController {
 
     // Add a test endpoint to verify the controller is working
     @GetMapping("/test")
+    @ResponseBody
     public ResponseEntity<?> test() {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -57,6 +59,7 @@ public class RegistrationController {
 
     // Test endpoint to add sample users for Thiriposa testing
     @PostMapping("/registration/add-sample-data")
+    @ResponseBody
     public ResponseEntity<?> addSampleData() {
         System.out.println("=== ADD SAMPLE DATA ENDPOINT HIT ===");
         
@@ -104,6 +107,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration")
+    @ResponseBody
     public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
         System.out.println("=== REGISTRATION ENDPOINT HIT ===");
         System.out.println("Request body: " + request);
@@ -202,6 +206,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration/send-verification")
+    @ResponseBody
     public ResponseEntity<?> sendVerification(@RequestBody Map<String, String> body) {
         System.out.println("=== SEND VERIFICATION ENDPOINT HIT ===");
         
@@ -241,6 +246,7 @@ public class RegistrationController {
     }
 
     @GetMapping("/registration/verify-api")
+    @ResponseBody
     public ResponseEntity<?> verifyEmailApi(@RequestParam String token) {
         System.out.println("=== VERIFY EMAIL API ENDPOINT HIT ===");
         
@@ -266,7 +272,29 @@ public class RegistrationController {
         }
     }
     
+    @GetMapping("/registration/verify-email")
+    public String verifyEmailPage(@RequestParam String token) {
+        System.out.println("=== VERIFY EMAIL HTML PAGE ENDPOINT HIT ===");
+        
+        try {
+            boolean success = emailVerificationService.verifyEmail(token);
+            
+            if (success) {
+                System.out.println("Email verification successful, returning success page");
+                return "email-verification-success";
+            } else {
+                System.out.println("Email verification failed, returning error page");
+                return "email-verification-error";
+            }
+        } catch (Exception e) {
+            System.err.println("Verify email page error: " + e.getMessage());
+            e.printStackTrace();
+            return "email-verification-error";
+        }
+    }
+    
     @GetMapping("/registration/check-verification")
+    @ResponseBody
     public ResponseEntity<?> checkVerificationStatus(@RequestParam String email) {
         System.out.println("=== CHECK VERIFICATION STATUS ENDPOINT HIT ===");
         
@@ -288,6 +316,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration/verify-email")
+    @ResponseBody
     public ResponseEntity<?> verifyEmailAvailability(@RequestBody Map<String, String> body) {
         System.out.println("=== VERIFY EMAIL AVAILABILITY ENDPOINT HIT ===");
         
@@ -321,6 +350,7 @@ public class RegistrationController {
 
     // Get all registered users (for Thiriposa management)
     @GetMapping("/registration/all")
+    @ResponseBody
     public ResponseEntity<?> getAllUsers() {
         System.out.println("=== GET ALL USERS ENDPOINT HIT ===");
         
