@@ -1,12 +1,28 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
+import 'dart:io';
 
 class UserService {
   static const String _isLoggedInKey = 'is_logged_in';
   static const String _userNicKey = 'user_nic';
   static const String _userNameKey = 'user_name';
   static const String _userEmailKey = 'user_email';
+
+  // Dynamic base URL based on platform
+  static String get baseUrl {
+    if (kIsWeb) {
+      // For web (Chrome, Firefox, etc.)
+      return 'http://localhost:8080/api';
+    } else if (Platform.isAndroid) {
+      // For Android emulator (10.0.2.2 maps to host localhost)
+      return 'http://10.0.2.2:8080/api';
+    } else {
+      // For iOS simulator and other platforms
+      return 'http://localhost:8080/api';
+    }
+  }
 
   // Save user data after login
   static Future<void> saveUserData({
@@ -83,7 +99,7 @@ class UserService {
       if (nic == null || nic.isEmpty) return false;
 
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8080/api/user/profile/$nic'),
+        Uri.parse('$baseUrl/user/profile/$nic'),
         headers: {'Content-Type': 'application/json'},
       );
 

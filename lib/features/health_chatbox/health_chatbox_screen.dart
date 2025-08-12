@@ -59,71 +59,230 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
 
   // Predefined questions
   final Map<String, List<PredefinedQuestion>> categoryQuestions = {
-    'pregnancy': [
-      PredefinedQuestion(
-        question: "What should I eat during pregnancy?",
-        answer: "Focus on a balanced diet rich in folate, iron, calcium, and protein. Include leafy greens, lean meats, dairy products, whole grains, and fruits. Avoid raw fish, unpasteurized products, and limit caffeine to 200mg per day.",
-      ),
-      PredefinedQuestion(
-        question: "How much weight should I gain?",
-        answer: "Weight gain depends on your pre-pregnancy BMI:\n• Normal weight (18.5-24.9): 25-35 lbs\n• Underweight: 28-40 lbs\n• Overweight: 15-25 lbs\n• Obese: 11-20 lbs\n\nConsult your healthcare provider for personalized advice.",
-      ),
-      PredefinedQuestion(
-        question: "What are normal pregnancy symptoms?",
-        answer: "Common symptoms include:\n• Morning sickness (nausea/vomiting)\n• Fatigue and tiredness\n• Breast tenderness\n• Frequent urination\n• Mood changes\n• Food aversions or cravings\n\nContact your doctor if symptoms are severe or concerning.",
-      ),
-      PredefinedQuestion(
-        question: "When should I contact my doctor?",
-        answer: "Contact immediately for:\n• Severe abdominal pain\n• Heavy bleeding\n• Severe headaches\n• Vision changes\n• Persistent vomiting\n• Decreased fetal movement after 28 weeks\n• Signs of preterm labor\n• High fever or chills",
-      ),
-    ],
-    'childcare': [
-      PredefinedQuestion(
-        question: "How often should I feed my newborn?",
-        answer: "Newborns typically feed every 2-3 hours, or 8-12 times per day. Breastfed babies may feed more frequently. Watch for hunger cues like:\n• Rooting or searching for breast\n• Sucking motions\n• Fussiness or crying\n• Moving hands to mouth",
-      ),
-      PredefinedQuestion(
-        question: "When do babies start sleeping through the night?",
-        answer: "Most babies can sleep through the night (6-8 hours) by 3-6 months, but every baby is different. Tips for better sleep:\n• Establish bedtime routine\n• Safe sleep practices (back sleeping)\n• Consistent sleep environment\n• Day/night differentiation",
-      ),
-      PredefinedQuestion(
-        question: "What are important developmental milestones?",
-        answer: "Key milestones by age:\n• 2 months: Social smiles, tracks objects\n• 4 months: Holds head up, laughs\n• 6 months: Sits with support, babbles\n• 9 months: Crawls, says 'mama/dada'\n• 12 months: First steps, first words\n• 18 months: Walks independently, 10+ words",
-      ),
-      PredefinedQuestion(
-        question: "How to handle excessive baby crying?",
-        answer: "Check if baby:\n• Is hungry or needs feeding\n• Needs diaper change\n• Is tired or overstimulated\n• Is uncomfortable (too hot/cold)\n\nSoothing techniques:\n• Swaddling\n• Gentle rocking or bouncing\n• White noise or soft music\n• Skin-to-skin contact\n\nIf crying persists for hours, consult pediatrician.",
-      ),
-    ],
-    'nutrition': [
-      PredefinedQuestion(
-        question: "What foods should I avoid while breastfeeding?",
-        answer: "Generally, most foods are safe while breastfeeding:\n• Limit caffeine to 1-2 cups coffee/day\n• Avoid alcohol or pump and dump\n• Limit high-mercury fish\n• Watch for baby's reactions to spicy foods\n\nIf baby shows sensitivity (fussiness, rash), consider temporarily eliminating potential allergens.",
-      ),
-      PredefinedQuestion(
-        question: "When can I introduce solid foods?",
-        answer: "Start introducing solids around 6 months when baby:\n• Can sit up with minimal support\n• Has good head and neck control\n• Shows interest in food\n• Can move food to back of mouth\n\nStart with single-ingredient foods like iron-fortified cereal or pureed vegetables.",
-      ),
-      PredefinedQuestion(
-        question: "What are good first foods for babies?",
-        answer: "Recommended first foods:\n• Iron-fortified baby cereal\n• Pureed vegetables (sweet potato, carrots, peas)\n• Pureed fruits (banana, apple, pear)\n• Well-cooked, mashed legumes\n• Avocado\n\nIntroduce one food at a time for 3-5 days to watch for allergic reactions.",
-      ),
-    ],
-    'vaccination': [
-      PredefinedQuestion(
-        question: "What vaccines does my baby need?",
-        answer: "Key vaccines by schedule:\n• Birth: Hepatitis B\n• 2 months: DTaP, Hib, PCV13, IPV, RV\n• 4 months: DTaP, Hib, PCV13, IPV, RV\n• 6 months: DTaP, Hib, PCV13, IPV, RV\n• 12-15 months: MMR, Varicella, PCV13\n• 15-18 months: DTaP, Hib\n\nFollow your pediatrician's recommended schedule.",
-      ),
-      PredefinedQuestion(
-        question: "Are vaccines safe for my baby?",
-        answer: "Yes, vaccines are thoroughly tested for safety and effectiveness:\n• Undergo rigorous clinical trials\n• Continuously monitored for safety\n• Benefits far outweigh risks\n• Serious side effects are extremely rare\n\nCommon mild reactions: slight fever, soreness at injection site, mild fussiness.",
-      ),
-      PredefinedQuestion(
-        question: "What if my child misses a vaccination?",
-        answer: "If your child misses vaccines:\n• Contact your healthcare provider\n• No need to restart the entire series\n• Provider will create catch-up schedule\n• Based on child's current age\n• Important to catch up as soon as possible\n\nDelayed vaccines still provide protection once given.",
-      ),
-    ],
-  };
+    
+  'pregnancy': [
+    PredefinedQuestion(
+      question: "What should a pregnant woman avoid to maintain good health during pregnancy?",
+      answer: "A pregnant woman should avoid smoking, alcohol, betel chewing, and drugs. These habits are harmful to both the mother and the unborn baby.",
+    ),
+    PredefinedQuestion(
+      question: "Why is regular clinic attendance important during pregnancy?",
+      answer: "Regular clinics help monitor the health of both mother and baby. They also ensure timely vaccinations, nutritional advice, and detection of complications.",
+    ),
+    PredefinedQuestion(
+      question: "What are important hygiene practices a pregnant mother should follow?",
+      answer: "She should bathe daily, wear clean clothes, maintain oral hygiene, and keep fingernails short and clean to avoid infections.",
+    ),
+    PredefinedQuestion(
+      question: "How much rest should a pregnant woman get?",
+      answer: "She should get about 8–10 hours of sleep daily, including short naps during the day, to avoid fatigue and support baby development.",
+    ),
+    PredefinedQuestion(
+      question: "Can a pregnant woman work or do household chores?",
+      answer: "Yes, she can do light work and daily household chores unless advised otherwise by a doctor. Heavy lifting and excessive standing should be avoided.",
+    ),
+    PredefinedQuestion(
+      question: "What danger signs during pregnancy require immediate medical attention?",
+      answer: "Bleeding, severe abdominal pain, swollen hands/face, blurry vision, persistent vomiting, or reduced fetal movements should be reported to a clinic immediately.",
+    ),
+    PredefinedQuestion(
+      question: "Why should iron and folic acid tablets be taken during pregnancy?",
+      answer: "They prevent anemia and support the baby’s brain and spine development. Tablets should be taken daily as prescribed by the midwife.",
+    ),
+    PredefinedQuestion(
+      question: "What is the importance of tetanus vaccination during pregnancy?",
+      answer: "Tetanus vaccines protect both mother and newborn from infections that can occur during childbirth. They are given as part of the routine clinic schedule.",
+    ),
+    PredefinedQuestion(
+      question: "Can pregnant women travel?",
+      answer: "Travel is allowed in early pregnancy and later stages if the doctor approves. However, long journeys, bumpy rides, or standing in crowded vehicles should be avoided.",
+    ),
+    PredefinedQuestion(
+      question: "What are healthy eating habits for a pregnant woman?",
+      answer: "She should eat frequent, small meals rich in vegetables, fruits, grains, fish, eggs, and milk, and avoid fatty, fried, and sugary foods.",
+    ),
+    PredefinedQuestion(
+      question: "Should a pregnant mother take herbal remedies or non-prescribed medication?",
+      answer: "No. Only medications prescribed by a qualified doctor should be taken during pregnancy, as others may harm the baby.",
+    ),
+  ],
+  'childcare': [
+    PredefinedQuestion(
+      question: "How should a newborn be fed in the first few months?",
+      answer: "The baby should be exclusively breastfed for the first six months. No water, formula, or solids should be given during this period.",
+    ),
+    PredefinedQuestion(
+      question: "How can a mother ensure her baby is getting enough milk?",
+      answer: "If the baby urinates 6–8 times a day, gains weight steadily, sleeps well, and feeds actively, milk intake is sufficient.",
+    ),
+    PredefinedQuestion(
+      question: "What are common positions for safe breastfeeding?",
+      answer: "The baby’s head should be higher than the body, the body facing the mother, and the entire nipple and areola inside the baby’s mouth.",
+    ),
+    PredefinedQuestion(
+      question: "How should a baby be bathed and cleaned?",
+      answer: "Use warm water and mild soap. Gently clean underarms, neck folds, and diaper area. Dry the baby thoroughly after each bath.",
+    ),
+    PredefinedQuestion(
+      question: "How should the baby’s umbilical cord be cared for?",
+      answer: "Keep it dry and clean. Do not cover with cloth or apply any substances. Let it fall off naturally. If there’s pus or a bad smell, seek medical help.",
+    ),
+    PredefinedQuestion(
+      question: "How should a baby be held properly?",
+      answer: "Always support the neck and head. Hold the baby close to your chest, especially when feeding or carrying.",
+    ),
+    PredefinedQuestion(
+      question: "What should be done if a baby has a fever or refuses to feed?",
+      answer: "The baby should be taken to the hospital or clinic immediately. Delaying care can cause complications.",
+    ),
+    PredefinedQuestion(
+      question: "How often should a baby’s clothes and bedding be changed?",
+      answer: "Daily, or immediately if soiled. Cleanliness prevents rashes and infections.",
+    ),
+    PredefinedQuestion(
+      question: "How can mothers prevent diaper rash?",
+      answer: "Change diapers often, let the baby go diaper-free when possible, clean with warm water, and apply a safe barrier cream if needed.",
+    ),
+    PredefinedQuestion(
+      question: "Is it safe to take a baby outside?",
+      answer: "Yes, after 6 weeks, in mild weather. Avoid crowds, smoke, and sick people. Dress the baby appropriately for the weather.",
+    ),
+  ],
+  'nutrition': [
+    PredefinedQuestion(
+      question: "What are the important nutrients a pregnant woman needs?",
+      answer: "Iron, folic acid, calcium, protein, and vitamins are essential. These support the baby’s growth and prevent health issues like anemia and weak bones.",
+    ),
+    PredefinedQuestion(
+      question: "What foods are good sources of iron during pregnancy?",
+      answer: "Green leafy vegetables, lentils, red meat, fish, eggs, and iron-fortified cereals are excellent sources.",
+    ),
+    PredefinedQuestion(
+      question: "Why is it important for pregnant women to eat small, frequent meals?",
+      answer: "It helps reduce nausea, heartburn, and maintains steady energy levels for both mother and baby.",
+    ),
+    PredefinedQuestion(
+      question: "What foods should a pregnant woman avoid?",
+      answer: "Avoid raw fish, undercooked meat, unpasteurized milk, alcohol, too much salt, and sugary drinks.",
+    ),
+    PredefinedQuestion(
+      question: "How can a mother maintain hydration during pregnancy?",
+      answer: "Drink at least 8–10 glasses of clean water daily, especially in hot weather or after physical activity.",
+    ),
+    PredefinedQuestion(
+      question: "When should solid foods be introduced to a baby?",
+      answer: "At 6 months. Begin with mashed vegetables, rice, lentils, and gradually introduce more textures and types.",
+    ),
+    PredefinedQuestion(
+      question: "What are signs a baby is ready for solid food?",
+      answer: "When the baby can sit with support, shows interest in food, and doesn’t push food out with the tongue.",
+    ),
+    PredefinedQuestion(
+      question: "What types of food should be avoided when starting solids?",
+      answer: "Avoid honey, salt, sugar, whole nuts, spicy food, and foods that may cause choking.",
+    ),
+    PredefinedQuestion(
+      question: "How should food be prepared for babies?",
+      answer: "Food should be clean, well-cooked, soft, and mashed or pureed. Use clean utensils and wash hands before preparation.",
+    ),
+    PredefinedQuestion(
+      question: "How many meals should a child have after starting solids?",
+      answer: "At 6–8 months: 2–3 meals + 1 snack. At 9–11 months: 3–4 meals + 1–2 snacks per day along with breastfeeding.",
+    ),
+  ],
+  'vaccination': [
+    PredefinedQuestion(
+      question: "What vaccines are given at birth in Sri Lanka?",
+      answer: "BCG (for tuberculosis) and OPV (Oral Polio Vaccine) are given at birth.",
+    ),
+    PredefinedQuestion(
+      question: "When are DTP vaccines administered?",
+      answer: "At 2 months, 4 months, and 6 months as part of the infant immunization schedule.",
+    ),
+    PredefinedQuestion(
+      question: "Are vaccines safe for babies?",
+      answer: "Yes. They are thoroughly tested and protect against serious diseases. Side effects are usually mild and temporary.",
+    ),
+    PredefinedQuestion(
+      question: "What are common side effects after a baby receives vaccines?",
+      answer: "Mild fever, swelling at injection site, and crankiness. These usually disappear in 1–2 days.",
+    ),
+    PredefinedQuestion(
+      question: "What should be done if a baby misses a vaccine?",
+      answer: "Visit the nearest clinic or MOH office immediately. Missed vaccines can often be given later.",
+    ),
+    PredefinedQuestion(
+      question: "Are vaccines free in government clinics in Sri Lanka?",
+      answer: "Yes. All vaccines in the national schedule are provided free of charge at government health facilities.",
+    ),
+    PredefinedQuestion(
+      question: "Is vaccination compulsory?",
+      answer: "It is strongly recommended by the Ministry of Health. Most schools require proof of vaccination for admission.",
+    ),
+    PredefinedQuestion(
+      question: "Can a sick baby be vaccinated?",
+      answer: "Mild colds or coughs are not a reason to delay vaccination. However, if the baby has a high fever or serious illness, consult a doctor first.",
+    ),
+    PredefinedQuestion(
+      question: "Why is it important to complete the full vaccination schedule?",
+      answer: "Full protection is only achieved after all doses. Partial vaccination may not prevent illness effectively.",
+    ),
+  ],
+  'other': [
+    PredefinedQuestion(
+      question: "What should a mother do if she forgets her clinic date?",
+      answer: "She should contact her midwife or visit the nearest MOH clinic immediately to reschedule and avoid missing important checkups or vaccinations.",
+    ),
+    PredefinedQuestion(
+      question: "How can a mother register her pregnancy?",
+      answer: "Visit the nearest MOH office or inform the area midwife. Early registration helps track pregnancy progress and ensure proper medical care.",
+    ),
+    PredefinedQuestion(
+      question: "What records should a mother maintain during pregnancy and after childbirth?",
+      answer: "She should keep the pregnancy record book and child health development record updated with clinic visits, vaccinations, and growth data.",
+    ),
+    PredefinedQuestion(
+      question: "What are some important items to take when visiting the clinic?",
+      answer: "Bring the clinic book, previous test reports, vaccination cards, and any prescribed medications.",
+    ),
+    PredefinedQuestion(
+      question: "What are the responsibilities of the area midwife?",
+      answer: "The midwife provides home visits, monitors maternal and child health, offers advice, gives supplements, and updates records regularly.",
+    ),
+    PredefinedQuestion(
+      question: "How does the Public Health Inspector (PHI) help during and after pregnancy?",
+      answer: "PHIs supervise environmental and community hygiene, ensure vaccination programs, and follow up on public health needs in the area.",
+    ),
+    PredefinedQuestion(
+      question: "How should a family support a pregnant woman or new mother?",
+      answer: "Family members should help with chores, ensure the mother gets rest, accompany her to clinics, and support mental well-being.",
+    ),
+    PredefinedQuestion(
+      question: "Why is early childhood development monitoring important?",
+      answer: "It helps detect delays in speech, motor skills, or behavior so interventions can begin early to improve outcomes.",
+    ),
+    PredefinedQuestion(
+      question: "What is the importance of birth registration?",
+      answer: "It legally recognizes the child, enables school admission, access to healthcare, and social services. It should be done within 42 days of birth.",
+    ),
+    PredefinedQuestion(
+      question: "What signs in a baby indicate a need for urgent medical care?",
+      answer: "Signs include poor feeding, lethargy, breathing difficulty, persistent crying, vomiting, diarrhea, or fever. Immediate care is needed.",
+    ),
+    PredefinedQuestion(
+      question: "How can a mother get health advice outside clinic hours?",
+      answer: "She can contact the area midwife or use government health hotlines. Emergency services are also available through hospitals.",
+    ),
+    PredefinedQuestion(
+      question: "What are the benefits of home visits by the midwife?",
+      answer: "Midwives offer personalized care, monitor home environment, guide mothers on hygiene, breastfeeding, and spot health risks early.",
+    ),
+    PredefinedQuestion(
+      question: "What role does hygiene play in maternal and child health?",
+      answer: "Good hygiene prevents infections, improves comfort, and ensures faster recovery after delivery. Clean clothes, food, and surroundings are essential.",
+    ),
+  ],
+};
 
   @override
   void initState() {

@@ -1,9 +1,23 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'dart:io';
 import '../models/appointment.dart';
 
 class AppointmentService {
-  static const String baseUrl = 'http://localhost/api/appointments';
+  // Dynamic base URL based on platform
+  static String get baseUrl {
+    if (kIsWeb) {
+      // For web (Chrome, Firefox, etc.)
+      return 'http://localhost:8080/api/appointments';
+    } else if (Platform.isAndroid) {
+      // For Android emulator (10.0.2.2 maps to host localhost)
+      return 'http://10.0.2.2:8080/api/appointments';
+    } else {
+      // For iOS simulator and other platforms
+      return 'http://localhost:8080/api/appointments';
+    }
+  }
 
   // Available time slots
   static const List<String> timeSlots = [
