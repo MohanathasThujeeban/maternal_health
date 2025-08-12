@@ -3,19 +3,20 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../models/appointment.dart';
+import '../config/api_config.dart';
 
 class AppointmentService {
-  // Dynamic base URL based on platform
+  // Dynamic base URL based on platform - enhanced with centralized config
   static String get baseUrl {
     if (kIsWeb) {
-      // For web (Chrome, Firefox, etc.)
-      return 'http://localhost:8080/api/appointments';
+      // For web (Chrome, Firefox, etc.) - use localhost
+      return 'http://localhost:${ApiConfig.serverPort}/api/appointments';
     } else if (Platform.isAndroid) {
       // For Android emulator (10.0.2.2 maps to host localhost)
-      return 'http://10.0.2.2:8080/api/appointments';
+      return 'http://10.0.2.2:${ApiConfig.serverPort}/api/appointments';
     } else {
-      // For iOS simulator and other platforms
-      return 'http://localhost:8080/api/appointments';
+      // For iOS simulator and other platforms - use WiFi IP from config
+      return ApiConfig.appointmentsUrl;
     }
   }
 
@@ -34,7 +35,7 @@ class AppointmentService {
     '03:00 PM',
     '03:30 PM',
     '04:00 PM',
-    '04:30 PM',    
+    '04:30 PM',
   ];
 
   // Available providers

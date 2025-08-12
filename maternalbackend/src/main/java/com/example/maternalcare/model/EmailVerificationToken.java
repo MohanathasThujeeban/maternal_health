@@ -16,10 +16,10 @@ public class EmailVerificationToken {
     @Column(nullable = false, unique = true)
     private String token;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime expiryDate;
     
     private boolean verified = false;

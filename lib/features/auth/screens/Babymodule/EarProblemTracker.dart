@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -13,10 +13,10 @@ class MyApp extends StatelessWidget {
       title: 'Baby Eye/Ear Problems',
       theme: ThemeData(
         primarySwatch: Colors.cyan,
-        primaryColor: Color(0xFF00D4D4),
-        scaffoldBackgroundColor: Color(0xFFF5F5F5),
+        primaryColor: const Color(0xFF00D4D4),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
       ),
-      home: BabyProblemsScreen(),
+      home: const BabyProblemsScreen(),
     );
   }
 }
@@ -62,7 +62,6 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
   String? selectedDuration;
   bool showHistory = false;
 
-  // Common eye problems for babies under 5
   final List<String> eyeProblems = [
     'None',
     'Blocked Tear Duct',
@@ -74,7 +73,6 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
     'Other',
   ];
 
-  // Common ear problems for babies under 5
   final List<String> earProblems = [
     'None',
     'Ear Infection',
@@ -98,7 +96,18 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
   void initState() {
     super.initState();
     _diagnosisDateController.text = DateTime.now().toString().split(' ')[0];
+    selectedEyeProblem = 'None';
+    selectedEarProblem = 'None';
+    selectedDuration = 'Less than 1 day';
     _initializeSampleData();
+  }
+
+  @override
+  void dispose() {
+    _patientNameController.dispose();
+    _remarksController.dispose();
+    _diagnosisDateController.dispose();
+    super.dispose();
   }
 
   void _initializeSampleData() {
@@ -111,7 +120,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
         symptomsDuration: '1-2 weeks',
         remarks: 'Excessive tearing in left eye. Gentle massage recommended.',
         dateOfDiagnosis: '2024-07-10',
-        createdAt: DateTime.now().subtract(Duration(days: 6)),
+        createdAt: DateTime.now().subtract(const Duration(days: 6)),
       ),
       ProblemRecord(
         id: 2,
@@ -121,16 +130,16 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
         symptomsDuration: '3-7 days',
         remarks: 'Fussy, pulling at ear. Prescribed antibiotic drops.',
         dateOfDiagnosis: '2024-07-12',
-        createdAt: DateTime.now().subtract(Duration(days: 4)),
+        createdAt: DateTime.now().subtract(const Duration(days: 4)),
       ),
     ];
   }
 
   void _saveRecord() {
     if (_patientNameController.text.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please enter patient name')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter patient name')),
+      );
       return;
     }
 
@@ -152,29 +161,29 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Record saved successfully')));
+    ).showSnackBar(const SnackBar(content: Text('Record saved successfully')));
   }
 
   void _clearForm() {
     _patientNameController.clear();
     _remarksController.clear();
     _diagnosisDateController.text = DateTime.now().toString().split(' ')[0];
-    selectedEyeProblem = null;
-    selectedEarProblem = null;
-    selectedDuration = null;
+    selectedEyeProblem = 'None';
+    selectedEarProblem = 'None';
+    selectedDuration = 'Less than 1 day';
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Baby Eye/Ear Problems'),
-        backgroundColor: Color(0xFF00D4D4),
+        title: const Text('Baby Eye/Ear Problems'),
+        backgroundColor: const Color(0xFF00D4D4),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -182,10 +191,10 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
             Card(
               elevation: 2,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: TextFormField(
                   controller: _patientNameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Baby Name *',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(
@@ -197,17 +206,17 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Eye and Ear Problems
             Card(
               elevation: 2,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Problems',
                       style: TextStyle(
                         fontSize: 18,
@@ -215,12 +224,12 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                         color: Color(0xFF00D4D4),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Eye Problem
                     DropdownButtonFormField<String>(
                       value: selectedEyeProblem,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Eye Problem',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
@@ -241,12 +250,12 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                       },
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Ear Problem
                     DropdownButtonFormField<String>(
                       value: selectedEarProblem,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Ear Problem',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
@@ -271,18 +280,18 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Duration and Date
             Card(
               elevation: 2,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     DropdownButtonFormField<String>(
                       value: selectedDuration,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Symptoms Duration',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
@@ -303,11 +312,11 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                       },
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     TextFormField(
                       controller: _diagnosisDateController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Date of Diagnosis',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(
@@ -323,11 +332,13 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                           firstDate: DateTime(2020),
                           lastDate: DateTime.now(),
                         );
-                        setState(() {
-                          _diagnosisDateController.text = pickedDate
-                              .toString()
-                              .split(' ')[0];
-                        });
+                        if (pickedDate != null) {
+                          setState(() {
+                            _diagnosisDateController.text = pickedDate
+                                .toString()
+                                .split(' ')[0];
+                          });
+                        }
                       },
                     ),
                   ],
@@ -335,16 +346,16 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
               ),
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Remarks
             Card(
               elevation: 2,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: TextFormField(
                   controller: _remarksController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Doctor\'s Notes / Remarks',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.note, color: Color(0xFF00D4D4)),
@@ -354,7 +365,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Action Buttons
             Row(
@@ -362,19 +373,19 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: _saveRecord,
-                    icon: Icon(Icons.save),
-                    label: Text('Save Record'),
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Record'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF00D4D4),
+                      backgroundColor: const Color(0xFF00D4D4),
                       foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: () {
@@ -382,12 +393,12 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                         showHistory = !showHistory;
                       });
                     },
-                    icon: Icon(Icons.history),
+                    icon: const Icon(Icons.history),
                     label: Text(showHistory ? 'Hide History' : 'View History'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Color(0xFF00D4D4),
-                      side: BorderSide(color: Color(0xFF00D4D4)),
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      foregroundColor: const Color(0xFF00D4D4),
+                      side: const BorderSide(color: Color(0xFF00D4D4)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -397,18 +408,18 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
               ],
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // History Section
             if (showHistory) ...[
               Card(
                 elevation: 2,
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Recent Records',
                         style: TextStyle(
                           fontSize: 18,
@@ -416,7 +427,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                           color: Color(0xFF00D4D4),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       ...problemRecords.map(
                         (record) => _buildHistoryItem(record),
                       ),
@@ -433,10 +444,10 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
 
   Widget _buildHistoryItem(ProblemRecord record) {
     return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Color(0xFF00D4D4).withOpacity(0.1),
+        color: const Color(0xFF00D4D4).withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -446,34 +457,41 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
             children: [
               Text(
                 record.patientName,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-              Spacer(),
+              const Spacer(),
               Text(
                 record.dateOfDiagnosis,
                 style: TextStyle(color: Colors.grey[600], fontSize: 12),
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           if (record.eyeProblem != 'None')
             Row(
-              children: [
+              children: const [
                 Icon(Icons.visibility, size: 16, color: Color(0xFF00D4D4)),
                 SizedBox(width: 4),
-                Text(record.eyeProblem, style: TextStyle(fontSize: 14)),
+                // Text will come from below
+              ],
+            ),
+          if (record.eyeProblem != 'None')
+            Text(record.eyeProblem, style: const TextStyle(fontSize: 14)),
+          if (record.earProblem != 'None')
+            Row(
+              children: const [
+                Icon(Icons.hearing, size: 16, color: Color(0xFF00D4D4)),
+                SizedBox(width: 4),
+                // Text will come from below
               ],
             ),
           if (record.earProblem != 'None')
-            Row(
-              children: [
-                Icon(Icons.hearing, size: 16, color: Color(0xFF00D4D4)),
-                SizedBox(width: 4),
-                Text(record.earProblem, style: TextStyle(fontSize: 14)),
-              ],
-            ),
+            Text(record.earProblem, style: const TextStyle(fontSize: 14)),
           if (record.remarks.isNotEmpty) ...[
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               record.remarks,
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),

@@ -300,7 +300,7 @@
             <div class="welcome-icon">🎉</div>
             <h2 class="main-title">Congratulations!</h2>
             
-            <div class="user-name" th:text="${userName}">Welcome, [User Name]!</div>
+            <div class="user-name">Welcome, {{userName}}!</div>
             
             <p class="message">
                 🌟 <strong>Your registration was successful!</strong> 🌟<br><br>
@@ -388,16 +388,11 @@
                 <strong>Phone:</strong> 0755420809
             </p>
             
-            <div class="social-links">
-                <a href="#" title="Facebook">📘</a>
-                <a href="#" title="Instagram">📷</a>
-                <a href="#" title="Twitter">🐦</a>
-                <a href="#" title="YouTube">📺</a>
-            </div>
+
             
             <p style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
-                © 2025 Maternal Health App. All rights reserved.<br>
-                This email was sent to <span th:text="${userEmail}">[email]</span>
+                © {{currentYear}} Maternal Health App. All rights reserved.<br>
+                This email was sent to {{userEmail}}
             </p>
         </div>
     </div>

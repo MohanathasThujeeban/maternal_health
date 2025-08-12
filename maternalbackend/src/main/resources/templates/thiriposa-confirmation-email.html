@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiriposa Record Confirmation - Maternal Health Care</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background-color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px 30px;
+        }
+        
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .thiriposa-info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .thiriposa-info::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+        
+        .thiriposa-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            display: block;
+            border-radius: 8px;
+        }
+        
+        .record-details {
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .quantity-highlight {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .message {
+            background-color: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .message h3 {
+            margin-bottom: 10px;
+            color: #155724;
+        }
+        
+        .next-steps {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+        }
+        
+        .next-steps h3 {
+            margin-bottom: 15px;
+            color: #856404;
+        }
+        
+        .next-steps ul {
+            padding-left: 20px;
+        }
+        
+        .next-steps li {
+            margin-bottom: 8px;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .contact-info {
+            margin-bottom: 20px;
+        }
+        
+        .contact-info p {
+            margin-bottom: 5px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .disclaimer {
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.5;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 25px 20px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .detail-value {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <img src="logo.png" alt="Maternal Health Care Logo" />
+            </div>
+            <h1>Maternal Health Care System</h1>
+            <p>Thiriposa Record Confirmation</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                Dear <strong>{{motherName}}</strong>,
+            </div>
+            
+            <p>We hope this message finds you and your baby in good health. We're writing to confirm that your Thiriposa nutrition supplement record has been successfully updated in our system.</p>
+            
+            <!-- Thiriposa Information Section -->
+            <div class="thiriposa-info">
+                <img src="cid:thiriposa" alt="Thiriposa Supplement" class="thiriposa-icon" />
+                <h3 style="text-align: center; margin-bottom: 15px; color: #333;">Thiriposa Supplement Record</h3>
+                <p style="text-align: center; color: #666; font-size: 14px;">Essential nutrition supplement for maternal health</p>
+            </div>
+            
+            <!-- Record Details -->
+            <div class="record-details">
+                <h3 style="margin-bottom: 20px; color: #333; text-align: center;">Record Details</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">📅 Supply Date:</span>
+                    <span class="detail-value">{{supplyDate}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">💊 Quantity Provided:</span>
+                    <span class="detail-value quantity-highlight">{{quantity}} packets</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">👩‍⚕️ Recorded by:</span>
+                    <span class="detail-value">{{midwifeName}}</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">⏰ Record Time:</span>
+                    <span class="detail-value">{{recordTime}}</span>
+                </div>
+                
+                {{#notes}}
+                <div class="detail-row">
+                    <span class="detail-label">📝 Additional Notes:</span>
+                    <span class="detail-value">{{notes}}</span>
+                </div>
+                {{/notes}}
+            </div>
+            
+            <!-- Important Message -->
+            <div class="message">
+                <h3> Important Information</h3>
+                <p><strong>Thiriposa</strong> is a vital nutrition supplement that provides essential vitamins and minerals for both you and your baby's health during pregnancy and breastfeeding. Please take the supplements as advised by your healthcare provider.</p>
+            </div>
+            
+            <!-- Next Steps -->
+            <div class="next-steps">
+                <h3>📋 Next Steps & Reminders</h3>
+                <ul>
+                    <li>Take the supplements as prescribed by your midwife</li>
+                    <li>Keep track of your daily dosage</li>
+                    <li>Contact your midwife if you experience any side effects</li>
+                    <li>Attend your next scheduled appointment on time</li>
+                    <li>Keep this record for your personal health documentation</li>
+                </ul>
+            </div>
+            
+            <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                If you have any questions about your Thiriposa supplement or this record, please don't hesitate to contact your healthcare provider or our support team.
+            </p>
+            
+            <p style="margin-top: 20px; color: #333;">
+                Thank you for trusting us with your maternal health care journey. 💕
+            </p>
+            
+            <p style="margin-top: 15px; color: #333; font-weight: 500;">
+                Best regards,<br>
+                <strong>Maternal Health Care Team</strong>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="contact-info">
+                <p><strong>Maternal Health Care System</strong></p>
+                <p>📞 Contact: +94 755420809</p>
+                <p>📧 Email: support@maternalhealth.lk</p>
+                <p>🌐 Web: www.maternalhealth.lk</p>
+            </div>
+            
+            <div class="disclaimer">
+                <p><strong>Disclaimer:</strong> This is an automated notification from the Maternal Health Care System. This record is for your personal health documentation. Please consult your healthcare provider for any medical advice or concerns. If you received this email by mistake, please ignore it.</p>
+                <p style="margin-top: 10px;">© 2025 Maternal Health Care System. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

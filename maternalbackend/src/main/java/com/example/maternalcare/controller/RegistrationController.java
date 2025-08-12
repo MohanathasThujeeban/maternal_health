@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.RegistrationRequest;
 import com.example.maternalcare.model.Registration;
@@ -16,11 +17,13 @@ import com.example.maternalcare.services.EmailVerificationService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @RequestMapping("/api") // Fixed: Use /api prefix to match Flutter API calls
 public class RegistrationController {
     
@@ -45,6 +48,7 @@ public class RegistrationController {
 
     // Add a test endpoint to verify the controller is working
     @GetMapping("/test")
+    @ResponseBody
     public ResponseEntity<?> test() {
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -53,7 +57,57 @@ public class RegistrationController {
         return ResponseEntity.ok(response);
     }
 
+    // Test endpoint to add sample users for Thiriposa testing
+    @PostMapping("/registration/add-sample-data")
+    @ResponseBody
+    public ResponseEntity<?> addSampleData() {
+        System.out.println("=== ADD SAMPLE DATA ENDPOINT HIT ===");
+        
+        try {
+            // Add sample mother user
+            Registration sampleMother = new Registration();
+            sampleMother.setFullName("Samanthi Perera");
+            sampleMother.setNicNumber("199876543210");
+            sampleMother.setPhoneNumber3("0771234568");
+            sampleMother.setPassword(passwordEncoder.encode("password123"));
+            sampleMother.setEmail("samanthi@example.com");
+            
+            // Check if already exists
+            if (repository.findByNicNumber("199876543210").isEmpty() && 
+                repository.findByEmail("samanthi@example.com").isEmpty()) {
+                repository.save(sampleMother);
+                System.out.println("Sample mother user added");
+            }
+            
+            // Add another sample user
+            Registration sampleMother2 = new Registration();
+            sampleMother2.setFullName("Nimalka Silva");
+            sampleMother2.setNicNumber("199234567890");
+            sampleMother2.setPhoneNumber3("0771234569");
+            sampleMother2.setPassword(passwordEncoder.encode("password123"));
+            sampleMother2.setEmail("nimalka@example.com");
+            
+            if (repository.findByNicNumber("199234567890").isEmpty() && 
+                repository.findByEmail("nimalka@example.com").isEmpty()) {
+                repository.save(sampleMother2);
+                System.out.println("Sample mother user 2 added");
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Sample data added successfully");
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Add sample data error: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Failed to add sample data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/registration")
+    @ResponseBody
     public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
         System.out.println("=== REGISTRATION ENDPOINT HIT ===");
         System.out.println("Request body: " + request);
@@ -152,6 +206,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration/send-verification")
+    @ResponseBody
     public ResponseEntity<?> sendVerification(@RequestBody Map<String, String> body) {
         System.out.println("=== SEND VERIFICATION ENDPOINT HIT ===");
         
@@ -191,6 +246,7 @@ public class RegistrationController {
     }
 
     @GetMapping("/registration/verify-api")
+    @ResponseBody
     public ResponseEntity<?> verifyEmailApi(@RequestParam String token) {
         System.out.println("=== VERIFY EMAIL API ENDPOINT HIT ===");
         
@@ -216,7 +272,29 @@ public class RegistrationController {
         }
     }
     
+    @GetMapping("/registration/verify-email")
+    public String verifyEmailPage(@RequestParam String token) {
+        System.out.println("=== VERIFY EMAIL HTML PAGE ENDPOINT HIT ===");
+        
+        try {
+            boolean success = emailVerificationService.verifyEmail(token);
+            
+            if (success) {
+                System.out.println("Email verification successful, returning success page");
+                return "email-verification-success";
+            } else {
+                System.out.println("Email verification failed, returning error page");
+                return "email-verification-error";
+            }
+        } catch (Exception e) {
+            System.err.println("Verify email page error: " + e.getMessage());
+            e.printStackTrace();
+            return "email-verification-error";
+        }
+    }
+    
     @GetMapping("/registration/check-verification")
+    @ResponseBody
     public ResponseEntity<?> checkVerificationStatus(@RequestParam String email) {
         System.out.println("=== CHECK VERIFICATION STATUS ENDPOINT HIT ===");
         
@@ -238,6 +316,7 @@ public class RegistrationController {
     }
 
     @PostMapping("/registration/verify-email")
+    @ResponseBody
     public ResponseEntity<?> verifyEmailAvailability(@RequestBody Map<String, String> body) {
         System.out.println("=== VERIFY EMAIL AVAILABILITY ENDPOINT HIT ===");
         
@@ -266,6 +345,38 @@ public class RegistrationController {
             System.err.println("Email validation error: " + e.getMessage());
             e.printStackTrace();
             return createErrorResponse("Email validation failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Get all registered users (for Thiriposa management)
+    @GetMapping("/registration/all")
+    @ResponseBody
+    public ResponseEntity<?> getAllUsers() {
+        System.out.println("=== GET ALL USERS ENDPOINT HIT ===");
+        
+        try {
+            List<Registration> allUsers = repository.findAll();
+            
+            // Create a simplified user list for the API response
+            List<Map<String, Object>> userList = allUsers.stream()
+                .map(user -> {
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("id", user.getId());
+                    userData.put("nicNumber", user.getNicNumber());
+                    userData.put("fullName", user.getFullName());
+                    userData.put("email", user.getEmail());
+                    userData.put("phoneNumber", user.getPhoneNumber3());
+                    return userData;
+                })
+                .collect(Collectors.toList());
+            
+            System.out.println("Found " + userList.size() + " registered users");
+            return ResponseEntity.ok(userList);
+            
+        } catch (Exception e) {
+            System.err.println("Get all users error: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Failed to fetch users: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

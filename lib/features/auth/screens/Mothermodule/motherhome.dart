@@ -6,6 +6,10 @@ import '../../../../services/appointment_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../appointments/schedule_appointment_screen.dart';
 import '../../../../widgets/custom_loading.dart';
+import '../../../thiriposa/thiriposa_records_screen.dart';
+import './health_records_screen.dart';
+import './baby_records_screen.dart';
+import './vaccinations_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -15,16 +19,6 @@ class MotherHomeScreen extends StatefulWidget {
 }
 
 class _MotherHomeScreenState extends State<MotherHomeScreen> {
-  int _selectedIndex = 0;
-
-  final List<Widget> _pages = [
-    const MotherDashboardTab(),
-    const BabyGrowthTab(),
-    const HealthRecordsTab(),
-    const AppointmentsTab(),
-    const ChatTab(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
@@ -58,48 +52,7 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF4FC3A1),
-        unselectedItemColor: Colors.grey,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: localizations.home,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.child_care),
-            label: localizations.babyGrowth,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.medical_services),
-            label: localizations.healthRecords,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.calendar_today),
-            label: localizations.appointments,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.chat),
-            label: localizations.chat,
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to health chatbox
-          Navigator.pushNamed(context, '/health-chatbox');
-        },
-        backgroundColor: const Color(0xFF4FC3A1),
-        child: const Icon(Icons.question_answer, color: Colors.white),
-      ),
+      body: const MotherDashboardScreen(),
     );
   }
 
@@ -162,6 +115,341 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
           ],
         );
       },
+    );
+  }
+}
+
+// New comprehensive dashboard screen
+class MotherDashboardScreen extends StatelessWidget {
+  const MotherDashboardScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Welcome Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontFamily: 'SpotifyCircular',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'How are you and your baby feeling today?',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 16,
+                    fontFamily: 'SpotifyCircular',
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Baby Care Section
+          _buildCategorySection(
+            context,
+            title: '👶 Baby Care',
+            subtitle: 'Track your baby\'s growth and development',
+            cards: [
+              _CategoryCard(
+                icon: Icons.insights,
+                title: 'Baby Growth Chart',
+                description: 'Track weight, height, and development',
+                color: const Color(0xFF4FC3A1),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BabyRecordsScreen(),
+                  ),
+                ),
+              ),
+              _CategoryCard(
+                icon: Icons.vaccines,
+                title: 'Vaccinations',
+                description: 'View vaccination schedule and records',
+                color: const Color(0xFF42A5F5),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const VaccinationsScreen(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Health & Medical Section
+          _buildCategorySection(
+            context,
+            title: '🏥 Health & Medical',
+            subtitle: 'Manage your health records and appointments',
+            cards: [
+              _CategoryCard(
+                icon: Icons.medical_services,
+                title: 'Health Records',
+                description: 'View medical history and reports',
+                color: const Color(0xFFE91E63),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HealthRecordsScreen(),
+                  ),
+                ),
+              ),
+              _CategoryCard(
+                icon: Icons.calendar_today,
+                title: 'Appointments',
+                description: 'Schedule and manage appointments',
+                color: const Color(0xFFFF9800),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ScheduleAppointmentScreen(),
+                  ),
+                ),
+              ),
+              _CategoryCard(
+                icon: Icons.inventory_2,
+                title: 'Thiriposa Records',
+                description: 'Track nutrition supplement records',
+                color: const Color(0xFF9C27B0),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ThiriposaRecordsScreen(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Quick Actions Section
+          _buildCategorySection(
+            context,
+            title: '⚡ Quick Actions',
+            subtitle: 'Frequently used features',
+            cards: [
+              _CategoryCard(
+                icon: Icons.question_answer,
+                title: 'Health Chat',
+                description: 'Ask health questions anytime',
+                color: const Color(0xFF4CAF50),
+                onTap: () {
+                  // Navigate to health chatbox
+                  Navigator.pushNamed(context, '/health-chatbox');
+                },
+              ),
+              _CategoryCard(
+                icon: Icons.phone,
+                title: 'Emergency Contact',
+                description: 'Quick access to emergency services',
+                color: const Color(0xFFF44336),
+                onTap: () {
+                  _showEmergencyDialog(context);
+                },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategorySection(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required List<_CategoryCard> cards,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'SpotifyCircular',
+            color: Color(0xFF2E7D5A),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          subtitle,
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+            fontFamily: 'SpotifyCircular',
+          ),
+        ),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 0.85,
+          children: cards,
+        ),
+      ],
+    );
+  }
+
+  void _showEmergencyDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Emergency Contacts',
+            style: TextStyle(
+              fontFamily: 'SpotifyCircular',
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E7D5A),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.local_hospital, color: Colors.red),
+                title: const Text('Emergency Services'),
+                subtitle: const Text('110 / 119'),
+                onTap: () {
+                  // Call emergency services
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.medical_services, color: Colors.blue),
+                title: const Text('Hospital'),
+                subtitle: const Text('Your registered hospital'),
+                onTap: () {
+                  // Call hospital
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person, color: Colors.green),
+                title: const Text('Your Doctor'),
+                subtitle: const Text('Dr. Smith'),
+                onTap: () {
+                  // Call doctor
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text(
+                'Close',
+                style: TextStyle(
+                  color: Color(0xFF4FC3A1),
+                  fontFamily: 'SpotifyCircular',
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+// Category Card Widget
+class _CategoryCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _CategoryCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'SpotifyCircular',
+                  color: Color(0xFF2E2E2E),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontFamily: 'SpotifyCircular',
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -440,14 +728,48 @@ class HealthRecordsTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Health Records & Vaccinations',
-            style: TextStyle(
-              fontFamily: 'SpotifyCircular',
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2E7D5A),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Health Records & Vaccinations',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VaccinationsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.vaccines, size: 18, color: Colors.white),
+                label: const Text(
+                  'View All',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4FC3A1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
 
@@ -461,14 +783,38 @@ class HealthRecordsTab extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Vaccination Progress',
-                  style: TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF2E7D5A),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Vaccination Progress',
+                      style: TextStyle(
+                        fontFamily: 'SpotifyCircular',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF2E7D5A),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const VaccinationsScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontSize: 12,
+                          color: Color(0xFF4FC3A1),
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 LinearProgressIndicator(
@@ -493,6 +839,43 @@ class HealthRecordsTab extends StatelessWidget {
 
           const SizedBox(height: 20),
 
+          // Recent Vaccinations Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Recent Vaccinations',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const VaccinationsScreen(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  'See All',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    color: Color(0xFF4FC3A1),
+                    fontSize: 12,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 10),
+
           Expanded(
             child: ListView(
               children: [
@@ -515,33 +898,9 @@ class HealthRecordsTab extends StatelessWidget {
                   isCompleted: true,
                 ),
                 _VaccinationCard(
-                  name: 'Polio (1st dose)',
-                  date: 'Mar 15, 2025',
-                  status: 'Completed',
-                  isCompleted: true,
-                ),
-                _VaccinationCard(
-                  name: 'DPT (2nd dose)',
-                  date: 'Apr 15, 2025',
-                  status: 'Completed',
-                  isCompleted: true,
-                ),
-                _VaccinationCard(
-                  name: 'Polio (2nd dose)',
-                  date: 'Apr 15, 2025',
-                  status: 'Completed',
-                  isCompleted: true,
-                ),
-                _VaccinationCard(
                   name: 'MMR',
                   date: 'Aug 3, 2025',
                   status: 'Due Soon',
-                  isCompleted: false,
-                ),
-                _VaccinationCard(
-                  name: 'Varicella',
-                  date: 'Sep 15, 2025',
-                  status: 'Scheduled',
                   isCompleted: false,
                 ),
               ],

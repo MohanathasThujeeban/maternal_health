@@ -26,6 +26,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// Patients records
 class PatientRecord {
   final int id;
   String mothersName;
@@ -273,7 +274,7 @@ class _ViewUpdateRecordsScreenState extends State<ViewUpdateRecordsScreen> {
         controller.text = _formatDate(pickedDate);
       });
     }
-    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -2,19 +2,20 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import '../../../config/api_config.dart';
 
 class ApiService {
-  // Dynamic base URL based on platform
+  // Dynamic base URL based on platform - enhanced with centralized config
   static String get baseUrl {
     if (kIsWeb) {
-      // For web (Chrome, Firefox, etc.)
-      return 'http://localhost:8080/api';
+      // For web (Chrome, Firefox, etc.) - use localhost
+      return 'http://localhost:${ApiConfig.serverPort}/api';
     } else if (Platform.isAndroid) {
       // For Android emulator (10.0.2.2 maps to host localhost)
-      return 'http://10.0.2.2:8080/api';
+      return 'http://10.0.2.2:${ApiConfig.serverPort}/api';
     } else {
-      // For iOS simulator and other platforms
-      return 'http://localhost:8080/api';
+      // For iOS simulator and other platforms - use WiFi IP from config
+      return ApiConfig.baseApiUrl;
     }
   }
 

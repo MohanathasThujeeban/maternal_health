@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:maternal_health/features/auth/screens/Babymodule/EarProblemTracker.dart';
+import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.dart';
+import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
+import 'package:maternal_health/features/auth/screens/Doctormodule/doctor_dashboard.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -14,7 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   final List<Widget> _pages = [
     const MidwifeDashboardTab(),
-    const PatientsTab(),
+    const PatientsTab(), // Updated PatientsTab with buttons
     const AppointmentsTab(),
     const AnalyticsTab(),
     const ProfileTab(),
@@ -234,7 +237,7 @@ class MidwifeDashboardTab extends StatelessWidget {
 
             Expanded(
               child: ListView(
-                children: [
+                children: const [
                   _ActivityCard(
                     title: 'Prenatal Checkup',
                     subtitle:
@@ -418,295 +421,218 @@ class PatientsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Patients Management',
-        style: TextStyle(
-          fontFamily: 'SpotifyCircular',
-          fontSize: 18,
-          color: Color(0xFF2E7D5A),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
         ),
       ),
-    );
-  }
-}
-
-class AppointmentsTab extends StatefulWidget {
-  const AppointmentsTab({super.key});
-
-  @override
-  State<AppointmentsTab> createState() => _AppointmentsTabState();
-}
-
-class _AppointmentsTabState extends State<AppointmentsTab> {
-  final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> appointments = [];
-  List<Map<String, dynamic>> filteredAppointments = [];
-  bool isLoading = false;
-  String selectedFilter = 'all'; // all, pending, completed
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTodayAppointments();
-  }
-
-  Future<void> _loadTodayAppointments() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final response = await http.get(
-        Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/today',
-        ),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          appointments = data.map((e) => Map<String, dynamic>.from(e)).toList();
-          _applyFilter();
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error loading appointments: $e')));
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  void _applyFilter() {
-    setState(() {
-      if (selectedFilter == 'all') {
-        filteredAppointments = appointments;
-      } else {
-        filteredAppointments = appointments
-            .where(
-              (apt) => apt['status'].toString().toLowerCase() == selectedFilter,
-            )
-            .toList();
-      }
-    });
-  }
-
-  void _searchByNic(String nic) {
-    if (nic.isEmpty) {
-      _loadTodayAppointments();
-      return;
-    }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    // Search in today's appointments for the midwife
-    http
-        .get(
-          Uri.parse(
-            'http://10.0.2.2:8080/api/appointments/provider/MID001/search?nic=$nic',
-          ),
-          headers: {'Content-Type': 'application/json'},
-        )
-        .then((response) {
-          if (response.statusCode == 200) {
-            final List<dynamic> data = jsonDecode(response.body);
-            setState(() {
-              appointments = data
-                  .map((e) => Map<String, dynamic>.from(e))
-                  .toList();
-              _applyFilter();
-            });
-          }
-        })
-        .catchError((e) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error searching appointments: $e')),
-          );
-        })
-        .whenComplete(() {
-          setState(() {
-            isLoading = false;
-          });
-        });
-  }
-
-  Future<void> _updateAppointmentStatus(
-    int appointmentId,
-    String status,
-  ) async {
-    try {
-      final response = await http.put(
-        Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/$appointmentId/status',
-        ),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'status': status}),
-      );
-
-      if (response.statusCode == 200) {
-        _loadTodayAppointments(); // Refresh the list
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Appointment marked as $status')),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error updating appointment: $e')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          // Search and Filter Row
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search by NIC number...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onChanged: _searchByNic,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Patient Records Management',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2E7D5A),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  value: selectedFilter,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 'all', child: Text('All')),
-                    DropdownMenuItem(value: 'pending', child: Text('Pending')),
-                    DropdownMenuItem(
-                      value: 'completed',
-                      child: Text('Completed'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedFilter = value!;
-                      _applyFilter();
-                    });
-                  },
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Manage patient records and health data',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 16,
+                color: Colors.grey[600],
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
+            ),
+            const SizedBox(height: 24),
 
-          // Appointments List
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : filteredAppointments.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No appointments found for today',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: filteredAppointments.length,
-                    itemBuilder: (context, index) {
-                      final appointment = filteredAppointments[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          title: Text(
-                            appointment['motherName'] ?? 'Unknown',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('NIC: ${appointment['motherNic']}'),
-                              Text('Time: ${appointment['timeSlot']}'),
-                              if (appointment['additionalProblems'] != null)
-                                Text(
-                                  'Notes: ${appointment['additionalProblems']}',
-                                ),
-                            ],
-                          ),
-                          trailing:
-                              appointment['status'].toString().toLowerCase() ==
-                                  'pending'
-                              ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      ),
-                                      onPressed: () => _updateAppointmentStatus(
-                                        appointment['id'],
-                                        'COMPLETED',
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Chip(
-                                  label: Text(
-                                    appointment['status']
-                                        .toString()
-                                        .toUpperCase(),
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                  backgroundColor:
-                                      appointment['status']
-                                              .toString()
-                                              .toLowerCase() ==
-                                          'completed'
-                                      ? Colors.green
-                                      : Colors.orange,
-                                ),
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.1,
+                children: [
+                  _buildActionCard(
+                    context,
+                    title: 'Thiriposa Records',
+                    subtitle: 'Manage nutrition supplements',
+                    icon: Icons.inventory_2,
+                    color: const Color(0xFF4FC3A1),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ThiriposaManagementScreen(),
                         ),
                       );
                     },
                   ),
+                  _buildActionCard(
+                    context,
+                    title: 'Ear Problems',
+                    subtitle: 'Track baby ear issues',
+                    icon: Icons.hearing,
+                    color: const Color(0xFF4FC3A1),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BabyProblemsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Problem Updates',
+                    subtitle: 'Update health issues',
+                    icon: Icons.medical_services,
+                    color: const Color(0xFFFF9800),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProblemsManagementScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'View Records',
+                    subtitle: 'Browse all records',
+                    icon: Icons.folder_open,
+                    color: const Color(0xFF2196F3),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ViewUpdateRecordsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Reports',
+                    subtitle: 'Generate reports',
+                    icon: Icons.assessment,
+                    color: const Color(0xFF9C27B0),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ReportConfirmationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Coming Soon',
+                    subtitle: 'More features',
+                    icon: Icons.more_horiz,
+                    color: Colors.grey,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('More features coming soon!'),
+                          backgroundColor: Color(0xFF4FC3A1),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+            ),
           ),
-        ],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 32, color: color),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
+// Placeholder classes for AnalyticsTab and ProfileTab to avoid errors
 class AnalyticsTab extends StatelessWidget {
   const AnalyticsTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Analytics & Reports',
-        style: TextStyle(
-          fontFamily: 'SpotifyCircular',
-          fontSize: 18,
-          color: Color(0xFF2E7D5A),
-        ),
-      ),
-    );
+    return Center(child: Text('Analytics Tab'));
   }
 }
 
@@ -715,15 +641,21 @@ class ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Midwife Profile',
-        style: TextStyle(
-          fontFamily: 'SpotifyCircular',
-          fontSize: 18,
-          color: Color(0xFF2E7D5A),
-        ),
-      ),
+    return Center(child: Text('Profile Tab'));
+  }
+}
+
+// Placeholder for ReportConfirmationScreen to avoid errors
+class ReportConfirmationScreen extends StatelessWidget {
+  const ReportConfirmationScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Report Confirmation')),
+      body: const Center(child: Text('Report Confirmation Screen')),
     );
   }
 }
+
+// Your existing AppointmentsTab code here...
