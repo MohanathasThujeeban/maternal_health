@@ -16,9 +16,11 @@ import com.example.maternalcare.services.EmailVerificationService;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api") // Fixed: Use /api prefix to match Flutter API calls
@@ -51,6 +53,54 @@ public class RegistrationController {
         response.put("message", "API is working!");
         response.put("timestamp", LocalDateTime.now());
         return ResponseEntity.ok(response);
+    }
+
+    // Test endpoint to add sample users for Thiriposa testing
+    @PostMapping("/registration/add-sample-data")
+    public ResponseEntity<?> addSampleData() {
+        System.out.println("=== ADD SAMPLE DATA ENDPOINT HIT ===");
+        
+        try {
+            // Add sample mother user
+            Registration sampleMother = new Registration();
+            sampleMother.setFullName("Samanthi Perera");
+            sampleMother.setNicNumber("199876543210");
+            sampleMother.setPhoneNumber3("0771234568");
+            sampleMother.setPassword(passwordEncoder.encode("password123"));
+            sampleMother.setEmail("samanthi@example.com");
+            
+            // Check if already exists
+            if (repository.findByNicNumber("199876543210").isEmpty() && 
+                repository.findByEmail("samanthi@example.com").isEmpty()) {
+                repository.save(sampleMother);
+                System.out.println("Sample mother user added");
+            }
+            
+            // Add another sample user
+            Registration sampleMother2 = new Registration();
+            sampleMother2.setFullName("Nimalka Silva");
+            sampleMother2.setNicNumber("199234567890");
+            sampleMother2.setPhoneNumber3("0771234569");
+            sampleMother2.setPassword(passwordEncoder.encode("password123"));
+            sampleMother2.setEmail("nimalka@example.com");
+            
+            if (repository.findByNicNumber("199234567890").isEmpty() && 
+                repository.findByEmail("nimalka@example.com").isEmpty()) {
+                repository.save(sampleMother2);
+                System.out.println("Sample mother user 2 added");
+            }
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Sample data added successfully");
+            response.put("timestamp", LocalDateTime.now());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.err.println("Add sample data error: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Failed to add sample data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/registration")
@@ -266,6 +316,37 @@ public class RegistrationController {
             System.err.println("Email validation error: " + e.getMessage());
             e.printStackTrace();
             return createErrorResponse("Email validation failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Get all registered users (for Thiriposa management)
+    @GetMapping("/registration/all")
+    public ResponseEntity<?> getAllUsers() {
+        System.out.println("=== GET ALL USERS ENDPOINT HIT ===");
+        
+        try {
+            List<Registration> allUsers = repository.findAll();
+            
+            // Create a simplified user list for the API response
+            List<Map<String, Object>> userList = allUsers.stream()
+                .map(user -> {
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("id", user.getId());
+                    userData.put("nicNumber", user.getNicNumber());
+                    userData.put("fullName", user.getFullName());
+                    userData.put("email", user.getEmail());
+                    userData.put("phoneNumber", user.getPhoneNumber3());
+                    return userData;
+                })
+                .collect(Collectors.toList());
+            
+            System.out.println("Found " + userList.size() + " registered users");
+            return ResponseEntity.ok(userList);
+            
+        } catch (Exception e) {
+            System.err.println("Get all users error: " + e.getMessage());
+            e.printStackTrace();
+            return createErrorResponse("Failed to fetch users: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

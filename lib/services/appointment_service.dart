@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/appointment.dart';
+import '../config/api_config.dart';
 
 class AppointmentService {
-  static const String baseUrl = 'http://localhost/api/appointments';
+  static final String baseUrl = ApiConfig.appointmentsUrl;
 
   // Available time slots
   static const List<String> timeSlots = [
@@ -20,7 +21,7 @@ class AppointmentService {
     '03:00 PM',
     '03:30 PM',
     '04:00 PM',
-    '04:30 PM',    
+    '04:30 PM',
   ];
 
   // Available providers

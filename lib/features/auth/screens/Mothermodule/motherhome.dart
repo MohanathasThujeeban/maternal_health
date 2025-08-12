@@ -6,6 +6,10 @@ import '../../../../services/appointment_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../appointments/schedule_appointment_screen.dart';
 import '../../../../widgets/custom_loading.dart';
+import '../../../thiriposa/thiriposa_records_screen.dart';
+import './health_records_screen.dart';
+import './baby_records_screen.dart';
+import './vaccinations_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -22,8 +26,12 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
     const BabyGrowthTab(),
     const HealthRecordsTab(),
     const AppointmentsTab(),
-    const ChatTab(),
+    const ThiriposaRecordsScreen(),
   ];
+
+  void _navigateToScreen(BuildContext context, Widget screen) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +50,26 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         backgroundColor: const Color(0xFF4FC3A1),
         elevation: 0,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.health_and_safety, color: Colors.white),
+            onPressed: () =>
+                _navigateToScreen(context, const HealthRecordsScreen()),
+          ),
+          IconButton(
+            icon: const Icon(Icons.baby_changing_station, color: Colors.white),
+            onPressed: () =>
+                _navigateToScreen(context, const BabyRecordsScreen()),
+          ),
+          IconButton(
+            icon: const Icon(Icons.vaccines, color: Colors.white),
+            onPressed: () =>
+                _navigateToScreen(context, const VaccinationsScreen()),
+          ),
+          IconButton(
+            icon: const Icon(Icons.inventory_2, color: Colors.white),
+            onPressed: () =>
+                _navigateToScreen(context, const ThiriposaRecordsScreen()),
+          ),
           const LanguageSelector(),
           const SizedBox(width: 8),
           IconButton(
@@ -70,25 +98,25 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         selectedItemColor: const Color(0xFF4FC3A1),
         unselectedItemColor: Colors.grey,
         items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: localizations.home,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.child_care),
-            label: localizations.babyGrowth,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.child_care),
+            label: 'Baby Records',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.medical_services),
-            label: localizations.healthRecords,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services),
+            label: 'Health',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.calendar_today),
-            label: localizations.appointments,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Appointments',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.chat),
-            label: localizations.chat,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.inventory_2),
+            label: 'Thiriposa',
           ),
         ],
       ),

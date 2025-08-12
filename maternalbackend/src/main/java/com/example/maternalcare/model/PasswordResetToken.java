@@ -18,13 +18,13 @@ public class PasswordResetToken {
     @JoinColumn(name = "user_id", nullable = false)
     private Registration user;
     
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime expiryDate;
     
     @Column(nullable = false)
     private Boolean used = false;
     
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
     
     // Constructors

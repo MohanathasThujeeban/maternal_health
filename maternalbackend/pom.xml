@@ -201,9 +201,9 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <configuration>
-                    <url>jdbc:mysql://localhost:3306/maternal_care</url>
-                    <user>your_username</user>
-                    <password>your_password</password>
+                    <url>jdbc:mysql://localhost:3306/maternal_health</url>
+                    <user>root</user>
+                    <password></password>
                 </configuration>
             </plugin>
             

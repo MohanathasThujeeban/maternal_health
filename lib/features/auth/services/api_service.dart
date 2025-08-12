@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import '../../../config/api_config.dart';
 
 class ApiService {
-  // Use 10.0.2.2 for Android emulator, localhost for web/desktop
-  static const String baseUrl = 'http://10.0.2.2:8080/api';
+  static final String baseUrl = ApiConfig.baseApiUrl;
 
   // Login method
   static Future<Map<String, dynamic>> login(

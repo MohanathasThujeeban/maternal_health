@@ -3,6 +3,7 @@ import 'package:maternal_health/features/auth/screens/Babymodule/EarProblemTrack
 import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.dart';
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Doctormodule/doctor_dashboard.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -420,57 +421,206 @@ class PatientsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const BabyProblemsScreen()),
-              );
-            },
-            child: const Text('Ear Problem Tracker'),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Patient Records Management',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2E7D5A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Manage patient records and health data',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.1,
+                children: [
+                  _buildActionCard(
+                    context,
+                    title: 'Thiriposa Records',
+                    subtitle: 'Manage nutrition supplements',
+                    icon: Icons.inventory_2,
+                    color: const Color(0xFF4FC3A1),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ThiriposaManagementScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Ear Problems',
+                    subtitle: 'Track baby ear issues',
+                    icon: Icons.hearing,
+                    color: const Color(0xFF4FC3A1),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const BabyProblemsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Problem Updates',
+                    subtitle: 'Update health issues',
+                    icon: Icons.medical_services,
+                    color: const Color(0xFFFF9800),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ProblemsManagementScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'View Records',
+                    subtitle: 'Browse all records',
+                    icon: Icons.folder_open,
+                    color: const Color(0xFF2196F3),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ViewUpdateRecordsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Reports',
+                    subtitle: 'Generate reports',
+                    icon: Icons.assessment,
+                    color: const Color(0xFF9C27B0),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ReportConfirmationScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Coming Soon',
+                    subtitle: 'More features',
+                    icon: Icons.more_horiz,
+                    color: Colors.grey,
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('More features coming soon!'),
+                          backgroundColor: Color(0xFF4FC3A1),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+            ),
           ),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ProblemsManagementScreen(),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-              );
-            },
-            child: const Text('Problem Update'),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ViewUpdateRecordsScreen(),
+                child: Icon(icon, size: 32, color: color),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
                 ),
-              );
-            },
-            child: const Text('View Update Records'),
-          ),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ReportConfirmationScreen(),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 12,
+                  color: Colors.grey[600],
                 ),
-              );
-            },
-            child: const Text('Report Confirmation'),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
