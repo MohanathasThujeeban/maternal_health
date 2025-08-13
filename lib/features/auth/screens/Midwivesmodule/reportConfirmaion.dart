@@ -22,19 +22,20 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: MainScreen(),
+      home: ReportConfirmationScreen(),
     );
   }
 }
 
-class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+class ReportConfirmationScreen extends StatefulWidget {
+  const ReportConfirmationScreen({super.key});
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  _ReportConfirmationScreenState createState() =>
+      _ReportConfirmationScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _ReportConfirmationScreenState extends State<ReportConfirmationScreen> {
   int _currentIndex = 0;
 
   @override

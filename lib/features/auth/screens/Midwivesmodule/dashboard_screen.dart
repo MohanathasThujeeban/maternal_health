@@ -4,6 +4,7 @@ import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.d
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Doctormodule/doctor_dashboard.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -642,19 +643,6 @@ class ProfileTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(child: Text('Profile Tab'));
-  }
-}
-
-// Placeholder for ReportConfirmationScreen to avoid errors
-class ReportConfirmationScreen extends StatelessWidget {
-  const ReportConfirmationScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Report Confirmation')),
-      body: const Center(child: Text('Report Confirmation Screen')),
-    );
   }
 }
 
