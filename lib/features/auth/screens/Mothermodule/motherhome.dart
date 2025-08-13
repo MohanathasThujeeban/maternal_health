@@ -5,6 +5,7 @@ import '../../../../models/appointment.dart';
 import '../../../../services/appointment_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../appointments/schedule_appointment_screen.dart';
+import '../../../appointments/appointments_list_screen.dart';
 import '../../../../widgets/custom_loading.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
 import './health_records_screen.dart';
@@ -225,12 +226,12 @@ class MotherDashboardScreen extends StatelessWidget {
               _CategoryCard(
                 icon: Icons.calendar_today,
                 title: 'Appointments',
-                description: 'Schedule and manage appointments',
+                description: 'View, schedule and manage appointments',
                 color: const Color(0xFFFF9800),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ScheduleAppointmentScreen(),
+                    builder: (context) => const AppointmentsListScreen(),
                   ),
                 ),
               ),

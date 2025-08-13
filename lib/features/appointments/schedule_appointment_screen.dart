@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../services/appointment_service.dart';
 import '../../../services/user_service.dart';
 import '../../../widgets/custom_loading.dart';
+import './appointments_list_screen.dart';
 
 class ScheduleAppointmentScreen extends StatefulWidget {
   const ScheduleAppointmentScreen({super.key});
@@ -121,6 +122,22 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
 
   Future<void> _scheduleAppointment() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Validate user data is loaded
+    if (motherName == null || motherName!.trim().isEmpty) {
+      _showErrorDialog(
+        'Unable to load your profile information. Please logout and login again.',
+      );
+      return;
+    }
+
+    if (motherNic == null || motherNic!.trim().isEmpty) {
+      _showErrorDialog(
+        'Unable to load your NIC information. Please logout and login again.',
+      );
+      return;
+    }
+
     if (_selectedDate == null ||
         _selectedTimeSlot == null ||
         _selectedProvider == null) {
@@ -248,6 +265,20 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list_alt, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AppointmentsListScreen(),
+                ),
+              );
+            },
+            tooltip: 'My Appointments',
+          ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(

@@ -52,6 +52,7 @@ class ApiService {
             'success': true,
             'message': responseData['message'],
             'userId': responseData['userId'],
+            'fullName': responseData['fullName'],
             'email': responseData['email'],
             'nicNumber': responseData['nicNumber'],
             'phoneNumber': responseData['phoneNumber'],
