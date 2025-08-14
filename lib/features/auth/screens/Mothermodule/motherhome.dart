@@ -26,13 +26,42 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          localizations.appTitle,
-          style: const TextStyle(
-            fontFamily: 'SpotifyCircular',
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.favorite, color: Colors.white, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  localizations.maternalCare,
+                  style: const TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+                Text(
+                  localizations.motherPortal,
+                  style: const TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         backgroundColor: const Color(0xFF4FC3A1),
         elevation: 0,
@@ -126,6 +155,8 @@ class MotherDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -146,9 +177,9 @@ class MotherDashboardScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Welcome Back!',
-                  style: TextStyle(
+                Text(
+                  localizations.welcomeBack,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 24,
                     fontFamily: 'SpotifyCircular',
@@ -157,7 +188,7 @@ class MotherDashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'How are you and your baby feeling today?',
+                  localizations.howAreYouFeeling,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
                     fontSize: 16,
@@ -173,13 +204,13 @@ class MotherDashboardScreen extends StatelessWidget {
           // Baby Care Section
           _buildCategorySection(
             context,
-            title: '👶 Baby Care',
-            subtitle: 'Track your baby\'s growth and development',
+            title: localizations.babyCare,
+            subtitle: localizations.trackBabyGrowth,
             cards: [
               _CategoryCard(
                 icon: Icons.insights,
-                title: 'Baby Growth Chart',
-                description: 'Track weight, height, and development',
+                title: localizations.babyGrowthChart,
+                description: localizations.trackWeightHeight,
                 color: const Color(0xFF4FC3A1),
                 onTap: () => Navigator.push(
                   context,
@@ -190,8 +221,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.vaccines,
-                title: 'Vaccinations',
-                description: 'View vaccination schedule and records',
+                title: localizations.vaccinations,
+                description: localizations.vaccinationSchedule,
                 color: const Color(0xFF42A5F5),
                 onTap: () => Navigator.push(
                   context,
@@ -208,13 +239,13 @@ class MotherDashboardScreen extends StatelessWidget {
           // Health & Medical Section
           _buildCategorySection(
             context,
-            title: '🏥 Health & Medical',
-            subtitle: 'Manage your health records and appointments',
+            title: localizations.healthMedical,
+            subtitle: localizations.manageHealthRecords,
             cards: [
               _CategoryCard(
                 icon: Icons.medical_services,
-                title: 'Health Records',
-                description: 'View medical history and reports',
+                title: localizations.healthRecords,
+                description: localizations.viewMedicalHistory,
                 color: const Color(0xFFE91E63),
                 onTap: () => Navigator.push(
                   context,
@@ -225,8 +256,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.calendar_today,
-                title: 'Appointments',
-                description: 'View, schedule and manage appointments',
+                title: localizations.appointments,
+                description: localizations.scheduleManageAppointments,
                 color: const Color(0xFFFF9800),
                 onTap: () => Navigator.push(
                   context,
@@ -237,8 +268,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.inventory_2,
-                title: 'Thiriposa Records',
-                description: 'Track nutrition supplement records',
+                title: localizations.thiriposaRecords,
+                description: localizations.trackNutritionSupplements,
                 color: const Color(0xFF9C27B0),
                 onTap: () => Navigator.push(
                   context,
@@ -255,13 +286,13 @@ class MotherDashboardScreen extends StatelessWidget {
           // Quick Actions Section
           _buildCategorySection(
             context,
-            title: '⚡ Quick Actions',
-            subtitle: 'Frequently used features',
+            title: localizations.quickActions,
+            subtitle: localizations.frequentlyUsed,
             cards: [
               _CategoryCard(
                 icon: Icons.question_answer,
-                title: 'Health Chat',
-                description: 'Ask health questions anytime',
+                title: localizations.healthChat,
+                description: localizations.askHealthQuestions,
                 color: const Color(0xFF4CAF50),
                 onTap: () {
                   // Navigate to health chatbox
@@ -270,8 +301,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.phone,
-                title: 'Emergency Contact',
-                description: 'Quick access to emergency services',
+                title: localizations.emergencyContact,
+                description: localizations.quickEmergencyAccess,
                 color: const Color(0xFFF44336),
                 onTap: () {
                   _showEmergencyDialog(context);
@@ -328,13 +359,15 @@ class MotherDashboardScreen extends StatelessWidget {
   }
 
   void _showEmergencyDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text(
-            'Emergency Contacts',
-            style: TextStyle(
+          title: Text(
+            localizations.emergencyContacts,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontWeight: FontWeight.w600,
               color: Color(0xFF2E7D5A),
@@ -345,7 +378,7 @@ class MotherDashboardScreen extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.local_hospital, color: Colors.red),
-                title: const Text('Emergency Services'),
+                title: Text(localizations.emergencyServices),
                 subtitle: const Text('110 / 119'),
                 onTap: () {
                   // Call emergency services
@@ -353,15 +386,15 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.medical_services, color: Colors.blue),
-                title: const Text('Hospital'),
-                subtitle: const Text('Your registered hospital'),
+                title: Text(localizations.hospital),
+                subtitle: Text(localizations.yourRegisteredHospital),
                 onTap: () {
                   // Call hospital
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.person, color: Colors.green),
-                title: const Text('Your Doctor'),
+                title: Text(localizations.yourDoctor),
                 subtitle: const Text('Dr. Smith'),
                 onTap: () {
                   // Call doctor
@@ -371,9 +404,9 @@ class MotherDashboardScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              child: const Text(
-                'Close',
-                style: TextStyle(
+              child: Text(
+                localizations.close,
+                style: const TextStyle(
                   color: Color(0xFF4FC3A1),
                   fontFamily: 'SpotifyCircular',
                 ),
@@ -586,14 +619,16 @@ class BabyGrowthTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Baby\'s Growth Chart',
-            style: TextStyle(
+          Text(
+            localizations.babyGrowthChartTitle,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -615,21 +650,21 @@ class BabyGrowthTab extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _GrowthStat(
-                      label: 'Weight',
-                      value: '8.2 kg',
-                      change: '+0.3kg',
+                      label: localizations.weight,
+                      value: '8.2 ${localizations.kg}',
+                      change: '+0.3${localizations.kg}',
                       isPositive: true,
                     ),
                     _GrowthStat(
-                      label: 'Height',
-                      value: '70 cm',
-                      change: '+2cm',
+                      label: localizations.height,
+                      value: '70 ${localizations.cm}',
+                      change: '+2${localizations.cm}',
                       isPositive: true,
                     ),
                     _GrowthStat(
-                      label: 'Head Circumference',
-                      value: '44 cm',
-                      change: '+1cm',
+                      label: localizations.headCircumference,
+                      value: '44 ${localizations.cm}',
+                      change: '+1${localizations.cm}',
                       isPositive: true,
                     ),
                   ],
@@ -648,23 +683,27 @@ class BabyGrowthTab extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: Colors.grey.shade300),
             ),
-            child: const Center(
+            child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.show_chart, size: 48, color: Color(0xFF4FC3A1)),
-                  SizedBox(height: 8),
+                  const Icon(
+                    Icons.show_chart,
+                    size: 48,
+                    color: Color(0xFF4FC3A1),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    'Growth Chart',
-                    style: TextStyle(
+                    localizations.growthChartTitle,
+                    style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 16,
                       color: Color(0xFF2E7D5A),
                     ),
                   ),
                   Text(
-                    'Interactive chart will be displayed here',
-                    style: TextStyle(
+                    localizations.interactiveChart,
+                    style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 12,
                       color: Colors.grey,
@@ -678,9 +717,9 @@ class BabyGrowthTab extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Recent Measurements
-          const Text(
-            'Recent Measurements',
-            style: TextStyle(
+          Text(
+            localizations.recentMeasurements,
+            style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -694,21 +733,21 @@ class BabyGrowthTab extends StatelessWidget {
               children: [
                 _MeasurementCard(
                   date: 'July 30, 2025',
-                  weight: '8.2 kg',
-                  height: '70 cm',
-                  note: 'Healthy growth, on track',
+                  weight: '8.2 ${localizations.kg}',
+                  height: '70 ${localizations.cm}',
+                  note: localizations.healthyGrowth,
                 ),
                 _MeasurementCard(
                   date: 'July 15, 2025',
-                  weight: '7.9 kg',
-                  height: '68 cm',
-                  note: 'Good progress',
+                  weight: '7.9 ${localizations.kg}',
+                  height: '68 ${localizations.cm}',
+                  note: localizations.goodProgress,
                 ),
                 _MeasurementCard(
                   date: 'July 1, 2025',
-                  weight: '7.6 kg',
-                  height: '67 cm',
-                  note: 'Normal development',
+                  weight: '7.6 ${localizations.kg}',
+                  height: '67 ${localizations.cm}',
+                  note: localizations.normalDevelopment,
                 ),
               ],
             ),
@@ -724,6 +763,8 @@ class HealthRecordsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -732,9 +773,9 @@ class HealthRecordsTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Health Records & Vaccinations',
-                style: TextStyle(
+              Text(
+                localizations.healthRecordsVaccinations,
+                style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -751,9 +792,9 @@ class HealthRecordsTab extends StatelessWidget {
                   );
                 },
                 icon: const Icon(Icons.vaccines, size: 18, color: Colors.white),
-                label: const Text(
-                  'View All',
-                  style: TextStyle(
+                label: Text(
+                  localizations.viewAll,
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     color: Colors.white,
                     fontSize: 12,
@@ -787,9 +828,9 @@ class HealthRecordsTab extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Vaccination Progress',
-                      style: TextStyle(
+                    Text(
+                      localizations.vaccinationProgress,
+                      style: const TextStyle(
                         fontFamily: 'SpotifyCircular',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -805,9 +846,9 @@ class HealthRecordsTab extends StatelessWidget {
                           ),
                         );
                       },
-                      child: const Text(
-                        'View Details',
-                        style: TextStyle(
+                      child: Text(
+                        localizations.viewDetails,
+                        style: const TextStyle(
                           fontFamily: 'SpotifyCircular',
                           fontSize: 12,
                           color: Color(0xFF4FC3A1),
@@ -826,9 +867,9 @@ class HealthRecordsTab extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '6 of 8 vaccinations completed',
-                  style: TextStyle(
+                Text(
+                  '6 of 8 ${localizations.vaccinationsCompleted}',
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 14,
                     color: Colors.grey,
@@ -844,9 +885,9 @@ class HealthRecordsTab extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Recent Vaccinations',
-                style: TextStyle(
+              Text(
+                localizations.recentVaccinations,
+                style: const TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -862,9 +903,9 @@ class HealthRecordsTab extends StatelessWidget {
                     ),
                   );
                 },
-                child: const Text(
-                  'See All',
-                  style: TextStyle(
+                child: Text(
+                  localizations.seeAll,
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     color: Color(0xFF4FC3A1),
                     fontSize: 12,
@@ -883,25 +924,25 @@ class HealthRecordsTab extends StatelessWidget {
                 _VaccinationCard(
                   name: 'BCG',
                   date: 'Jan 15, 2025',
-                  status: 'Completed',
+                  status: localizations.completed,
                   isCompleted: true,
                 ),
                 _VaccinationCard(
                   name: 'Hepatitis B',
                   date: 'Feb 15, 2025',
-                  status: 'Completed',
+                  status: localizations.completed,
                   isCompleted: true,
                 ),
                 _VaccinationCard(
                   name: 'DPT (1st dose)',
                   date: 'Mar 15, 2025',
-                  status: 'Completed',
+                  status: localizations.completed,
                   isCompleted: true,
                 ),
                 _VaccinationCard(
                   name: 'MMR',
                   date: 'Aug 3, 2025',
-                  status: 'Due Soon',
+                  status: localizations.dueSoon,
                   isCompleted: false,
                 ),
               ],
@@ -1018,9 +1059,9 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
                   ).then((_) => _loadAppointments());
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Schedule',
-                  style: TextStyle(
+                label: Text(
+                  localizations.schedule,
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     color: Colors.white,
                   ),
@@ -1048,9 +1089,17 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
                     indicatorColor: const Color(0xFF4FC3A1),
                     labelStyle: const TextStyle(fontFamily: 'SpotifyCircular'),
                     tabs: [
-                      Tab(text: 'All (${appointments.length})'),
-                      Tab(text: 'Pending (${pendingAppointments.length})'),
-                      Tab(text: 'Completed (${completedAppointments.length})'),
+                      Tab(
+                        text: '${localizations.all} (${appointments.length})',
+                      ),
+                      Tab(
+                        text:
+                            '${localizations.pending} (${pendingAppointments.length})',
+                      ),
+                      Tab(
+                        text:
+                            '${localizations.completed} (${completedAppointments.length})',
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1081,25 +1130,31 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
   }
 
   Widget _buildAppointmentsList(List<Appointment> appointmentList) {
+    final localizations = AppLocalizations.of(context)!;
+
     if (appointmentList.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(
+              Icons.calendar_today_outlined,
+              size: 64,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
             Text(
-              'No appointments found',
-              style: TextStyle(
+              localizations.noAppointmentsFound,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 16,
                 color: Colors.grey,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Tap the Schedule button to book your first appointment',
-              style: TextStyle(
+              localizations.tapScheduleButton,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 14,
                 color: Colors.grey,
@@ -1130,28 +1185,30 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
   }
 
   void _showCancelDialog(String appointmentId) {
+    final localizations = AppLocalizations.of(context)!;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: const Text(
-          'Cancel Appointment',
-          style: TextStyle(
+        title: Text(
+          localizations.cancelAppointment,
+          style: const TextStyle(
             fontFamily: 'SpotifyCircular',
             fontWeight: FontWeight.w600,
             color: Color(0xFF2E7D5A),
           ),
         ),
-        content: const Text(
-          'Are you sure you want to cancel this appointment? This action cannot be undone.',
-          style: TextStyle(fontFamily: 'SpotifyCircular'),
+        content: Text(
+          localizations.cancelConfirmation,
+          style: const TextStyle(fontFamily: 'SpotifyCircular'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'No',
-              style: TextStyle(
+            child: Text(
+              localizations.no,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 color: Colors.grey,
               ),
@@ -1168,9 +1225,9 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: const Text(
-              'Yes, Cancel',
-              style: TextStyle(
+            child: Text(
+              localizations.yesCancelAppointment,
+              style: const TextStyle(
                 fontFamily: 'SpotifyCircular',
                 color: Colors.white,
               ),
@@ -1211,27 +1268,27 @@ class ChatTab extends StatelessWidget {
               color: const Color(0xFFE8F5F2),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Column(
+            child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.chat_bubble_outline,
                   size: 48,
                   color: Color(0xFF4FC3A1),
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
-                  'Ask me anything about your baby\'s health!',
-                  style: TextStyle(
+                  localizations.askAnythingBaby,
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 16,
                     color: Color(0xFF2E7D5A),
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
-                  'I can help with feeding, sleep, development, and general health questions.',
-                  style: TextStyle(
+                  localizations.helpWithFeeding,
+                  style: const TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 14,
                     color: Colors.grey,
@@ -1660,6 +1717,8 @@ class _RealAppointmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     Color statusColor = appointment.status == 'completed'
         ? Colors.green
         : appointment.status == 'pending'
@@ -1669,9 +1728,9 @@ class _RealAppointmentCard extends StatelessWidget {
         : Colors.blue;
 
     String statusText = appointment.status == 'completed'
-        ? 'Completed'
+        ? localizations.completed
         : appointment.status == 'pending'
-        ? 'Pending'
+        ? localizations.pending
         : appointment.status == 'cancelled'
         ? 'Cancelled'
         : 'Unknown';
@@ -1729,8 +1788,8 @@ class _RealAppointmentCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             appointment.appointmentType == 'doctor'
-                ? 'Doctor Consultation'
-                : 'Midwife Consultation',
+                ? localizations.doctorConsultation
+                : localizations.midwifeConsultation,
             style: const TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 14,
@@ -1776,9 +1835,9 @@ class _RealAppointmentCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Additional Notes:',
-                    style: TextStyle(
+                  Text(
+                    '${localizations.additionalNotes}',
+                    style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 12,
                       color: Color(0xFF2E7D5A),
@@ -1810,9 +1869,9 @@ class _RealAppointmentCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Doctor\'s Notes:',
-                    style: TextStyle(
+                  Text(
+                    '${localizations.doctorNotes}',
+                    style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 12,
                       color: Colors.blue,
@@ -1839,7 +1898,7 @@ class _RealAppointmentCard extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onCancel,
                 icon: const Icon(Icons.cancel_outlined, size: 16),
-                label: const Text('Cancel Appointment'),
+                label: Text(localizations.cancelAppointmentButton),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.red,
                   side: const BorderSide(color: Colors.red),

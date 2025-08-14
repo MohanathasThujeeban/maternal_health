@@ -139,6 +139,28 @@ public class AppointmentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    // Get upcoming appointments by appointment type (doctor/midwife)
+    @GetMapping("/type/{appointmentType}/upcoming")
+    public ResponseEntity<List<AppointmentDTO>> getUpcomingAppointmentsByType(@PathVariable String appointmentType) {
+        try {
+            List<AppointmentDTO> appointments = appointmentService.getUpcomingAppointmentsByType(appointmentType);
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    // Get upcoming appointments by provider ID
+    @GetMapping("/provider/{providerId}/upcoming")
+    public ResponseEntity<List<AppointmentDTO>> getUpcomingAppointmentsByProvider(@PathVariable String providerId) {
+        try {
+            List<AppointmentDTO> appointments = appointmentService.getUpcomingAppointmentsByProvider(providerId);
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
     
     // Get appointment by ID
     @GetMapping("/{id}")
@@ -253,6 +275,18 @@ public class AppointmentController {
             return ResponseEntity.ok(appointments);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    // Get provider statistics
+    @GetMapping("/provider/{providerId}/stats")
+    public ResponseEntity<?> getProviderStatistics(@PathVariable String providerId) {
+        try {
+            Map<String, Object> stats = appointmentService.getProviderStatistics(providerId);
+            return ResponseEntity.ok(stats);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to get provider statistics: " + e.getMessage()));
         }
     }
     

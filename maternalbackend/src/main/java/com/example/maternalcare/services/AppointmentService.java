@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -39,6 +41,18 @@ public class AppointmentService {
         if (hasConflict) {
             System.out.println("Conflict detected for same time slot");
             throw new RuntimeException("You already have an appointment scheduled at this time");
+        }
+
+        // Check if the mother already has an appointment with this provider on the same date
+        boolean hasProviderDateConflict = appointmentRepository.existsByMotherNicAndProviderAndDateAndStatusNot(
+            appointmentDTO.getMotherNic(),
+            appointmentDTO.getProviderName(),
+            appointmentDTO.getAppointmentDate()
+        );
+        
+        if (hasProviderDateConflict) {
+            System.out.println("Mother already has an appointment with this provider on the same date");
+            throw new RuntimeException("You already have an appointment with " + appointmentDTO.getProviderName() + " on this date. Only one appointment per day per provider is allowed.");
         }
         
         // Check if the provider slot is available
@@ -238,9 +252,17 @@ public class AppointmentService {
     }
     
     private void sendAppointmentStatusUpdateEmail(Appointment appointment) {
-        String subject = "Appointment Status Update - " + appointment.getStatus().toString();
-        String body = buildStatusUpdateEmailBody(appointment);
-        emailService.sendEmail(appointment.getMotherEmail(), subject, body);
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            // Send simple completion notification
+            String subject = "Appointment Completed - Thank You!";
+            String body = buildCompletionEmailBody(appointment);
+            emailService.sendEmail(appointment.getMotherEmail(), subject, body);
+        } else {
+            // Send regular status update email
+            String subject = "Appointment Status Update - " + appointment.getStatus().toString();
+            String body = buildStatusUpdateEmailBody(appointment);
+            emailService.sendEmail(appointment.getMotherEmail(), subject, body);
+        }
     }
 
     // Get today's appointments by provider ID
@@ -288,6 +310,30 @@ public class AppointmentService {
             appointments = appointmentRepository.findByProviderIdAndMotherNicContainingAndAppointmentDateBetweenOrderByAppointmentDateAsc(
                 providerId, nic, startOfDay, endOfDay);
         }
+        
+        return appointments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get upcoming appointments by appointment type (after today)
+    public List<AppointmentDTO> getUpcomingAppointmentsByType(String appointmentType) {
+        LocalDateTime endOfToday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        
+        List<Appointment> appointments = appointmentRepository.findByAppointmentTypeAndAppointmentDateAfterOrderByAppointmentDateAsc(
+            appointmentType.toUpperCase(), endOfToday);
+        
+        return appointments.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get upcoming appointments by provider (after today)
+    public List<AppointmentDTO> getUpcomingAppointmentsByProvider(String providerId) {
+        LocalDateTime endOfToday = LocalDateTime.now().withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+        
+        List<Appointment> appointments = appointmentRepository.findByProviderIdAndAppointmentDateAfterOrderByAppointmentDateAsc(
+            providerId, endOfToday);
         
         return appointments.stream()
                 .map(this::convertToDTO)
@@ -341,6 +387,64 @@ public class AppointmentService {
             appointment.getAppointmentDate().toLocalDate(),
             appointment.getTimeSlot(),
             appointment.getStatus().toString().toLowerCase(),
+            appointment.getNotes() != null && !appointment.getNotes().isEmpty() 
+                ? "Provider Notes: " + appointment.getNotes() + "\n\n" 
+                : ""
+        );
+    }
+    
+    // Get provider statistics
+    public Map<String, Object> getProviderStatistics(String providerId) {
+        Map<String, Object> stats = new HashMap<>();
+        
+        try {
+            // Get current date and time boundaries
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startOfMonth = now.withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+            LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusSeconds(1);
+            LocalDateTime endOfToday = now.withHour(23).withMinute(59).withSecond(59);
+            
+            // Count pending review (upcoming appointments)
+            long pendingReviewCount = appointmentRepository.findByProviderIdAndAppointmentDateAfterOrderByAppointmentDateAsc(
+                providerId, endOfToday).size();
+            
+            // Count this month appointments (all appointments scheduled this month)
+            long thisMonthCount = appointmentRepository.countByProviderIdAndAppointmentDateBetween(
+                providerId, startOfMonth, endOfMonth);
+            
+            stats.put("pendingReview", pendingReviewCount);
+            stats.put("thisMonth", thisMonthCount);
+            stats.put("success", true);
+            
+        } catch (Exception e) {
+            stats.put("pendingReview", 0);
+            stats.put("thisMonth", 0);
+            stats.put("success", false);
+            stats.put("error", e.getMessage());
+        }
+        
+        return stats;
+    }
+    
+    private String buildCompletionEmailBody(Appointment appointment) {
+        return String.format(
+            "Dear %s,\n\n" +
+            "Your appointment has been completed successfully!\n\n" +
+            "Appointment Details:\n" +
+            "- Provider: %s\n" +
+            "- Date: %s\n" +
+            "- Time: %s\n" +
+            "- Type: %s Consultation\n\n" +
+            "%s" +
+            "Thank you for visiting us today. We hope you had a positive experience with our healthcare services.\n\n" +
+            "If you have any questions or concerns about your visit, please don't hesitate to contact us.\n\n" +
+            "Best regards,\n" +
+            "Maternal Health Care Team",
+            appointment.getMotherName(),
+            appointment.getProviderName(),
+            appointment.getAppointmentDate().toLocalDate(),
+            appointment.getTimeSlot(),
+            appointment.getAppointmentType().toString().toLowerCase(),
             appointment.getNotes() != null && !appointment.getNotes().isEmpty() 
                 ? "Provider Notes: " + appointment.getNotes() + "\n\n" 
                 : ""

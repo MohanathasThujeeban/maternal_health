@@ -199,4 +199,201 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get babyAge => 'குழந்தையின் வயது';
+
+  @override
+  String get maternalCare => 'தாய்மார் சுகாதார சேவை';
+
+  @override
+  String get motherPortal => 'தாய் போர்ட்டல்';
+
+  @override
+  String get welcomeBack => 'மீண்டும் வரவேற்கிறோம்!';
+
+  @override
+  String get howAreYouFeeling =>
+      'இன்று நீங்களும் உங்கள் குழந்தையும் எப்படி உணர்கிறீர்கள்?';
+
+  @override
+  String get babyCare => '👶 குழந்தை பராமரிப்பு';
+
+  @override
+  String get trackBabyGrowth =>
+      'உங்கள் குழந்தையின் வளர்ச்சி மற்றும் மேம்பாட்டை கண்காணிக்கவும்';
+
+  @override
+  String get babyGrowthChart => 'குழந்தை வளர்ச்சி அட்டவணை';
+
+  @override
+  String get trackWeightHeight =>
+      'எடை, உயரம் மற்றும் வளர்ச்சியை கண்காணிக்கவும்';
+
+  @override
+  String get vaccinationSchedule =>
+      'தடுப்பூசி அட்டவணை மற்றும் பதிவுகளை பார்க்கவும்';
+
+  @override
+  String get healthMedical => '🏥 சுகாதாரம் & மருத்துவம்';
+
+  @override
+  String get manageHealthRecords =>
+      'உங்கள் சுகாதார பதிவுகள் மற்றும் அப்பாயின்ட்மெண்ட்களை நிர்வகிக்கவும்';
+
+  @override
+  String get viewMedicalHistory =>
+      'மருத்துவ வரலாறு மற்றும் அறிக்கைகளை பார்க்கவும்';
+
+  @override
+  String get scheduleManageAppointments =>
+      'அப்பாயின்ட்மெண்ட்களை பார்க்கவும், திட்டமிடவும் மற்றும் நிர்வகிக்கவும்';
+
+  @override
+  String get thiriposaRecords => 'திரிபோசா பதிவுகள்';
+
+  @override
+  String get trackNutritionSupplements =>
+      'ஊட்டச்சத்து சப்ளிமென்ட் பதிவுகளை கண்காணிக்கவும்';
+
+  @override
+  String get quickActions => '⚡ விரைவு செயல்கள்';
+
+  @override
+  String get frequentlyUsed => 'அடிக்கடி பயன்படுத்தும் அம்சங்கள்';
+
+  @override
+  String get healthChat => 'சுகாதார அரட்டை';
+
+  @override
+  String get askHealthQuestions =>
+      'எந்த நேரத்திலும் சுகாதார கேள்விகளை கேளுங்கள்';
+
+  @override
+  String get emergencyContact => 'அவசர தொடர்பு';
+
+  @override
+  String get quickEmergencyAccess => 'அவசர சேவைகளுக்கு விரைவு அணுகல்';
+
+  @override
+  String get emergencyContacts => 'அவசர தொடர்புகள்';
+
+  @override
+  String get emergencyServices => 'அவசர சேவைகள்';
+
+  @override
+  String get hospital => 'மருத்துவமனை';
+
+  @override
+  String get yourRegisteredHospital => 'உங்கள் பதிவு செய்யப்பட்ட மருத்துவமனை';
+
+  @override
+  String get yourDoctor => 'உங்கள் மருத்துவர்';
+
+  @override
+  String get close => 'மூடு';
+
+  @override
+  String get babyGrowthChartTitle => 'குழந்தையின் வளர்ச்சி அட்டவணை';
+
+  @override
+  String get currentStats => 'தற்போதைய புள்ளிவிவரங்கள்';
+
+  @override
+  String get change => 'மாற்றம்';
+
+  @override
+  String get headCircumference => 'தலை சுற்றளவு';
+
+  @override
+  String get growthChartTitle => 'வளர்ச்சி அட்டவணை';
+
+  @override
+  String get interactiveChart => 'ஊடாடும் அட்டவணை இங்கே காட்டப்படும்';
+
+  @override
+  String get recentMeasurements => 'சமீபத்திய அளவீடுகள்';
+
+  @override
+  String get healthyGrowth => 'ஆரோக்கியமான வளர்ச்சி, பாதையில்';
+
+  @override
+  String get goodProgress => 'நல்ல முன்னேற்றம்';
+
+  @override
+  String get normalDevelopment => 'சாதாரண வளர்ச்சி';
+
+  @override
+  String get healthRecordsVaccinations => 'சுகாதார பதிவுகள் & தடுப்பூசிகள்';
+
+  @override
+  String get viewAll => 'அனைத்தையும் பார்க்கவும்';
+
+  @override
+  String get vaccinationProgress => 'தடுப்பூசி முன்னேற்றம்';
+
+  @override
+  String get vaccinationsCompleted => 'தடுப்பூசிகள் நிறைவு';
+
+  @override
+  String get recentVaccinations => 'சமீபத்திய தடுப்பூசிகள்';
+
+  @override
+  String get seeAll => 'அனைத்தையும் பார்க்கவும்';
+
+  @override
+  String get completed => 'நிறைவு';
+
+  @override
+  String get dueSoon => 'விரைவில்';
+
+  @override
+  String get schedule => 'அட்டவணை';
+
+  @override
+  String get all => 'அனைத்தும்';
+
+  @override
+  String get pending => 'நிலுவையில்';
+
+  @override
+  String get noAppointmentsFound =>
+      'அப்பாயின்ட்மெண்ட்கள் எதுவும் காணப்படவில்லை';
+
+  @override
+  String get tapScheduleButton =>
+      'உங்கள் முதல் அப்பாயின்ட்மெண்டை பதிவு செய்ய அட்டவणை பட்டனை தட்டவும்';
+
+  @override
+  String get cancelAppointment => 'அப்பாயின்ட்மெண்டை ரத்து செய்யவும்';
+
+  @override
+  String get cancelConfirmation =>
+      'இந்த அப்பாயின்ட்மெண்டை ரத்து செய்ய விரும்புகிறீர்களா? இந்த செயலை மாற்ற முடியாது.';
+
+  @override
+  String get no => 'இல்லை';
+
+  @override
+  String get yesCancelAppointment => 'ஆம், ரத்து செய்யவும்';
+
+  @override
+  String get doctorConsultation => 'மருத்துவர் ஆலோசனை';
+
+  @override
+  String get midwifeConsultation => 'மருத்துவச்சி ஆலோசனை';
+
+  @override
+  String get additionalNotes => 'கூடுதல் குறிப்புகள்:';
+
+  @override
+  String get doctorNotes => 'மருத்துவர் குறிப்புகள்:';
+
+  @override
+  String get cancelAppointmentButton => 'அப்பாயின்ட்மெண்டை ரத்து செய்யவும்';
+
+  @override
+  String get askAnythingBaby =>
+      'உங்கள் குழந்தையின் ஆரோக்கியம் பற்றி எதுவும் என்னிடம் கேளுங்கள்!';
+
+  @override
+  String get helpWithFeeding =>
+      'உணவு, தூக்கம், வளர்ச்சி மற்றும் பொது சுகாதார கேள்விகளில் என்னால் உதவ முடியும்.';
 }

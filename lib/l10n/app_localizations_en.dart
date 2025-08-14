@@ -199,4 +199,192 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get babyAge => 'Baby\'s Age';
+
+  @override
+  String get maternalCare => 'Maternal Care';
+
+  @override
+  String get motherPortal => 'Mother Portal';
+
+  @override
+  String get welcomeBack => 'Welcome Back!';
+
+  @override
+  String get howAreYouFeeling => 'How are you and your baby feeling today?';
+
+  @override
+  String get babyCare => '👶 Baby Care';
+
+  @override
+  String get trackBabyGrowth => 'Track your baby\'s growth and development';
+
+  @override
+  String get babyGrowthChart => 'Baby Growth Chart';
+
+  @override
+  String get trackWeightHeight => 'Track weight, height, and development';
+
+  @override
+  String get vaccinationSchedule => 'View vaccination schedule and records';
+
+  @override
+  String get healthMedical => '🏥 Health & Medical';
+
+  @override
+  String get manageHealthRecords =>
+      'Manage your health records and appointments';
+
+  @override
+  String get viewMedicalHistory => 'View medical history and reports';
+
+  @override
+  String get scheduleManageAppointments =>
+      'View, schedule and manage appointments';
+
+  @override
+  String get thiriposaRecords => 'Thiriposa Records';
+
+  @override
+  String get trackNutritionSupplements => 'Track nutrition supplement records';
+
+  @override
+  String get quickActions => '⚡ Quick Actions';
+
+  @override
+  String get frequentlyUsed => 'Frequently used features';
+
+  @override
+  String get healthChat => 'Health Chat';
+
+  @override
+  String get askHealthQuestions => 'Ask health questions anytime';
+
+  @override
+  String get emergencyContact => 'Emergency Contact';
+
+  @override
+  String get quickEmergencyAccess => 'Quick access to emergency services';
+
+  @override
+  String get emergencyContacts => 'Emergency Contacts';
+
+  @override
+  String get emergencyServices => 'Emergency Services';
+
+  @override
+  String get hospital => 'Hospital';
+
+  @override
+  String get yourRegisteredHospital => 'Your registered hospital';
+
+  @override
+  String get yourDoctor => 'Your Doctor';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get babyGrowthChartTitle => 'Baby\'s Growth Chart';
+
+  @override
+  String get currentStats => 'Current Stats';
+
+  @override
+  String get change => 'change';
+
+  @override
+  String get headCircumference => 'Head Circumference';
+
+  @override
+  String get growthChartTitle => 'Growth Chart';
+
+  @override
+  String get interactiveChart => 'Interactive chart will be displayed here';
+
+  @override
+  String get recentMeasurements => 'Recent Measurements';
+
+  @override
+  String get healthyGrowth => 'Healthy growth, on track';
+
+  @override
+  String get goodProgress => 'Good progress';
+
+  @override
+  String get normalDevelopment => 'Normal development';
+
+  @override
+  String get healthRecordsVaccinations => 'Health Records & Vaccinations';
+
+  @override
+  String get viewAll => 'View All';
+
+  @override
+  String get vaccinationProgress => 'Vaccination Progress';
+
+  @override
+  String get vaccinationsCompleted => 'vaccinations completed';
+
+  @override
+  String get recentVaccinations => 'Recent Vaccinations';
+
+  @override
+  String get seeAll => 'See All';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get dueSoon => 'Due Soon';
+
+  @override
+  String get schedule => 'Schedule';
+
+  @override
+  String get all => 'All';
+
+  @override
+  String get pending => 'Pending';
+
+  @override
+  String get noAppointmentsFound => 'No appointments found';
+
+  @override
+  String get tapScheduleButton =>
+      'Tap the Schedule button to book your first appointment';
+
+  @override
+  String get cancelAppointment => 'Cancel Appointment';
+
+  @override
+  String get cancelConfirmation =>
+      'Are you sure you want to cancel this appointment? This action cannot be undone.';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yesCancelAppointment => 'Yes, Cancel';
+
+  @override
+  String get doctorConsultation => 'Doctor Consultation';
+
+  @override
+  String get midwifeConsultation => 'Midwife Consultation';
+
+  @override
+  String get additionalNotes => 'Additional Notes:';
+
+  @override
+  String get doctorNotes => 'Doctor\'s Notes:';
+
+  @override
+  String get cancelAppointmentButton => 'Cancel Appointment';
+
+  @override
+  String get askAnythingBaby => 'Ask me anything about your baby\'s health!';
+
+  @override
+  String get helpWithFeeding =>
+      'I can help with feeding, sleep, development, and general health questions.';
 }

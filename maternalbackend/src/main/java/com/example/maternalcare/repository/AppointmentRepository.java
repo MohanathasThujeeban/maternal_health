@@ -36,6 +36,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                                       String timeSlot, 
                                                                       AppointmentStatus status);
 
+    // Check if mother already has an appointment with a provider on the same date
+    @Query("SELECT COUNT(a) > 0 FROM Appointment a WHERE a.motherNic = :motherNic AND a.providerName = :providerName AND DATE(a.appointmentDate) = DATE(:appointmentDate) AND a.status != 'CANCELLED'")
+    boolean existsByMotherNicAndProviderAndDateAndStatusNot(@Param("motherNic") String motherNic, 
+                                                            @Param("providerName") String providerName,
+                                                            @Param("appointmentDate") LocalDateTime appointmentDate);
+
     // Find appointments by provider ID and date range
     List<Appointment> findByProviderIdAndAppointmentDateBetweenOrderByAppointmentDateAsc(String providerId, 
                                                                                         LocalDateTime startDate, 
@@ -51,4 +57,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
                                                                                                                String motherNic, 
                                                                                                                LocalDateTime startDate, 
                                                                                                                LocalDateTime endDate);
+
+    // Find upcoming appointments by appointment type (after a specific date)
+    List<Appointment> findByAppointmentTypeAndAppointmentDateAfterOrderByAppointmentDateAsc(String appointmentType, 
+                                                                                           LocalDateTime afterDate);
+
+    // Find upcoming appointments by provider ID (after a specific date)
+    List<Appointment> findByProviderIdAndAppointmentDateAfterOrderByAppointmentDateAsc(String providerId, 
+                                                                                      LocalDateTime afterDate);
+    
+    // Count appointments by provider ID and date range
+    Long countByProviderIdAndAppointmentDateBetween(String providerId, 
+                                                   LocalDateTime startDate, 
+                                                   LocalDateTime endDate);
 }
