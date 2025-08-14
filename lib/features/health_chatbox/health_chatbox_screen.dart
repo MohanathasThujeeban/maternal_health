@@ -55,6 +55,13 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
       color: Color(0xFF2E7D5A),
       description: 'Immunization schedules and information',
     ),
+    HealthCategory(
+      id: 'other',
+      title: 'Other',
+      icon: Icons.help_outline,
+      color: Color(0xFF4FC3A1),
+      description: 'General health guidance and support',
+    ),
   ];
 
   // Predefined questions
