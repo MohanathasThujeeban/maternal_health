@@ -194,7 +194,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         child: const Column(
                           children: [
                             Text(
-                              '🎉 Congratulations! 🎉',
+                              'Congratulations! ',
                               style: TextStyle(
                                 fontFamily: 'SpotifyCircular',
                                 fontSize: 32,
