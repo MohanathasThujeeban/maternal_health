@@ -6,7 +6,7 @@ class ApiConfig {
   // Base URLs for different services
   static const String baseApiUrl = 'http://$serverIp:$serverPort/api';
   static const String appointmentsUrl = '$baseApiUrl/appointments';
-  static const String authUrl = '$baseApiUrl';
+  static const String authUrl = baseApiUrl;
 
   // Other configuration constants can be added here
 }
