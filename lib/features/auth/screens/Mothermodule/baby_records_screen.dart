@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class BabyRecordsScreen extends StatelessWidget {
-  const BabyRecordsScreen({Key? key}) : super(key: key);
+  const BabyRecordsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

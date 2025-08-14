@@ -9,10 +9,10 @@ class ThiriposaRecordScreen extends StatefulWidget {
   final bool isMidwife;
 
   const ThiriposaRecordScreen({
-    Key? key,
+    super.key,
     this.motherNic,
     this.isMidwife = false,
-  }) : super(key: key);
+  });
 
   @override
   State<ThiriposaRecordScreen> createState() => _ThiriposaRecordScreenState();

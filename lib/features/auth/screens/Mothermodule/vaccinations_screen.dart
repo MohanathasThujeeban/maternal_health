@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class VaccinationsScreen extends StatelessWidget {
-  const VaccinationsScreen({Key? key}) : super(key: key);
+  const VaccinationsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
