@@ -880,12 +880,36 @@ class _AppointmentsTabState extends State<AppointmentsTab>
           // Process today's appointments
           todayAppointments = todayData.map((e) {
             final appointment = Map<String, dynamic>.from(e);
+
+            // Debug: Print raw appointment data
+            print('Raw today appointment: $appointment');
+
             // Add priority and type fields for UI enhancement
             appointment['priority'] = appointment['status'] == 'PENDING'
                 ? 'high'
                 : 'normal';
             appointment['type'] =
                 appointment['appointmentType'] ?? 'Routine Checkup';
+
+            // Parse and format the date and time for display
+            try {
+              if (appointment['appointmentDate'] != null) {
+                final DateTime appointmentDateTime = DateTime.parse(
+                  appointment['appointmentDate'],
+                );
+                appointment['date'] =
+                    '${appointmentDateTime.day}/${appointmentDateTime.month}/${appointmentDateTime.year}';
+                appointment['time'] =
+                    appointment['timeSlot'] ??
+                    '${appointmentDateTime.hour.toString().padLeft(2, '0')}:${appointmentDateTime.minute.toString().padLeft(2, '0')}';
+              }
+            } catch (e) {
+              print('Error parsing appointment date: $e');
+              appointment['date'] = 'Unknown Date';
+              appointment['time'] = appointment['timeSlot'] ?? 'Unknown Time';
+            }
+
+            print('Processed today appointment: $appointment');
             return appointment;
           }).toList();
 
@@ -903,11 +927,35 @@ class _AppointmentsTabState extends State<AppointmentsTab>
             );
             upcomingAppointments = upcomingData.map((e) {
               final appointment = Map<String, dynamic>.from(e);
+
+              // Debug: Print raw appointment data
+              print('Raw upcoming appointment: $appointment');
+
               appointment['priority'] = appointment['status'] == 'PENDING'
                   ? 'high'
                   : 'normal';
               appointment['type'] =
                   appointment['appointmentType'] ?? 'Routine Checkup';
+
+              // Parse and format the date and time for display
+              try {
+                if (appointment['appointmentDate'] != null) {
+                  final DateTime appointmentDateTime = DateTime.parse(
+                    appointment['appointmentDate'],
+                  );
+                  appointment['date'] =
+                      '${appointmentDateTime.day}/${appointmentDateTime.month}/${appointmentDateTime.year}';
+                  appointment['time'] =
+                      appointment['timeSlot'] ??
+                      '${appointmentDateTime.hour.toString().padLeft(2, '0')}:${appointmentDateTime.minute.toString().padLeft(2, '0')}';
+                }
+              } catch (e) {
+                print('Error parsing appointment date: $e');
+                appointment['date'] = 'Unknown Date';
+                appointment['time'] = appointment['timeSlot'] ?? 'Unknown Time';
+              }
+
+              print('Processed upcoming appointment: $appointment');
               return appointment;
             }).toList();
           } else {
@@ -1567,6 +1615,12 @@ class _AppointmentsTabState extends State<AppointmentsTab>
   }
 
   Widget _buildUpcomingAppointmentCard(Map<String, dynamic> appointment) {
+    final isPending =
+        appointment['status']?.toString().toLowerCase() == 'pending';
+
+    // Debug: Print appointment data to see what fields are available
+    print('Upcoming appointment data: $appointment');
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -1586,64 +1640,93 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       ),
       child: Padding(
         padding: const EdgeInsets.all(18),
-        child: Row(
+        child: Column(
           children: [
-            Container(
-              width: 45,
-              height: 45,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4FC3A1), Color(0xFF66D4B7)],
+            Row(
+              children: [
+                Container(
+                  width: 45,
+                  height: 45,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4FC3A1), Color(0xFF66D4B7)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.person_outline,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.person_outline,
-                color: Colors.white,
-                size: 22,
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        appointment['motherName'] ?? 'Unknown Patient',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'SpotifyCircular',
+                          color: Color(0xFF2E2E2E),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${appointment['date'] ?? 'Unknown Date'} • ${appointment['time'] ?? appointment['timeSlot'] ?? 'Unknown Time'}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
+                          fontFamily: 'SpotifyCircular',
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        appointment['type'] ??
+                            appointment['appointmentType'] ??
+                            'Consultation',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF4FC3A1),
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (isPending) ...[
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  Text(
-                    appointment['motherName'],
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'SpotifyCircular',
-                      color: Color(0xFF2E2E2E),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${appointment['date']} • ${appointment['time']}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                      fontFamily: 'SpotifyCircular',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    appointment['type'],
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF4FC3A1),
-                      fontFamily: 'SpotifyCircular',
-                      fontWeight: FontWeight.w500,
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _markAsComplete(appointment),
+                      icon: const Icon(Icons.check_circle, size: 18),
+                      label: const Text(
+                        'Mark Complete',
+                        style: TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            Icon(
-              Icons.arrow_forward_ios,
-              color: Colors.grey.shade400,
-              size: 16,
-            ),
+            ],
           ],
         ),
       ),

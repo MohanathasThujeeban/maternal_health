@@ -4,6 +4,7 @@ import '../../models/appointment.dart';
 import '../../services/appointment_service.dart';
 import '../../services/user_service.dart';
 import './schedule_appointment_screen.dart';
+import '../../debug_user_screen.dart';
 
 class AppointmentsListScreen extends StatefulWidget {
   const AppointmentsListScreen({super.key});
@@ -100,6 +101,33 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
     }
   }
 
+  Future<void> _markAsCompleted(Appointment appointment) async {
+    // Show confirmation dialog with optional notes
+    final result = await _showCompleteConfirmDialog(appointment);
+    if (result == null) return;
+
+    try {
+      final apiResult = await AppointmentService.markAsCompleted(
+        appointment.id,
+        result['notes'],
+      );
+
+      if (apiResult['success']) {
+        _showMessage(
+          'Appointment marked as completed successfully',
+          isError: false,
+        );
+        _loadAppointments(); // Refresh the list
+      } else {
+        _showMessage(
+          apiResult['message'] ?? 'Failed to mark appointment as completed',
+        );
+      }
+    } catch (e) {
+      _showMessage('Error marking appointment as completed: ${e.toString()}');
+    }
+  }
+
   Future<bool> _showCancelConfirmDialog(Appointment appointment) async {
     return await showDialog<bool>(
           context: context,
@@ -178,6 +206,86 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
         false;
   }
 
+  Future<Map<String, dynamic>?> _showCompleteConfirmDialog(
+    Appointment appointment,
+  ) async {
+    final TextEditingController notesController = TextEditingController();
+
+    return await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          'Mark as Completed',
+          style: TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF2E7D5A),
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Mark this appointment as completed?',
+              style: TextStyle(fontFamily: 'SpotifyCircular'),
+            ),
+            const SizedBox(height: 16),
+            _buildAppointmentDetails(appointment),
+            const SizedBox(height: 16),
+            const Text(
+              'Additional Notes (Optional):',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: notesController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Add any notes about the appointment...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.all(12),
+              ),
+              style: const TextStyle(fontFamily: 'SpotifyCircular'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(null),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(
+                color: Color(0xFF4FC3A1),
+                fontFamily: 'SpotifyCircular',
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop({
+              'notes': notesController.text.trim().isEmpty
+                  ? null
+                  : notesController.text.trim(),
+            }),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green.shade600,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text(
+              'Mark Complete',
+              style: TextStyle(fontFamily: 'SpotifyCircular'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppointmentDetails(Appointment appointment) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,6 +344,18 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DebugUserScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.bug_report),
+            tooltip: 'Debug User Data',
+          ),
           IconButton(
             onPressed: _loadAppointments,
             icon: const Icon(Icons.refresh),
@@ -532,7 +652,23 @@ class _AppointmentsListScreenState extends State<AppointmentsListScreen>
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _markAsCompleted(appointment),
+                            icon: const Icon(Icons.check_circle, size: 18),
+                            label: const Text('Complete'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: () {
