@@ -6,11 +6,13 @@ import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.d
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
 import 'dart:io';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -715,197 +717,24 @@ class PatientsTab extends StatelessWidget {
 }
 
 // Placeholder classes for AnalyticsTab and ProfileTab to avoid errors
-class AnalyticsTab extends StatefulWidget {
+class AnalyticsTab extends StatelessWidget {
   const AnalyticsTab({super.key});
 
   @override
-  State<AnalyticsTab> createState() => _AnalyticsTabState();
-}
-
-class _AnalyticsTabState extends State<AnalyticsTab> {
-  final heightController = TextEditingController();
-  final weightController = TextEditingController();
-
-  // Key to capture chart
-  final GlobalKey _chartKey = GlobalKey();
-
-  // Example data list
-  final List<Map<String, dynamic>> growthData = [];
-
-  void _generateGraph() {
-    final height = double.tryParse(heightController.text);
-    final weight = double.tryParse(weightController.text);
-
-    if (height != null && weight != null) {
-      setState(() {
-        growthData.add({
-          "date": DateTime.now(),
-          "height": height,
-          "weight": weight,
-        });
-      });
-    }
-  }
-
-  Future<void> _downloadGraph() async {
-    try {
-      RenderRepaintBoundary boundary =
-          _chartKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData = await image.toByteData(
-        format: ui.ImageByteFormat.png,
-      );
-      Uint8List pngBytes = byteData!.buffer.asUint8List();
-
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/growth_graph.png');
-      await file.writeAsBytes(pngBytes);
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Graph saved at ${file.path}")));
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error saving graph: $e")));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Graph Generating Management',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D5A),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Track babies health using Graphs',
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Input fields
-              TextField(
-                controller: heightController,
-                decoration: const InputDecoration(
-                  labelText: "Enter Height (cm)",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: weightController,
-                decoration: const InputDecoration(
-                  labelText: "Enter Weight (kg)",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 12),
-
-              ElevatedButton(
-                onPressed: _generateGraph,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E7D5A),
-                ),
-                child: const Text("Generate Graph"),
-              ),
-              const SizedBox(height: 20),
-
-              // Graph Section
-              Expanded(
-                child: growthData.isEmpty
-                    ? const Center(
-                        child: Text(
-                          "No data yet. Add inputs to generate graph.",
-                        ),
-                      )
-                    : RepaintBoundary(
-                        key: _chartKey,
-                        child: LineChart(
-                          LineChartData(
-                            titlesData: FlTitlesData(
-                              leftTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 40,
-                                ),
-                              ),
-                              bottomTitles: AxisTitles(
-                                sideTitles: SideTitles(
-                                  showTitles: true,
-                                  reservedSize: 40,
-                                ),
-                              ),
-                            ),
-                            gridData: FlGridData(show: true),
-                            borderData: FlBorderData(show: true),
-                            lineBarsData: [
-                              LineChartBarData(
-                                isCurved: true,
-                                gradient: const LinearGradient(
-                                  colors: [Colors.blue],
-                                ),
-                                spots: growthData.asMap().entries.map((e) {
-                                  return FlSpot(
-                                    e.key.toDouble(),
-                                    e.value["height"],
-                                  );
-                                }).toList(),
-                                belowBarData: BarAreaData(show: false),
-                              ),
-                              LineChartBarData(
-                                isCurved: true,
-                                gradient: const LinearGradient(
-                                  colors: [Colors.green],
-                                ),
-                                spots: growthData.asMap().entries.map((e) {
-                                  return FlSpot(
-                                    e.key.toDouble(),
-                                    e.value["weight"],
-                                  );
-                                }).toList(),
-                                belowBarData: BarAreaData(show: false),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-              ),
-
-              // Download Button
-              ElevatedButton.icon(
-                onPressed: _downloadGraph,
-                icon: const Icon(Icons.download),
-                label: const Text("Download Graph"),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
-              ),
-            ],
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const GrowthChartScreen()),
+          );
+        },
+        child: const Text(
+          'Analytics Tab - Tap to view Growth Chart',
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
           ),
         ),
       ),
