@@ -51,6 +51,16 @@ public class Registration {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
     
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", nullable = false)
+    private UserRole userRole = UserRole.MOTHER;
+    
+    @Column(name = "medical_license_number")
+    private String medicalLicenseNumber;
+    
+    @Column(name = "institution")
+    private String institution;
+    
     // Default constructor
     public Registration() {}
     
@@ -136,6 +146,30 @@ public class Registration {
         this.isActive = isActive;
     }
     
+    public UserRole getUserRole() {
+        return userRole;
+    }
+    
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+    
+    public String getMedicalLicenseNumber() {
+        return medicalLicenseNumber;
+    }
+    
+    public void setMedicalLicenseNumber(String medicalLicenseNumber) {
+        this.medicalLicenseNumber = medicalLicenseNumber;
+    }
+    
+    public String getInstitution() {
+        return institution;
+    }
+    
+    public void setInstitution(String institution) {
+        this.institution = institution;
+    }
+    
     @Override
     public String toString() {
         return "Registration{" +
@@ -144,6 +178,9 @@ public class Registration {
                 ", phoneNumber3='" + phoneNumber3 + '\'' +
                 ", email='" + email + '\'' +
                 ", isActive=" + isActive +
+                ", userRole=" + userRole +
+                ", medicalLicenseNumber='" + medicalLicenseNumber + '\'' +
+                ", institution='" + institution + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }

@@ -92,8 +92,20 @@ public class LoginController {
                 user.getNicNumber(),
                 user.getPhoneNumber3()
             );
+            
+            // Add user role information
+            Map<String, Object> loginData = new HashMap<>();
+            loginData.put("success", true);
+            loginData.put("message", "Login successful");
+            loginData.put("userId", user.getId());
+            loginData.put("fullName", user.getFullName());
+            loginData.put("email", user.getEmail());
+            loginData.put("nicNumber", user.getNicNumber());
+            loginData.put("phoneNumber", user.getPhoneNumber3());
+            loginData.put("userRole", user.getUserRole().toString());
+            loginData.put("timestamp", LocalDateTime.now());
 
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(loginData);
 
         } catch (Exception e) {
             System.err.println("Login error: " + e.getClass().getSimpleName() + " - " + e.getMessage());

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:io';
 import '../models/appointment.dart';
 import '../config/api_config.dart';
+import '../features/auth/services/api_service.dart';
 
 class AppointmentService {
   // Dynamic base URL based on platform - enhanced with centralized config
@@ -55,6 +56,61 @@ class AppointmentService {
       },
     ],
   };
+
+  // Get available healthcare providers (dynamic from backend)
+  static Future<Map<String, List<Map<String, String>>>>
+  getAvailableProviders() async {
+    try {
+      print('=== Loading available healthcare providers ===');
+      final response = await ApiService.getAvailableHealthcareProviders();
+      print('API Response: $response');
+
+      Map<String, List<Map<String, String>>> groupedProviders = {
+        'midwife': [],
+        'doctor': [],
+      };
+
+      if (response['success'] == true && response['providers'] is List) {
+        final providersList = response['providers'] as List;
+        print('Found ${providersList.length} providers from API');
+
+        for (var provider in providersList) {
+          print('Processing provider: ${provider}');
+          final providerInfo = {
+            'id': (provider['medicalLicenseNumber'] ?? '').toString(),
+            'name': (provider['fullName'] ?? 'Unknown').toString(),
+            'title': (provider['specialization'] ?? 'General').toString(),
+            'institution': (provider['institution'] ?? '').toString(),
+            'yearsOfExperience':
+                (provider['yearsOfExperience']?.toString() ?? '0'),
+          };
+
+          print('Provider type: ${provider['providerType']}');
+          if (provider['providerType'] == 'MIDWIFE') {
+            groupedProviders['midwife']!.add(providerInfo);
+            print('Added to midwife group: ${providerInfo}');
+          } else if (provider['providerType'] == 'DOCTOR') {
+            groupedProviders['doctor']!.add(providerInfo);
+            print('Added to doctor group: ${providerInfo}');
+          }
+        }
+      }
+
+      print('Final grouped providers: $groupedProviders');
+
+      // If no providers found, return static ones as fallback
+      if (groupedProviders['midwife']!.isEmpty &&
+          groupedProviders['doctor']!.isEmpty) {
+        return AppointmentService.providers;
+      }
+
+      return groupedProviders;
+    } catch (e) {
+      print('Error loading healthcare providers: $e');
+      // Fallback to static providers if API fails
+      return AppointmentService.providers;
+    }
+  }
 
   // Schedule new appointment
   static Future<Map<String, dynamic>> scheduleAppointment({

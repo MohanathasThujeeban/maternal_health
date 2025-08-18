@@ -30,10 +30,39 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
   String? motherName;
   String? motherEmail;
 
+  // Dynamic providers
+  Map<String, List<Map<String, String>>> _availableProviders = {};
+  bool _providersLoading = true;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadAvailableProviders();
+  }
+
+  Future<void> _loadAvailableProviders() async {
+    print('=== Loading providers for appointment scheduling ===');
+    setState(() {
+      _providersLoading = true;
+    });
+
+    try {
+      final providers = await AppointmentService.getAvailableProviders();
+      print('Loaded providers in appointment screen: $providers');
+      setState(() {
+        _availableProviders = providers;
+        _providersLoading = false;
+      });
+    } catch (e) {
+      print('Error loading providers: $e');
+      // Fallback to static providers
+      print('Using fallback static providers');
+      setState(() {
+        _availableProviders = AppointmentService.providers;
+        _providersLoading = false;
+      });
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -463,66 +492,100 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                 const SizedBox(height: 16),
 
                 // Provider Selection
-                DropdownButtonFormField<String>(
-                  decoration: InputDecoration(
-                    labelText:
-                        'Select ${_appointmentType == 'doctor' ? 'Doctor' : 'Midwife'} *',
-                    prefixIcon: Icon(
-                      _appointmentType == 'doctor'
-                          ? Icons.local_hospital
-                          : Icons.pregnant_woman,
-                      color: const Color(0xFF4FC3A1),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF4FC3A1),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                  value: _selectedProvider,
-                  items: AppointmentService.providers[_appointmentType]!
-                      .map(
-                        (provider) => DropdownMenuItem<String>(
-                          value: '${provider['name']} - ${provider['title']}',
-                          child: Text(
-                            '${provider['name']} - ${provider['title']}',
-                            style: const TextStyle(
-                              fontFamily: 'SpotifyCircular',
-                            ),
+                _providersLoading
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(
+                            color: Color(0xFF4FC3A1),
                           ),
                         ),
                       )
-                      .toList(),
-                  onChanged: (value) async {
-                    final provider = AppointmentService
-                        .providers[_appointmentType]!
-                        .firstWhere(
-                          (p) => '${p['name']} - ${p['title']}' == value,
-                        );
+                    : DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText:
+                              'Select ${_appointmentType == 'doctor' ? 'Doctor' : 'Midwife'} *',
+                          prefixIcon: Icon(
+                            _appointmentType == 'doctor'
+                                ? Icons.local_hospital
+                                : Icons.pregnant_woman,
+                            color: const Color(0xFF4FC3A1),
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF4FC3A1),
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        value: _selectedProvider,
+                        items: (_availableProviders[_appointmentType] ?? []).map((
+                          provider,
+                        ) {
+                          return DropdownMenuItem<String>(
+                            value: '${provider['name']} - ${provider['title']}',
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  '${provider['name']}',
+                                  style: const TextStyle(
+                                    fontFamily: 'SpotifyCircular',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  '${provider['title']}',
+                                  style: const TextStyle(
+                                    fontFamily: 'SpotifyCircular',
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                if (provider['institution']?.isNotEmpty == true)
+                                  Text(
+                                    '${provider['institution']} • ${provider['yearsOfExperience']} years',
+                                    style: const TextStyle(
+                                      fontFamily: 'SpotifyCircular',
+                                      fontSize: 11,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) async {
+                          final provider =
+                              (_availableProviders[_appointmentType] ?? [])
+                                  .firstWhere(
+                                    (p) =>
+                                        '${p['name']} - ${p['title']}' == value,
+                                  );
 
-                    setState(() {
-                      _selectedProvider = value;
-                      _selectedProviderId = provider['id'];
-                      _selectedTimeSlot = null;
-                      _availableTimeSlots = [];
-                    });
+                          setState(() {
+                            _selectedProvider = value;
+                            _selectedProviderId = provider['id'];
+                            _selectedTimeSlot = null;
+                            _availableTimeSlots = [];
+                          });
 
-                    if (_selectedDate != null) {
-                      await _loadAvailableTimeSlots();
-                    }
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a ${_appointmentType == 'doctor' ? 'doctor' : 'midwife'}';
-                    }
-                    return null;
-                  },
-                ),
+                          if (_selectedDate != null) {
+                            await _loadAvailableTimeSlots();
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a ${_appointmentType == 'doctor' ? 'doctor' : 'midwife'}';
+                          }
+                          return null;
+                        },
+                      ),
 
                 const SizedBox(height: 16),
 
