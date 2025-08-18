@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../services/vaccination_service.dart';
 
 class MidwifeVaccinationScreen extends StatefulWidget {
   const MidwifeVaccinationScreen({super.key});
@@ -39,21 +40,40 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen> {
     },
   ];
 
-  void _searchVaccinations() {
+  void _searchVaccinations() async {
+    if (_searchController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter Mother NIC')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
-      _selectedMotherNic = _searchController.text;
+      _selectedMotherNic = _searchController.text.trim();
     });
 
-    // Simulate API call
-    Future.delayed(const Duration(seconds: 1), () {
+    try {
+      // Fetch vaccinations from backend
+      final vaccinations = await VaccinationService.getVaccinationsByMotherNic(_selectedMotherNic);
+      setState(() {
+        _vaccinations = vaccinations;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching vaccinations: $e');
+      // Fallback to mock data on error
       setState(() {
         _vaccinations = _mockVaccinations
             .where((v) => v['motherNic'] == _selectedMotherNic)
             .toList();
         _isLoading = false;
       });
-    });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading data: ${e.toString()}')),
+      );
+    }
   }
 
   void _showVaccinationDialog({Map<String, dynamic>? vaccination}) {
@@ -200,18 +220,50 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                // TODO: Save vaccination data
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      isEdit
-                          ? 'Vaccination updated successfully'
-                          : 'Vaccination added successfully',
+              onPressed: () async {
+                try {
+                  final vaccinationData = {
+                    'motherNic': isEdit ? vaccination['motherNic'] : _selectedMotherNic,
+                    'childName': childNameController.text.trim(),
+                    'vaccinationType': vaccinationTypeController.text.trim(),
+                    'ageToGive': ageToGiveController.text.trim(),
+                    'vaccinationDate': selectedDate?.toIso8601String(),
+                    'batchNumber': batchNumberController.text.trim(),
+                    'effectsFollowingImmunization': effectsController.text.trim(),
+                    'status': selectedStatus,
+                  };
+
+                  if (isEdit) {
+                    // Update existing vaccination
+                    await VaccinationService.updateVaccination(
+                      vaccination['id'],
+                      vaccinationData,
+                    );
+                  } else {
+                    // Create new vaccination
+                    await VaccinationService.createVaccination(vaccinationData);
+                  }
+
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        isEdit
+                            ? 'Vaccination updated successfully'
+                            : 'Vaccination added successfully',
+                      ),
                     ),
-                  ),
-                );
+                  );
+                  
+                  // Refresh the list
+                  if (_selectedMotherNic.isNotEmpty) {
+                    _searchVaccinations();
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${e.toString()}')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E7D5A),
@@ -224,11 +276,22 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen> {
     );
   }
 
-  void _updateVaccinationStatus(int id, String status) {
-    // TODO: Update vaccination status via API
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Vaccination status updated to $status')),
-    );
+  void _updateVaccinationStatus(int id, String status) async {
+    try {
+      await VaccinationService.updateVaccinationStatus(id, status);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Vaccination status updated to $status')),
+      );
+      
+      // Refresh the list
+      if (_selectedMotherNic.isNotEmpty) {
+        _searchVaccinations();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating status: ${e.toString()}')),
+      );
+    }
   }
 
   @override

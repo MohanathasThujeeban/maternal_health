@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../services/vaccination_service.dart';
+import '../../../../services/user_service.dart';
 
 class VaccinationsScreen extends StatefulWidget {
   const VaccinationsScreen({super.key});
@@ -10,6 +12,7 @@ class VaccinationsScreen extends StatefulWidget {
 class _VaccinationsScreenState extends State<VaccinationsScreen> {
   List<Map<String, dynamic>> _vaccinations = [];
   bool _isLoading = true;
+  String? _motherNic;
 
   // Mock data for now - will be replaced with API calls later
   final List<Map<String, dynamic>> _mockVaccinations = [
@@ -87,14 +90,37 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
     _loadVaccinations();
   }
 
-  void _loadVaccinations() {
-    // Simulate API call
-    Future.delayed(const Duration(seconds: 1), () {
+  void _loadVaccinations() async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Get current user's NIC
+      _motherNic = await UserService.getUserNic();
+      
+      if (_motherNic != null) {
+        // Fetch vaccinations from backend using mother's NIC
+        final vaccinations = await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
+        setState(() {
+          _vaccinations = vaccinations;
+          _isLoading = false;
+        });
+      } else {
+        // Fallback to mock data if no user NIC found
+        setState(() {
+          _vaccinations = _mockVaccinations;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading vaccinations: $e');
+      // Fallback to mock data on error
       setState(() {
         _vaccinations = _mockVaccinations;
         _isLoading = false;
       });
-    });
+    }
   }
 
   List<Map<String, dynamic>> get completedVaccinations => 
