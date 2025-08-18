@@ -71,6 +71,7 @@ public class RegistrationController {
             sampleMother.setPhoneNumber3("0771234568");
             sampleMother.setPassword(passwordEncoder.encode("password123"));
             sampleMother.setEmail("samanthi@example.com");
+            sampleMother.setUserRole(com.example.maternalcare.model.UserRole.MOTHER);
             
             // Check if already exists
             if (repository.findByNicNumber("199876543210").isEmpty() && 
@@ -78,7 +79,7 @@ public class RegistrationController {
                 repository.save(sampleMother);
                 System.out.println("Sample mother user added");
             }
-            
+
             // Add another sample user
             Registration sampleMother2 = new Registration();
             sampleMother2.setFullName("Nimalka Silva");
@@ -86,16 +87,48 @@ public class RegistrationController {
             sampleMother2.setPhoneNumber3("0771234569");
             sampleMother2.setPassword(passwordEncoder.encode("password123"));
             sampleMother2.setEmail("nimalka@example.com");
+            sampleMother2.setUserRole(com.example.maternalcare.model.UserRole.MOTHER);
             
             if (repository.findByNicNumber("199234567890").isEmpty() && 
                 repository.findByEmail("nimalka@example.com").isEmpty()) {
                 repository.save(sampleMother2);
                 System.out.println("Sample mother user 2 added");
             }
+
+            // Add sample healthcare providers
+            // Sample Midwife
+            Registration sampleMidwife = new Registration();
+            sampleMidwife.setFullName("Dr. Priya Jayasinghe");
+            sampleMidwife.setNicNumber("198512345678");
+            sampleMidwife.setPhoneNumber3("0712345678");
+            sampleMidwife.setPassword(passwordEncoder.encode("midwife@2024"));
+            sampleMidwife.setEmail("midwife@maternalhealth.com");
+            sampleMidwife.setUserRole(com.example.maternalcare.model.UserRole.MIDWIFE);
+            
+            if (repository.findByNicNumber("198512345678").isEmpty() && 
+                repository.findByEmail("midwife@maternalhealth.com").isEmpty()) {
+                repository.save(sampleMidwife);
+                System.out.println("Sample midwife user added");
+            }
+
+            // Sample Doctor
+            Registration sampleDoctor = new Registration();
+            sampleDoctor.setFullName("Dr. Kumara Fernando");
+            sampleDoctor.setNicNumber("198012345679");
+            sampleDoctor.setPhoneNumber3("0713456789");
+            sampleDoctor.setPassword(passwordEncoder.encode("doctor@2024"));
+            sampleDoctor.setEmail("doctor@maternalhealth.com");
+            sampleDoctor.setUserRole(com.example.maternalcare.model.UserRole.DOCTOR);
+            
+            if (repository.findByNicNumber("198012345679").isEmpty() && 
+                repository.findByEmail("doctor@maternalhealth.com").isEmpty()) {
+                repository.save(sampleDoctor);
+                System.out.println("Sample doctor user added");
+            }
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("message", "Sample data added successfully");
+            response.put("message", "Sample data added successfully including healthcare providers");
             response.put("timestamp", LocalDateTime.now());
             return ResponseEntity.ok(response);
             
@@ -104,9 +137,7 @@ public class RegistrationController {
             e.printStackTrace();
             return createErrorResponse("Failed to add sample data: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    @PostMapping("/registration")
+    }    @PostMapping("/registration")
     @ResponseBody
     public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
         System.out.println("=== REGISTRATION ENDPOINT HIT ===");

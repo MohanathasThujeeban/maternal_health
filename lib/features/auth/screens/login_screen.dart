@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'register3_screen.dart';
-import 'registration_data.dart';
 import 'forgot_password_screen.dart';
+import 'role_selection_screen.dart';
 import 'Midwivesmodule/dashboard_screen.dart';
 import 'Mothermodule/motherhome.dart';
 import 'Doctormodule/doctor_dashboard.dart';
+import 'healthcare_provider_login_screen.dart';
 import '../services/api_service.dart';
 import '../../../services/user_service.dart';
 import '../../../widgets/custom_loading.dart';
@@ -22,25 +22,6 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
 
   Future<void> _handleLogin() async {
-    // Check for hardcoded midwife credentials first
-    if (nicController.text == 'Mid_wife' &&
-        passwordController.text == 'Mid123') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
-      return;
-    }
-
-    // Check for hardcoded doctor credentials
-    if (nicController.text == 'Doctor' && passwordController.text == 'Doc123') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DoctorDashboard()),
-      );
-      return;
-    }
-
     // Validate input
     if (nicController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty) {
@@ -78,11 +59,26 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
 
-        // Navigate to mother home for regular users (NIC + password)
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MotherHomeScreen()),
-        );
+        // Route based on user role
+        final String userRole = result['userRole'] ?? 'MOTHER';
+
+        if (userRole == 'MIDWIFE') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
+          );
+        } else if (userRole == 'DOCTOR') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DoctorDashboard()),
+          );
+        } else {
+          // Default to mother home for MOTHER role or any other case
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MotherHomeScreen()),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -185,6 +181,69 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
+                    const SizedBox(height: 16),
+
+                    // Divider with text
+                    Row(
+                      children: [
+                        const Expanded(child: Divider(color: Colors.grey)),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'Or',
+                            style: TextStyle(
+                              fontFamily: 'SpotifyCircular',
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                        const Expanded(child: Divider(color: Colors.grey)),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Healthcare Provider Login button
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const HealthcareProviderLoginScreen(),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(
+                          color: Color(0xFF2E7D5A),
+                          width: 2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 24,
+                        ),
+                      ),
+                      icon: const Icon(
+                        Icons.medical_services,
+                        color: Color(0xFF2E7D5A),
+                        size: 20,
+                      ),
+                      label: const Text(
+                        'Healthcare Provider Login',
+                        style: TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontSize: 16,
+                          color: Color(0xFF2E7D5A),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
                     const SizedBox(height: 8),
                     // Create account text
                     const Text(
@@ -200,14 +259,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     _RoundedButton(
                       text: 'Create account',
                       onPressed: () {
-                        final registrationData = RegistrationData();
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => Register3Screen(
-                              registrationData: registrationData,
-                            ),
+                            builder: (context) => const RoleSelectionScreen(),
                           ),
                         );
                       },

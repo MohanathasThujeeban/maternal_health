@@ -56,6 +56,7 @@ class ApiService {
             'email': responseData['email'],
             'nicNumber': responseData['nicNumber'],
             'phoneNumber': responseData['phoneNumber'],
+            'userRole': responseData['userRole'] ?? 'MOTHER',
           };
         } else {
           return {
@@ -274,6 +275,127 @@ class ApiService {
         'success': false,
         'verified': false,
         'message': 'Error checking verification status: ${e.toString()}',
+      };
+    }
+  }
+
+  // Healthcare Provider Login method
+  static Future<Map<String, dynamic>> healthcareLogin(
+    String medicalLicenseNumber,
+    String password,
+  ) async {
+    try {
+      print(
+        'Attempting healthcare provider login with License: $medicalLicenseNumber',
+      );
+
+      final Map<String, dynamic> loginData = {
+        'medicalLicenseNumber': medicalLicenseNumber,
+        'password': password,
+      };
+
+      print('Sending healthcare login data: ${jsonEncode(loginData)}');
+
+      final response = await http
+          .post(
+            Uri.parse('$baseUrl/healthcare/login'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(loginData),
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Healthcare Login Response Status: ${response.statusCode}');
+      print('Healthcare Login Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] == true) {
+          return {
+            'success': true,
+            'message': responseData['message'],
+            'providerId': responseData['providerId'],
+            'fullName': responseData['fullName'],
+            'email': responseData['email'],
+            'nicNumber': responseData['nicNumber'],
+            'phoneNumber': responseData['phoneNumber'],
+            'medicalLicenseNumber': responseData['medicalLicenseNumber'],
+            'institution': responseData['institution'],
+            'specialization': responseData['specialization'],
+            'yearsOfExperience': responseData['yearsOfExperience'],
+            'userRole': responseData['providerType'], // MIDWIFE or DOCTOR
+            'isApproved': responseData['isApproved'],
+          };
+        } else {
+          return {
+            'success': false,
+            'message':
+                responseData['message'] ?? 'Healthcare provider login failed',
+          };
+        }
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['error'] ?? 'Healthcare provider login failed',
+        };
+      }
+    } on SocketException {
+      return {
+        'success': false,
+        'message': 'No internet connection. Please check your network.',
+      };
+    } on http.ClientException {
+      return {
+        'success': false,
+        'message': 'Failed to connect to server. Please try again.',
+      };
+    } catch (e) {
+      print('Error during healthcare provider login: $e');
+      return {
+        'success': false,
+        'message': 'Healthcare login failed: ${e.toString()}',
+      };
+    }
+  }
+
+  // Get available healthcare providers for appointments
+  static Future<Map<String, dynamic>> getAvailableHealthcareProviders() async {
+    try {
+      print('Fetching available healthcare providers');
+
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/healthcare/available'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      print('Get Providers Response Status: ${response.statusCode}');
+      print('Get Providers Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return {
+          'success': true,
+          'providers': responseData['providers'] ?? [],
+          'message':
+              responseData['message'] ?? 'Providers fetched successfully',
+        };
+      } else {
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'providers': [],
+          'message':
+              errorData['error'] ?? 'Failed to fetch healthcare providers',
+        };
+      }
+    } catch (e) {
+      print('Error fetching healthcare providers: $e');
+      return {
+        'success': false,
+        'providers': [],
+        'message': 'Error fetching healthcare providers: ${e.toString()}',
       };
     }
   }
