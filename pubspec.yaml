@@ -15,6 +15,10 @@ dependencies:
   http: ^1.4.0
   provider: ^6.1.2
   shared_preferences: ^2.3.2
+  fl_chart: ^0.69.0        # For graphs
+  path_provider: ^2.1.3    # For saving image file
+  share_plus: ^10.0.2
+  community_charts_flutter: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -52,3 +56,6 @@ flutter_native_splash:
   android_12:
     image: assets/logo.png
     color: "#F0F9F7"
+
+
+ 

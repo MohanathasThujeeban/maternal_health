@@ -7,6 +7,7 @@ import 'package:maternal_health/features/auth/screens/Babymodule/view_updateReco
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/midwife_vaccination_screen.dart';
+import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -716,7 +717,25 @@ class AnalyticsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Analytics Tab'));
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Growth Chart feature coming soon!'),
+              backgroundColor: Color(0xFF4FC3A1),
+            ),
+          );
+        },
+        child: const Text(
+          'Analytics Tab - Growth Chart (Coming Soon)',
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+    );
   }
 }
 
