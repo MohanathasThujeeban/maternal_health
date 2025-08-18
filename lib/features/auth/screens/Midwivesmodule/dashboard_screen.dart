@@ -6,6 +6,7 @@ import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.d
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/midwife_vaccination_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -621,15 +622,15 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Coming Soon',
-                    subtitle: 'More features',
-                    icon: Icons.more_horiz,
-                    color: Colors.grey,
+                    title: 'Vaccinations',
+                    subtitle: 'Manage vaccination records',
+                    icon: Icons.vaccines,
+                    color: const Color(0xFF8BC34A),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('More features coming soon!'),
-                          backgroundColor: Color(0xFF4FC3A1),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MidwifeVaccinationScreen(),
                         ),
                       );
                     },

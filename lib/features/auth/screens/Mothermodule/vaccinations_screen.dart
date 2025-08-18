@@ -1,7 +1,111 @@
 import 'package:flutter/material.dart';
 
-class VaccinationsScreen extends StatelessWidget {
+class VaccinationsScreen extends StatefulWidget {
   const VaccinationsScreen({super.key});
+
+  @override
+  State<VaccinationsScreen> createState() => _VaccinationsScreenState();
+}
+
+class _VaccinationsScreenState extends State<VaccinationsScreen> {
+  List<Map<String, dynamic>> _vaccinations = [];
+  bool _isLoading = true;
+
+  // Mock data for now - will be replaced with API calls later
+  final List<Map<String, dynamic>> _mockVaccinations = [
+    {
+      'id': 1,
+      'childName': 'Baby John',
+      'vaccinationType': 'BCG',
+      'description': 'Protection against tuberculosis',
+      'ageToGive': 'At birth',
+      'vaccinationDate': DateTime(2025, 1, 15),
+      'batchNumber': 'BCG2025001',
+      'effectsFollowingImmunization': 'None',
+      'status': 'COMPLETED'
+    },
+    {
+      'id': 2,
+      'childName': 'Baby John',
+      'vaccinationType': 'Hepatitis B',
+      'description': 'Protection against hepatitis B virus',
+      'ageToGive': 'At birth',
+      'vaccinationDate': DateTime(2025, 1, 15),
+      'batchNumber': 'HEP2025001',
+      'effectsFollowingImmunization': 'None',
+      'status': 'COMPLETED'
+    },
+    {
+      'id': 3,
+      'childName': 'Baby John',
+      'vaccinationType': 'DPT (1st dose)',
+      'description': 'Diphtheria, Pertussis, Tetanus',
+      'ageToGive': '2 months',
+      'vaccinationDate': DateTime(2025, 3, 15),
+      'batchNumber': 'DPT2025001',
+      'effectsFollowingImmunization': 'Mild fever',
+      'status': 'COMPLETED'
+    },
+    {
+      'id': 4,
+      'childName': 'Baby John',
+      'vaccinationType': 'OPV (1st dose)',
+      'description': 'Oral Polio Vaccine',
+      'ageToGive': '2 months',
+      'vaccinationDate': DateTime(2025, 3, 15),
+      'batchNumber': 'OPV2025001',
+      'effectsFollowingImmunization': 'None',
+      'status': 'COMPLETED'
+    },
+    {
+      'id': 5,
+      'childName': 'Baby John',
+      'vaccinationType': 'MMR',
+      'description': 'Measles, Mumps, Rubella',
+      'ageToGive': '12 months',
+      'vaccinationDate': null,
+      'batchNumber': '',
+      'effectsFollowingImmunization': '',
+      'status': 'PENDING'
+    },
+    {
+      'id': 6,
+      'childName': 'Baby John',
+      'vaccinationType': 'Varicella',
+      'description': 'Chickenpox vaccine',
+      'ageToGive': '15 months',
+      'vaccinationDate': null,
+      'batchNumber': '',
+      'effectsFollowingImmunization': '',
+      'status': 'PENDING'
+    },
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVaccinations();
+  }
+
+  void _loadVaccinations() {
+    // Simulate API call
+    Future.delayed(const Duration(seconds: 1), () {
+      setState(() {
+        _vaccinations = _mockVaccinations;
+        _isLoading = false;
+      });
+    });
+  }
+
+  List<Map<String, dynamic>> get completedVaccinations => 
+      _vaccinations.where((v) => v['status'] == 'COMPLETED').toList();
+
+  List<Map<String, dynamic>> get pendingVaccinations => 
+      _vaccinations.where((v) => v['status'] == 'PENDING').toList();
+
+  double get completionPercentage => _vaccinations.isEmpty 
+      ? 0.0 
+      : completedVaccinations.length / _vaccinations.length;
 
   @override
   Widget build(BuildContext context) {
@@ -19,174 +123,114 @@ class VaccinationsScreen extends StatelessWidget {
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Column(
-        children: [
-          // Progress Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-            child: Column(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
               children: [
-                const Text(
-                  'Vaccination Progress',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontFamily: 'SpotifyCircular',
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
+                // Progress Header
                 Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(15),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
                   ),
                   child: Column(
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          Text(
-                            '75% Complete',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'SpotifyCircular',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          Text(
-                            '6 of 8',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontFamily: 'SpotifyCircular',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      LinearProgressIndicator(
-                        value: 0.75,
-                        backgroundColor: Colors.white.withOpacity(0.3),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.white,
+                      const Text(
+                        'Vaccination Progress',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
                         ),
-                        minHeight: 6,
                       ),
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${(completionPercentage * 100).round()}% Complete',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontFamily: 'SpotifyCircular',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                Text(
+                                  '${completedVaccinations.length} of ${_vaccinations.length}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontFamily: 'SpotifyCircular',
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            LinearProgressIndicator(
+                              value: completionPercentage,
+                              backgroundColor: Colors.white.withOpacity(0.3),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                              minHeight: 6,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Vaccination List
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.all(16.0),
+                    children: [
+                      if (completedVaccinations.isNotEmpty) ...[
+                        _buildSectionHeader('Completed Vaccinations'),
+                        ...completedVaccinations.map((vaccination) =>
+                            _buildVaccinationCard(context, vaccination)),
+                        const SizedBox(height: 20),
+                      ],
+                      if (pendingVaccinations.isNotEmpty) ...[
+                        _buildSectionHeader('Pending Vaccinations'),
+                        ...pendingVaccinations.map((vaccination) =>
+                            _buildVaccinationCard(context, vaccination)),
+                      ],
+                      if (_vaccinations.isEmpty)
+                        const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(32.0),
+                            child: Text(
+                              'No vaccination records found',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-
-          // Vaccination List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16.0),
-              children: [
-                _buildSectionHeader('Completed Vaccinations'),
-                _buildVaccinationCard(
-                  context,
-                  title: 'BCG (Tuberculosis)',
-                  description: 'Protection against tuberculosis',
-                  date: '2025-01-15',
-                  status: 'Completed',
-                  dueDate: '2025-01-15',
-                  ageGiven: 'At birth',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'Hepatitis B',
-                  description: 'Protection against hepatitis B virus',
-                  date: '2025-01-15',
-                  status: 'Completed',
-                  dueDate: '2025-01-15',
-                  ageGiven: 'At birth',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'DPT (1st dose)',
-                  description: 'Diphtheria, Pertussis, Tetanus',
-                  date: '2025-03-15',
-                  status: 'Completed',
-                  dueDate: '2025-03-15',
-                  ageGiven: '2 months',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'Polio (1st dose)',
-                  description: 'Oral Polio Vaccine',
-                  date: '2025-03-15',
-                  status: 'Completed',
-                  dueDate: '2025-03-15',
-                  ageGiven: '2 months',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'DPT (2nd dose)',
-                  description: 'Diphtheria, Pertussis, Tetanus',
-                  date: '2025-04-15',
-                  status: 'Completed',
-                  dueDate: '2025-04-15',
-                  ageGiven: '4 months',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'Polio (2nd dose)',
-                  description: 'Oral Polio Vaccine',
-                  date: '2025-04-15',
-                  status: 'Completed',
-                  dueDate: '2025-04-15',
-                  ageGiven: '4 months',
-                ),
-
-                const SizedBox(height: 20),
-                _buildSectionHeader('Upcoming Vaccinations'),
-                _buildVaccinationCard(
-                  context,
-                  title: 'MMR',
-                  description: 'Measles, Mumps, Rubella',
-                  date: 'Not given',
-                  status: 'Due Soon',
-                  dueDate: '2025-08-15',
-                  ageGiven: '12 months',
-                ),
-                _buildVaccinationCard(
-                  context,
-                  title: 'Varicella',
-                  description: 'Chickenpox vaccine',
-                  date: 'Not scheduled',
-                  status: 'Scheduled',
-                  dueDate: '2025-09-15',
-                  ageGiven: '15 months',
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          _showAddVaccinationDialog(context);
-        },
-        backgroundColor: const Color(0xFF4FC3A1),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Add Record',
-          style: TextStyle(color: Colors.white, fontFamily: 'SpotifyCircular'),
-        ),
-      ),
     );
   }
 
@@ -206,33 +250,33 @@ class VaccinationsScreen extends StatelessWidget {
   }
 
   Widget _buildVaccinationCard(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required String date,
-    required String status,
-    required String dueDate,
-    required String ageGiven,
-  }) {
+    BuildContext context, 
+    Map<String, dynamic> vaccination,
+  ) {
     Color statusColor;
     IconData statusIcon;
+    String statusText;
 
-    switch (status.toLowerCase()) {
-      case 'completed':
+    switch (vaccination['status']) {
+      case 'COMPLETED':
         statusColor = const Color(0xFF4CAF50);
         statusIcon = Icons.check_circle;
+        statusText = 'Completed';
         break;
-      case 'due soon':
+      case 'PENDING':
         statusColor = const Color(0xFFFF9800);
         statusIcon = Icons.schedule;
+        statusText = 'Pending';
         break;
-      case 'scheduled':
-        statusColor = const Color(0xFF2196F3);
-        statusIcon = Icons.event;
+      case 'MISSED':
+        statusColor = const Color(0xFFF44336);
+        statusIcon = Icons.error;
+        statusText = 'Missed';
         break;
       default:
         statusColor = Colors.grey;
         statusIcon = Icons.pending;
+        statusText = vaccination['status'];
     }
 
     return Card(
@@ -257,7 +301,7 @@ class VaccinationsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          title,
+                          vaccination['vaccinationType'],
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -267,7 +311,7 @@ class VaccinationsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          description,
+                          vaccination['description'],
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -292,7 +336,7 @@ class VaccinationsScreen extends StatelessWidget {
                         Icon(statusIcon, color: statusColor, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          status,
+                          statusText,
                           style: TextStyle(
                             color: statusColor,
                             fontWeight: FontWeight.w500,
@@ -309,16 +353,38 @@ class VaccinationsScreen extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: _buildInfoRow(Icons.child_care, 'Age', ageGiven),
+                    child: _buildInfoRow(
+                      Icons.child_care, 
+                      'Age', 
+                      vaccination['ageToGive'],
+                    ),
                   ),
                   Expanded(
-                    child: _buildInfoRow(Icons.calendar_today, 'Given', date),
+                    child: _buildInfoRow(
+                      Icons.calendar_today, 
+                      'Date', 
+                      vaccination['vaccinationDate'] != null
+                          ? vaccination['vaccinationDate'].toString().split(' ')[0]
+                          : 'Not given',
+                    ),
                   ),
                 ],
               ),
-              if (status.toLowerCase() != 'completed') ...[
+              if (vaccination['batchNumber'].isNotEmpty) ...[
                 const SizedBox(height: 8),
-                _buildInfoRow(Icons.access_time, 'Due Date', dueDate),
+                _buildInfoRow(
+                  Icons.inventory, 
+                  'Batch', 
+                  vaccination['batchNumber'],
+                ),
+              ],
+              if (vaccination['effectsFollowingImmunization'].isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _buildInfoRow(
+                  Icons.medical_information, 
+                  'Effects', 
+                  vaccination['effectsFollowingImmunization'],
+                ),
               ],
             ],
           ),
@@ -351,41 +417,6 @@ class VaccinationsScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-
-  void _showAddVaccinationDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Add Vaccination Record',
-            style: TextStyle(
-              fontFamily: 'SpotifyCircular',
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          content: const Text(
-            'This feature will allow you to add new vaccination records. Coming soon!',
-            style: TextStyle(fontFamily: 'SpotifyCircular'),
-          ),
-          actions: [
-            TextButton(
-              child: const Text(
-                'OK',
-                style: TextStyle(
-                  color: Color(0xFF4FC3A1),
-                  fontFamily: 'SpotifyCircular',
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 }
