@@ -41,7 +41,7 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen>
       });
 
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseApiUrl}/registration/all'),
+        Uri.parse('${ApiConfig.baseApiUrl}/registrations'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -94,7 +94,7 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen>
           final fullName = mother['fullName']?.toString().toLowerCase() ?? '';
           final nicNumber = mother['nicNumber']?.toString().toLowerCase() ?? '';
           final phoneNumber =
-              mother['phoneNumber']?.toString().toLowerCase() ?? '';
+              mother['phoneNumber3']?.toString().toLowerCase() ?? '';
           final email = mother['email']?.toString().toLowerCase() ?? '';
           final searchQuery = query.toLowerCase();
 
@@ -132,7 +132,7 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen>
                       ),
                       const SizedBox(height: 8),
                       Text('NIC: ${mother['nicNumber']}'),
-                      Text('Phone: ${mother['phoneNumber']}'),
+                      Text('Phone: ${mother['phoneNumber3']}'),
                       Text('Email: ${mother['email']}'),
                     ],
                   ),
@@ -390,7 +390,7 @@ class _MidwifeVaccinationScreenState extends State<MidwifeVaccinationScreen>
                       ),
                     ),
                     Text(
-                      'Phone: ${mother['phoneNumber'] ?? 'N/A'}',
+                      'Phone: ${mother['phoneNumber3'] ?? 'N/A'}',
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 14,

@@ -1,7 +1,7 @@
 package com.example.maternalcare.repository;
 
 import com.example.maternalcare.model.Vaccination;
-import com.example.maternalcare.model.Vaccination.VaccinationStatus;
+import com.example.maternalcare.enums.VaccinationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
