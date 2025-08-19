@@ -98,15 +98,31 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
 
       // Get current user's NIC
       _motherNic = await UserService.getUserNic();
+      print('DEBUG: Mother NIC from UserService: $_motherNic');
       
       if (_motherNic != null) {
+        print('DEBUG: Attempting to fetch vaccinations for NIC: $_motherNic');
         // Fetch vaccinations from backend using mother's NIC
         final vaccinations = await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
-        setState(() {
-          _vaccinations = vaccinations;
-          _isLoading = false;
-        });
+        print('DEBUG: Fetched ${vaccinations.length} vaccination records');
+        print('DEBUG: Vaccination data: $vaccinations');
+        
+        // Check if we got real data or empty array
+        if (vaccinations.isNotEmpty) {
+          print('DEBUG: Using real vaccination data from backend');
+          setState(() {
+            _vaccinations = vaccinations;
+            _isLoading = false;
+          });
+        } else {
+          print('DEBUG: No vaccination records found for this mother, showing mock data');
+          setState(() {
+            _vaccinations = _mockVaccinations;
+            _isLoading = false;
+          });
+        }
       } else {
+        print('DEBUG: No user NIC found, using mock data');
         // Fallback to mock data if no user NIC found
         setState(() {
           _vaccinations = _mockVaccinations;
@@ -114,7 +130,7 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
         });
       }
     } catch (e) {
-      print('Error loading vaccinations: $e');
+      print('DEBUG: Error loading vaccinations: $e');
       // Fallback to mock data on error
       setState(() {
         _vaccinations = _mockVaccinations;
@@ -153,7 +169,7 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Progress Header
+                // Header
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(20),
@@ -167,7 +183,7 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                   child: Column(
                     children: [
                       const Text(
-                        'Vaccination Progress',
+                        'Vaccination Records',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -182,38 +198,23 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                           color: Colors.white.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(15),
                         ),
-                        child: Column(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${(completionPercentage * 100).round()}% Complete',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontFamily: 'SpotifyCircular',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                Text(
-                                  '${completedVaccinations.length} of ${_vaccinations.length}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontFamily: 'SpotifyCircular',
-                                  ),
-                                ),
-                              ],
+                            const Icon(
+                              Icons.vaccines,
+                              color: Colors.white,
+                              size: 24,
                             ),
-                            const SizedBox(height: 10),
-                            LinearProgressIndicator(
-                              value: completionPercentage,
-                              backgroundColor: Colors.white.withOpacity(0.3),
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                            const SizedBox(width: 10),
+                            Text(
+                              '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} Recorded',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'SpotifyCircular',
+                                fontWeight: FontWeight.w500,
                               ),
-                              minHeight: 6,
                             ),
                           ],
                         ),
@@ -224,54 +225,41 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
 
                 // Vaccination List
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16.0),
-                    children: [
-                      if (completedVaccinations.isNotEmpty) ...[
-                        _buildSectionHeader('Completed Vaccinations'),
-                        ...completedVaccinations.map((vaccination) =>
-                            _buildVaccinationCard(context, vaccination)),
-                        const SizedBox(height: 20),
-                      ],
-                      if (pendingVaccinations.isNotEmpty) ...[
-                        _buildSectionHeader('Pending Vaccinations'),
-                        ...pendingVaccinations.map((vaccination) =>
-                            _buildVaccinationCard(context, vaccination)),
-                      ],
-                      if (_vaccinations.isEmpty)
-                        const Center(
+                  child: _vaccinations.isEmpty
+                      ? const Center(
                           child: Padding(
                             padding: EdgeInsets.all(32.0),
-                            child: Text(
-                              'No vaccination records found',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey,
-                                fontFamily: 'SpotifyCircular',
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.vaccines_outlined,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'No vaccination records found',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey,
+                                    fontFamily: 'SpotifyCircular',
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        )
+                      : ListView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          itemCount: _vaccinations.length,
+                          itemBuilder: (context, index) {
+                            return _buildVaccinationCard(context, _vaccinations[index]);
+                          },
                         ),
-                    ],
-                  ),
                 ),
               ],
             ),
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          fontFamily: 'SpotifyCircular',
-          color: Color(0xFF2E7D5A),
-        ),
-      ),
     );
   }
 
@@ -279,139 +267,112 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
     BuildContext context, 
     Map<String, dynamic> vaccination,
   ) {
-    Color statusColor;
-    IconData statusIcon;
-    String statusText;
-
-    switch (vaccination['status']) {
-      case 'COMPLETED':
-        statusColor = const Color(0xFF4CAF50);
-        statusIcon = Icons.check_circle;
-        statusText = 'Completed';
-        break;
-      case 'PENDING':
-        statusColor = const Color(0xFFFF9800);
-        statusIcon = Icons.schedule;
-        statusText = 'Pending';
-        break;
-      case 'MISSED':
-        statusColor = const Color(0xFFF44336);
-        statusIcon = Icons.error;
-        statusText = 'Missed';
-        break;
-      default:
-        statusColor = Colors.grey;
-        statusIcon = Icons.pending;
-        statusText = vaccination['status'];
-    }
-
     return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: statusColor.withOpacity(0.3), width: 1),
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(
+            colors: [Colors.white, Colors.grey.shade50],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header with vaccination type and child name
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.vaccines,
+                      color: Color(0xFF4FC3A1),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 15),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          vaccination['vaccinationType'],
+                          vaccination['vaccinationType'] ?? 'Unknown Vaccine',
                           style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
                             fontFamily: 'SpotifyCircular',
                             color: Color(0xFF2E7D5A),
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          vaccination['description'],
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[600],
-                            fontFamily: 'SpotifyCircular',
+                        if (vaccination['childName']?.isNotEmpty == true)
+                          Text(
+                            'Child: ${vaccination['childName']}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontFamily: 'SpotifyCircular',
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(statusIcon, color: statusColor, size: 14),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusText,
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12,
-                            fontFamily: 'SpotifyCircular',
-                          ),
-                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildInfoRow(
-                      Icons.child_care, 
-                      'Age', 
-                      vaccination['ageToGive'],
-                    ),
-                  ),
-                  Expanded(
-                    child: _buildInfoRow(
-                      Icons.calendar_today, 
-                      'Date', 
-                      vaccination['vaccinationDate'] != null
-                          ? vaccination['vaccinationDate'].toString().split(' ')[0]
-                          : 'Not given',
-                    ),
-                  ),
-                ],
+              
+              const SizedBox(height: 20),
+              
+              // Details Grid
+              Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  children: [
+                    if (vaccination['ageToGive']?.isNotEmpty == true)
+                      _buildDetailRow(
+                        Icons.child_care, 
+                        'Recommended Age', 
+                        vaccination['ageToGive'],
+                      ),
+                    
+                    if (vaccination['vaccinationDate'] != null)
+                      _buildDetailRow(
+                        Icons.calendar_today, 
+                        'Date Given', 
+                        vaccination['vaccinationDate'].toString().split(' ')[0],
+                      ),
+                    
+                    if (vaccination['batchNumber']?.isNotEmpty == true)
+                      _buildDetailRow(
+                        Icons.inventory, 
+                        'Batch Number', 
+                        vaccination['batchNumber'],
+                      ),
+                    
+                    if (vaccination['effectsFollowingImmunization']?.isNotEmpty == true)
+                      _buildDetailRow(
+                        Icons.medical_information, 
+                        'Effects/Notes', 
+                        vaccination['effectsFollowingImmunization'],
+                        isLast: true,
+                      ),
+                  ],
+                ),
               ),
-              if (vaccination['batchNumber'].isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                  Icons.inventory, 
-                  'Batch', 
-                  vaccination['batchNumber'],
-                ),
-              ],
-              if (vaccination['effectsFollowingImmunization'].isNotEmpty) ...[
-                const SizedBox(height: 8),
-                _buildInfoRow(
-                  Icons.medical_information, 
-                  'Effects', 
-                  vaccination['effectsFollowingImmunization'],
-                ),
-              ],
             ],
           ),
         ),
@@ -419,30 +380,46 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: Colors.grey[600]),
-        const SizedBox(width: 4),
-        Text(
-          '$label: ',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-            fontFamily: 'SpotifyCircular',
+  Widget _buildDetailRow(IconData icon, String label, String value, {bool isLast = false}) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            icon, 
+            size: 18, 
+            color: const Color(0xFF4FC3A1),
           ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              fontFamily: 'SpotifyCircular',
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    fontFamily: 'SpotifyCircular',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'SpotifyCircular',
+                    color: Color(0xFF2E7D5A),
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

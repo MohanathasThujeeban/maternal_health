@@ -5,7 +5,6 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/health_chatbox/health_chatbox_screen.dart';
 import 'providers/language_provider.dart';
 import 'l10n/app_localizations.dart';
-import 'vaccination_test_screen.dart';
 
 void main() {
   runApp(
@@ -36,7 +35,6 @@ class MainApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => LoginScreen(),
-            '/vaccination-test': (context) => const VaccinationTestScreen(),
             '/health-chatbox': (context) {
               final args =
                   ModalRoute.of(context)?.settings.arguments as String?;
