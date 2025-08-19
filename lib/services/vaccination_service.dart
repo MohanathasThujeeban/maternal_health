@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class VaccinationService {
-  static const String _endpoint = '/api/vaccinations';
+  static const String _endpoint = '/vaccinations';
 
   // Create a new vaccination record
   static Future<Map<String, dynamic>> createVaccination(
@@ -12,9 +12,7 @@ class VaccinationService {
     try {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: json.encode(vaccinationData),
       );
 
@@ -22,7 +20,9 @@ class VaccinationService {
         return json.decode(response.body);
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to create vaccination record');
+        throw Exception(
+          error['message'] ?? 'Failed to create vaccination record',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -34,9 +34,7 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -44,7 +42,9 @@ class VaccinationService {
         return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get vaccination records');
+        throw Exception(
+          error['message'] ?? 'Failed to get vaccination records',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -56,9 +56,7 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -79,9 +77,7 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/mother/$motherNic'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -89,7 +85,9 @@ class VaccinationService {
         return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get vaccination records');
+        throw Exception(
+          error['message'] ?? 'Failed to get vaccination records',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -103,9 +101,7 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/status/$status'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -113,7 +109,9 @@ class VaccinationService {
         return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get vaccination records');
+        throw Exception(
+          error['message'] ?? 'Failed to get vaccination records',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -128,9 +126,7 @@ class VaccinationService {
     try {
       final response = await http.put(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: json.encode(vaccinationData),
       );
 
@@ -138,7 +134,9 @@ class VaccinationService {
         return json.decode(response.body);
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update vaccination record');
+        throw Exception(
+          error['message'] ?? 'Failed to update vaccination record',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -153,19 +151,17 @@ class VaccinationService {
     try {
       final response = await http.patch(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/$id/status'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'status': status,
-        }),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'status': status}),
       );
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update vaccination status');
+        throw Exception(
+          error['message'] ?? 'Failed to update vaccination status',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -177,14 +173,14 @@ class VaccinationService {
     try {
       final response = await http.delete(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/$id'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode != 200) {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to delete vaccination record');
+        throw Exception(
+          error['message'] ?? 'Failed to delete vaccination record',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -196,9 +192,7 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/overdue'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
@@ -206,7 +200,9 @@ class VaccinationService {
         return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get overdue vaccinations');
+        throw Exception(
+          error['message'] ?? 'Failed to get overdue vaccinations',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -218,16 +214,16 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/stats'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get vaccination statistics');
+        throw Exception(
+          error['message'] ?? 'Failed to get vaccination statistics',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -241,16 +237,16 @@ class VaccinationService {
     try {
       final response = await http.get(
         Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/stats/mother/$motherNic'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
         final error = json.decode(response.body);
-        throw Exception(error['message'] ?? 'Failed to get vaccination statistics');
+        throw Exception(
+          error['message'] ?? 'Failed to get vaccination statistics',
+        );
       }
     } catch (e) {
       throw Exception('Network error: $e');
@@ -287,6 +283,135 @@ class VaccinationService {
       return DateTime.parse(dateString);
     } catch (e) {
       return null;
+    }
+  }
+
+  // Get all registered mothers with vaccination summary
+  static Future<List<Map<String, dynamic>>>
+  getAllMothersWithVaccinationSummary() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/mothers'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(
+          error['message'] ?? 'Failed to get mothers with vaccination summary',
+        );
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Search mothers by NIC or name
+  static Future<List<Map<String, dynamic>>> searchMothers(
+    String searchTerm,
+  ) async {
+    try {
+      final uri = Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/mothers/search');
+      final finalUri = searchTerm.isNotEmpty
+          ? uri.replace(queryParameters: {'q': searchTerm})
+          : uri;
+
+      final response = await http.get(
+        finalUri,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => item as Map<String, dynamic>).toList();
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Failed to search mothers');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Create vaccination with email notification
+  static Future<Map<String, dynamic>> createVaccinationWithNotification(
+    Map<String, dynamic> vaccinationData,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/notify'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(vaccinationData),
+      );
+
+      if (response.statusCode == 201) {
+        return json.decode(response.body);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(
+          error['message'] ??
+              'Failed to create vaccination record with notification',
+        );
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Update vaccination with email notification
+  static Future<Map<String, dynamic>> updateVaccinationWithNotification(
+    int vaccinationId,
+    Map<String, dynamic> vaccinationData,
+  ) async {
+    try {
+      final response = await http.put(
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/$vaccinationId/notify'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(vaccinationData),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(
+          error['message'] ??
+              'Failed to update vaccination record with notification',
+        );
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Update vaccination status with email notification
+  static Future<Map<String, dynamic>> updateVaccinationStatusWithNotification(
+    int vaccinationId,
+    String status,
+  ) async {
+    try {
+      final response = await http.patch(
+        Uri.parse(
+          '${ApiConfig.baseApiUrl}$_endpoint/$vaccinationId/status/notify',
+        ),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'status': status.toUpperCase()}),
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(
+          error['message'] ??
+              'Failed to update vaccination status with notification',
+        );
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
     }
   }
 }

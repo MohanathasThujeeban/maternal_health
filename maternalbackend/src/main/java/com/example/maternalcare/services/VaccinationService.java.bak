@@ -4,6 +4,7 @@ import com.example.maternalcare.dto.VaccinationRequest;
 import com.example.maternalcare.dto.VaccinationResponse;
 import com.example.maternalcare.model.Registration;
 import com.example.maternalcare.model.Vaccination;
+import com.example.maternalcare.model.VaccinationStatus;
 import com.example.maternalcare.model.Vaccination.VaccinationStatus;
 import com.example.maternalcare.repository.RegistrationRepository;
 import com.example.maternalcare.repository.VaccinationRepository;

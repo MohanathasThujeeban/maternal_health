@@ -1,6 +1,7 @@
 class ApiConfig {
   // Base URL for all API endpoints
-  static const String serverIp = '10.11.20.8'; // Your WiFi IP
+  static const String serverIp =
+      'localhost'; // Changed to localhost for local testing
   static const int serverPort = 8080;
 
   // Base URLs for different services
