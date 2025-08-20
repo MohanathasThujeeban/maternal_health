@@ -14,6 +14,7 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
+
 //I am BATMAN
 //dashboard screen
 class _DashboardScreenState extends State<DashboardScreen> {
@@ -763,7 +764,7 @@ class AnalyticsTab extends StatelessWidget {
                 },
                 icon: const Icon(Icons.show_chart),
                 label: const Text(
-                  'View Growth Chart',
+                  'Growth Chart',
                   style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(

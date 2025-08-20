@@ -18,18 +18,49 @@ class ViewGraphScreen extends StatefulWidget {
 
 class _ViewGraphScreenState extends State<ViewGraphScreen> {
   final GlobalKey _chartKey = GlobalKey();
+  TextEditingController _searchController = TextEditingController();
+  List<String> _filteredNics = [];
+  String? _selectedNic;
+  final FocusNode _searchFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Sort entries by date to highlight latest NIC
+    widget.entries.sort((a, b) => b.date.compareTo(a.date));
+
+    _filteredNics = widget.entries.map((e) => e.motherNic).toSet().toList();
+    if (_filteredNics.isNotEmpty) {
+      _selectedNic = widget.entries.first.motherNic;
+    }
+
+    _searchController.addListener(() {
+      String search = _searchController.text.toLowerCase();
+      setState(() {
+        _filteredNics = widget.entries
+            .map((e) => e.motherNic)
+            .toSet()
+            .where((nic) => nic.toLowerCase().contains(search))
+            .toList();
+      });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_searchFocus);
+    });
+  }
 
   Future<void> _downloadGraph() async {
     try {
       RenderRepaintBoundary boundary =
           _chartKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage();
+      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
       ByteData? byteData = await image.toByteData(
         format: ui.ImageByteFormat.png,
       );
       Uint8List pngBytes = byteData!.buffer.asUint8List();
 
-      // Save or share - here using share_plus for quick demo
       await Share.shareXFiles([
         XFile.fromData(
           pngBytes,
@@ -46,18 +77,21 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Prepare height & weight data for FL Chart
-    final spotsHeight = widget.entries.asMap().entries.map((e) {
+    final filteredEntries = widget.entries
+        .where((entry) => entry.motherNic == _selectedNic)
+        .toList();
+
+    final spotsHeight = filteredEntries.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.height.toDouble());
     }).toList();
 
-    final spotsWeight = widget.entries.asMap().entries.map((e) {
+    final spotsWeight = filteredEntries.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.weight.toDouble());
     }).toList();
 
-    final months = widget.entries
-        .map((e) => DateFormat.MMM().format(e.date))
-        .toList();
+    final dates = filteredEntries.map((e) {
+      return DateFormat('d MMM').format(e.date);
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.green.shade50,
@@ -75,60 +109,245 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: RepaintBoundary(
-          key: _chartKey,
-          child: Container(
+      body: Column(
+        children: [
+          // Header + Logo
+          Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.green.shade100, Colors.purple.shade100],
+                colors: [Colors.green.shade400, Colors.green.shade200],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
             ),
-            child: LineChart(
-              LineChartData(
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+            child: Row(
+              children: [
+                Icon(Icons.show_chart, size: 50, color: Colors.white),
+                const SizedBox(width: 16),
+                const Text(
+                  "Mother's Growth Chart",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= 0 &&
-                            value.toInt() < months.length) {
-                          return Text(months[value.toInt()]);
-                        }
-                        return const SizedBox.shrink();
-                      },
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // NIC Search
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Search Mother NIC:",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  focusNode: _searchFocus,
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: "Type NIC to search...",
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
-                gridData: FlGridData(show: true),
-                borderData: FlBorderData(show: true),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spotsHeight,
-                    isCurved: true,
-                    barWidth: 3,
-                    color: Colors.blue,
-                    dotData: FlDotData(show: true),
+                const SizedBox(height: 6),
+                Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200),
                   ),
-                  LineChartBarData(
-                    spots: spotsWeight,
-                    isCurved: true,
-                    barWidth: 3,
-                    color: Colors.orange,
-                    dotData: FlDotData(show: true),
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children: _filteredNics.map((nic) {
+                      bool isSelected = nic == _selectedNic;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedNic = nic;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 8,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.green.shade600
+                                : Colors.green.shade100,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            nic,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Graph
+          Expanded(
+            child: Center(
+              child: RepaintBoundary(
+                key: _chartKey,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade50, Colors.purple.shade50],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: filteredEntries.isEmpty
+                      ? const Center(
+                          child: Text(
+                            "No data for this NIC",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        )
+                      : LineChart(
+                          LineChartData(
+                            minY: 0,
+                            gridData: FlGridData(
+                              show: true,
+                              drawVerticalLine: true,
+                              horizontalInterval: 5,
+                              getDrawingHorizontalLine: (value) => FlLine(
+                                color: Colors.blue.shade100,
+                                strokeWidth: 1,
+                              ),
+                              getDrawingVerticalLine: (value) => FlLine(
+                                color: Colors.purple.shade100,
+                                strokeWidth: 1,
+                              ),
+                            ),
+                            titlesData: FlTitlesData(
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    return Text(
+                                      value.toInt().toString(),
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  getTitlesWidget: (value, meta) {
+                                    if (value.toInt() >= 0 &&
+                                        value.toInt() < dates.length) {
+                                      return Text(
+                                        dates[value.toInt()],
+                                        style: const TextStyle(
+                                          color: Colors.purple,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
+                                  },
+                                ),
+                              ),
+                            ),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: Colors.green.shade300,
+                                width: 2,
+                              ),
+                            ),
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: spotsHeight,
+                                isCurved: true,
+                                barWidth: 3,
+                                color: Colors.blue,
+                                dotData: FlDotData(show: true),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.blue.withOpacity(0.3),
+                                      Colors.blue.withOpacity(0.0),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              ),
+                              LineChartBarData(
+                                spots: spotsWeight,
+                                isCurved: true,
+                                barWidth: 3,
+                                color: Colors.orange,
+                                dotData: FlDotData(show: true),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Colors.orange.withOpacity(0.3),
+                                      Colors.orange.withOpacity(0.0),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
               ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
