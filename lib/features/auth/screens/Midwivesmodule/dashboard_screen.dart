@@ -17,7 +17,8 @@ class DashboardScreen extends StatefulWidget {
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
-
+//I am BATMAN
+//dashboard screen
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
