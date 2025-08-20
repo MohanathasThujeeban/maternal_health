@@ -2,11 +2,10 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:fl_chart/fl_chart.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
 import 'package:flutter/rendering.dart';
-
 
 class ViewGraphScreen extends StatefulWidget {
   final List<GrowthEntry> entries;
@@ -47,22 +46,18 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<charts.Series<GrowthEntry, String>> seriesList = [
-      charts.Series<GrowthEntry, String>(
-        id: 'Height',
-        colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-        domainFn: (GrowthEntry entry, _) => DateFormat.MMM().format(entry.date),
-        measureFn: (GrowthEntry entry, _) => entry.height,
-        data: widget.entries,
-      ),
-      charts.Series<GrowthEntry, String>(
-        id: 'Weight',
-        colorFn: (_, __) => charts.MaterialPalette.deepOrange.shadeDefault,
-        domainFn: (GrowthEntry entry, _) => DateFormat.MMM().format(entry.date),
-        measureFn: (GrowthEntry entry, _) => entry.weight,
-        data: widget.entries,
-      ),
-    ];
+    // Prepare height & weight data for FL Chart
+    final spotsHeight = widget.entries.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value.height.toDouble());
+    }).toList();
+
+    final spotsWeight = widget.entries.asMap().entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value.weight.toDouble());
+    }).toList();
+
+    final months = widget.entries
+        .map((e) => DateFormat.MMM().format(e.date))
+        .toList();
 
     return Scaffold(
       backgroundColor: Colors.green.shade50,
@@ -93,16 +88,44 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
               ),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: charts.LineChart(
-              seriesList,
-              animate: true,
-              defaultRenderer: charts.LineRendererConfig(
-                includePoints: true,
-                includeArea: true,
-                stacked: false,
+            child: LineChart(
+              LineChartData(
+                titlesData: FlTitlesData(
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: true, reservedSize: 40),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() >= 0 &&
+                            value.toInt() < months.length) {
+                          return Text(months[value.toInt()]);
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ),
+                ),
+                gridData: FlGridData(show: true),
+                borderData: FlBorderData(show: true),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spotsHeight,
+                    isCurved: true,
+                    barWidth: 3,
+                    color: Colors.blue,
+                    dotData: FlDotData(show: true),
+                  ),
+                  LineChartBarData(
+                    spots: spotsWeight,
+                    isCurved: true,
+                    barWidth: 3,
+                    color: Colors.orange,
+                    dotData: FlDotData(show: true),
+                  ),
+                ],
               ),
-              domainAxis: const charts.OrdinalAxisSpec(),
-              primaryMeasureAxis: const charts.NumericAxisSpec(),
             ),
           ),
         ),
