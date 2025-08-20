@@ -6,6 +6,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
 import 'package:flutter/rendering.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ViewGraphScreen extends StatefulWidget {
   final List<GrowthEntry> entries;
@@ -27,12 +29,13 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
   void initState() {
     super.initState();
 
-    // Sort entries by date to highlight latest NIC
+    // Sort entries by date
     widget.entries.sort((a, b) => b.date.compareTo(a.date));
 
     _filteredNics = widget.entries.map((e) => e.motherNic).toSet().toList();
     if (_filteredNics.isNotEmpty) {
       _selectedNic = widget.entries.first.motherNic;
+      _fetchEntriesFromBackend(_selectedNic!);
     }
 
     _searchController.addListener(() {
@@ -75,11 +78,47 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
     }
   }
 
+  Future<void> _fetchEntriesFromBackend(String nic) async {
+    final url = Uri.parse('http://192.168.56.1:8080/api/growth/get/$nic');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        List<GrowthEntry> fetchedEntries = data
+            .map(
+              (e) => GrowthEntry(
+                motherNic: e['motherNic'],
+                height: e['height'],
+                weight: e['weight'],
+                date: DateTime.parse(e['date']),
+              ),
+            )
+            .toList();
+        setState(() {
+          // Replace widget.entries with fetched data for this NIC
+          widget.entries.clear();
+          widget.entries.addAll(fetchedEntries);
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to fetch: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final filteredEntries = widget.entries
-        .where((entry) => entry.motherNic == _selectedNic)
-        .toList();
+    final filteredEntries = _selectedNic == null
+        ? []
+        : widget.entries
+              .where((entry) => entry.motherNic == _selectedNic)
+              .toList();
 
     final spotsHeight = filteredEntries.asMap().entries.map((e) {
       return FlSpot(e.key.toDouble(), e.value.height.toDouble());
@@ -185,6 +224,9 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
                           setState(() {
                             _selectedNic = nic;
                           });
+                          _fetchEntriesFromBackend(
+                            nic,
+                          ); // Fetch backend entries
                         },
                         child: Container(
                           margin: const EdgeInsets.symmetric(
