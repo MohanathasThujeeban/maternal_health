@@ -467,4 +467,226 @@ public class EmailService {
                 </html>
                 """.formatted(name != null ? name : "Healthcare Provider", verificationCode);
     }
+    
+    public void sendVaccinationNotificationEmail(String to, String motherName, String childName, 
+                                               String vaccinationType, String ageToGive, 
+                                               String vaccinationDate, String midwifeName) {
+        try {
+            String subject = "Vaccination Record Updated - " + childName;
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            
+            String htmlContent = buildVaccinationNotificationHtml(motherName, childName, 
+                vaccinationType, ageToGive, vaccinationDate, midwifeName);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Vaccination notification email sent successfully to {}", to);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send vaccination notification email to {}: {}", to, e.getMessage());
+            throw new RuntimeException("Failed to send vaccination notification email", e);
+        }
+    }
+    
+    private String buildVaccinationNotificationHtml(String motherName, String childName, 
+                                                   String vaccinationType, String ageToGive, 
+                                                   String vaccinationDate, String midwifeName) {
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Vaccination Record Updated</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #f5f5f5;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                            overflow: hidden;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #4FC3A1 0%%, #45B7A8 100%%);
+                            color: white;
+                            text-align: center;
+                            padding: 30px 20px;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: 600;
+                        }
+                        .header .icon {
+                            font-size: 48px;
+                            margin-bottom: 10px;
+                        }
+                        .content {
+                            padding: 40px 30px;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            color: #2c3e50;
+                            margin-bottom: 20px;
+                        }
+                        .main-message {
+                            background-color: #f8fffe;
+                            border-left: 4px solid #4FC3A1;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                        .vaccination-details {
+                            background-color: #ffffff;
+                            border: 2px solid #e8f5f2;
+                            border-radius: 10px;
+                            padding: 25px;
+                            margin: 20px 0;
+                        }
+                        .vaccination-details h3 {
+                            color: #4FC3A1;
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                            border-bottom: 2px solid #e8f5f2;
+                            padding-bottom: 10px;
+                        }
+                        .detail-row {
+                            display: flex;
+                            margin-bottom: 12px;
+                            align-items: center;
+                        }
+                        .detail-label {
+                            font-weight: 600;
+                            color: #2c3e50;
+                            min-width: 140px;
+                            margin-right: 10px;
+                        }
+                        .detail-value {
+                            color: #34495e;
+                            font-weight: 500;
+                        }
+                        .highlight {
+                            background-color: #4FC3A1;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-weight: 600;
+                        }
+                        .midwife-info {
+                            background-color: #e8f5f2;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            text-align: center;
+                        }
+                        .important-note {
+                            background-color: #fff7e6;
+                            border: 1px solid #ffd700;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            color: #8b6914;
+                        }
+                        .footer {
+                            background-color: #f8f9fa;
+                            text-align: center;
+                            padding: 25px;
+                            border-top: 1px solid #e9ecef;
+                            font-size: 14px;
+                            color: #6c757d;
+                        }
+                        .logo {
+                            width: 40px;
+                            height: 40px;
+                            background-color: rgba(255, 255, 255, 0.2);
+                            border-radius: 50%%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">💉</div>
+                            <h1>Vaccination Record Updated</h1>
+                            <p>Your child's immunization record has been updated</p>
+                        </div>
+                        <div class="content">
+                            <div class="greeting">
+                                Dear <strong>%s</strong>,
+                            </div>
+                            
+                            <div class="main-message">
+                                <p>We are pleased to inform you that a vaccination record has been successfully added for your child <strong>%s</strong>. This record has been updated by your healthcare provider and is now part of your child's permanent immunization history.</p>
+                            </div>
+                            
+                            <div class="vaccination-details">
+                                <h3>🩺 Vaccination Details</h3>
+                                <div class="detail-row">
+                                    <span class="detail-label">Child Name:</span>
+                                    <span class="detail-value"><strong>%s</strong></span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Vaccine Type:</span>
+                                    <span class="detail-value highlight">%s</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Age to Give:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Vaccination Date:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                            </div>
+                            
+                            <div class="midwife-info">
+                                <p><strong>👩‍⚕️ Administered by:</strong> %s</p>
+                                <p><em>Licensed Healthcare Provider</em></p>
+                            </div>
+                            
+                            <div class="important-note">
+                                <p><strong>📋 Important Reminders:</strong></p>
+                                <ul>
+                                    <li>Keep this record for your child's health documentation</li>
+                                    <li>Watch for any side effects and contact your healthcare provider if needed</li>
+                                    <li>Ensure follow-up appointments are scheduled as recommended</li>
+                                    <li>Maintain the vaccination schedule for optimal protection</li>
+                                </ul>
+                            </div>
+                            
+                            <p>If you have any questions about this vaccination or your child's immunization schedule, please don't hesitate to contact your healthcare provider.</p>
+                            
+                            <p>Thank you for prioritizing your child's health and following the recommended vaccination schedule.</p>
+                            
+                            <p>Best regards,<br><strong>Maternal Health Care Team</strong></p>
+                        </div>
+                        <div class="footer">
+                            <p>This is an important health notification. Please keep this record for your files.</p>
+                            <p>If you have concerns about this vaccination, please contact your healthcare provider immediately.</p>
+                            <p><strong>Maternal Health Care System</strong> - Caring for mothers and children</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(motherName, childName, childName, vaccinationType, ageToGive, vaccinationDate, midwifeName);
+    }
 }

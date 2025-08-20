@@ -23,6 +23,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
   }
 
   Future<void> _loadUsers() async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -30,6 +31,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
 
     final result = await ThiriposaApiService.getAllUsers();
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       if (result['success']) {

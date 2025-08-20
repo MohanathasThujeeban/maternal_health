@@ -1,55 +1,38 @@
 package com.example.maternalcare.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import java.time.LocalDate;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
-import java.time.LocalDate;
 
 public class VaccinationRequest {
-    
     @NotBlank(message = "Mother NIC is required")
-    @Size(max = 15, message = "Mother NIC must be at most 15 characters")
     private String motherNic;
     
+    private String motherName;
+    
     @NotBlank(message = "Child name is required")
-    @Size(max = 100, message = "Child name must be at most 100 characters")
     private String childName;
     
     @NotBlank(message = "Vaccination type is required")
-    @Size(max = 100, message = "Vaccination type must be at most 100 characters")
     private String vaccinationType;
     
-    @NotBlank(message = "Age to give is required")
-    @Size(max = 50, message = "Age to give must be at most 50 characters")
     private String ageToGive;
     
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @NotNull(message = "Vaccination date is required")
     private LocalDate vaccinationDate;
     
-    @Size(max = 50, message = "Batch number must be at most 50 characters")
     private String batchNumber;
-    
     private String effectsFollowingImmunization;
     
-    @NotNull(message = "Status is required")
-    private String status; // Will be converted to enum
-    
-    // Constructors
+    // Default constructor
     public VaccinationRequest() {}
     
-    public VaccinationRequest(String motherNic, String childName, String vaccinationType, 
-                             String ageToGive, LocalDate vaccinationDate, String batchNumber, 
-                             String effectsFollowingImmunization, String status) {
+    // Constructor with required fields
+    public VaccinationRequest(String motherNic, String childName, String vaccinationType, LocalDate vaccinationDate) {
         this.motherNic = motherNic;
         this.childName = childName;
         this.vaccinationType = vaccinationType;
-        this.ageToGive = ageToGive;
         this.vaccinationDate = vaccinationDate;
-        this.batchNumber = batchNumber;
-        this.effectsFollowingImmunization = effectsFollowingImmunization;
-        this.status = status;
     }
     
     // Getters and setters
@@ -59,6 +42,14 @@ public class VaccinationRequest {
     
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
+    }
+    
+    public String getMotherName() {
+        return motherName;
+    }
+    
+    public void setMotherName(String motherName) {
+        this.motherName = motherName;
     }
     
     public String getChildName() {
@@ -107,13 +98,5 @@ public class VaccinationRequest {
     
     public void setEffectsFollowingImmunization(String effectsFollowingImmunization) {
         this.effectsFollowingImmunization = effectsFollowingImmunization;
-    }
-    
-    public String getStatus() {
-        return status;
-    }
-    
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

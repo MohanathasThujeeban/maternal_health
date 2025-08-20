@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../../../config/api_config.dart';
 
 class DoctorDashboard extends StatefulWidget {
   final Map<String, dynamic>? providerData;
@@ -146,7 +147,7 @@ class _DashboardTabState extends State<DashboardTab> {
 
       final response = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/$providerId/stats',
+          '${ApiConfig.baseApiUrl}/appointments/provider/$providerId/stats',
         ),
         headers: {'Accept': 'application/json'},
       );
@@ -555,7 +556,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
     try {
       final response = await http.put(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/${appointment['id']}/complete',
+          '${ApiConfig.baseApiUrl}/appointments/${appointment['id']}/complete',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -590,7 +591,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load today's appointments
       final todayResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/DOC001/today',
+          '${ApiConfig.baseApiUrl}/appointments/provider/DOC001/today',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -598,7 +599,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load upcoming appointments (future dates)
       final upcomingResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/DOC001/upcoming',
+          '${ApiConfig.baseApiUrl}/appointments/provider/DOC001/upcoming',
         ),
         headers: {'Content-Type': 'application/json'},
       );

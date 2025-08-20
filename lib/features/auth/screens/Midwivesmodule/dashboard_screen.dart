@@ -6,8 +6,9 @@ import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.d
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/midwife_vaccination_screen.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
 import 'package:flutter/rendering.dart';
+import '../../../../config/api_config.dart';
 
 class DashboardScreen extends StatefulWidget {
   final Map<String, dynamic>? providerData;
@@ -154,7 +155,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
       final response = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/$providerId/stats',
+          '${ApiConfig.baseApiUrl}/appointments/provider/$providerId/stats',
         ),
         headers: {'Accept': 'application/json'},
       );
@@ -175,11 +176,13 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
       }
     } catch (e) {
       print('Error fetching statistics: $e');
-      setState(() {
-        pendingReviewCount = '0';
-        thisMonthCount = '0';
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          pendingReviewCount = '0';
+          thisMonthCount = '0';
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -581,7 +584,7 @@ class PatientsTab extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const MidwifeVaccinationScreen(),
+                          builder: (_) => const VaccinationManagementScreen(),
                         ),
                       );
                     },
@@ -1138,7 +1141,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
     try {
       final response = await http.put(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/${appointment['id']}/complete',
+          '${ApiConfig.baseApiUrl}/appointments/${appointment['id']}/complete',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1165,6 +1168,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
   }
 
   Future<void> _loadAppointments() async {
+    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -1173,7 +1177,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load today's appointments for midwife
       final todayResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/today',
+          '${ApiConfig.baseApiUrl}/appointments/provider/MID001/today',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1181,7 +1185,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load upcoming appointments (future dates)
       final upcomingResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/upcoming',
+          '${ApiConfig.baseApiUrl}/appointments/provider/MID001/upcoming',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1292,9 +1296,11 @@ class _AppointmentsTabState extends State<AppointmentsTab>
         ),
       );
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

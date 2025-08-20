@@ -1,0 +1,9 @@
+{
+  "motherNic": "987654321V",
+  "childName": "Baby Saman",
+  "vaccinationType": "BCG",
+  "ageToGive": "Birth",
+  "vaccinationDate": "2025-08-15",
+  "batchNumber": "BCG001",
+  "effectsFollowingImmunization": "None"
+}

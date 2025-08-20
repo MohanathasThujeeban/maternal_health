@@ -1,5 +1,6 @@
 package com.example.maternalcare.model;
 
+import com.example.maternalcare.enums.VaccinationStatus;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,11 +44,6 @@ public class Vaccination {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // Enum for vaccination status
-    public enum VaccinationStatus {
-        PENDING, COMPLETED, MISSED
-    }
-    
     // Constructors
     public Vaccination() {}
     
@@ -67,13 +63,13 @@ public class Vaccination {
     // JPA lifecycle callbacks
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
     
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
     
     // Getters and setters
@@ -163,5 +159,22 @@ public class Vaccination {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    @Override
+    public String toString() {
+        return "Vaccination{" +
+                "id=" + id +
+                ", motherNic='" + motherNic + '\'' +
+                ", childName='" + childName + '\'' +
+                ", vaccinationType='" + vaccinationType + '\'' +
+                ", ageToGive='" + ageToGive + '\'' +
+                ", vaccinationDate=" + vaccinationDate +
+                ", batchNumber='" + batchNumber + '\'' +
+                ", effectsFollowingImmunization='" + effectsFollowingImmunization + '\'' +
+                ", status=" + status +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                '}';
     }
 }
