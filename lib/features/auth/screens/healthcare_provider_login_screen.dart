@@ -66,9 +66,7 @@ class _HealthcareProviderLoginScreenState
         if (providerType == 'MIDWIFE') {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => DashboardScreen(providerData: result),
-            ),
+            MaterialPageRoute(builder: (context) => const DashboardScreen()),
           );
         } else if (providerType == 'DOCTOR') {
           Navigator.pushReplacement(

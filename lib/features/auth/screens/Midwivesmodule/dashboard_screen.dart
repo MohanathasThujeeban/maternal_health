@@ -6,14 +6,10 @@ import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.d
 import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
-import 'package:flutter/rendering.dart';
-import '../../../../config/api_config.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
 
 class DashboardScreen extends StatefulWidget {
-  final Map<String, dynamic>? providerData;
-
-  const DashboardScreen({super.key, this.providerData});
+  const DashboardScreen({super.key});
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -22,19 +18,13 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-    _pages = [
-      MidwifeDashboardTab(providerData: widget.providerData),
-      const PatientsTab(),
-      const AppointmentsTab(),
-      const AnalyticsTab(),
-      ProfileTab(providerData: widget.providerData),
-    ];
-  }
+  final List<Widget> _pages = [
+    const MidwifeDashboardTab(),
+    const PatientsTab(), // Updated PatientsTab with buttons
+    const AppointmentsTab(),
+    const AnalyticsTab(),
+    const ProfileTab(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +80,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Handle notifications
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () {
+              _showLogoutDialog(context);
+            },
+          ),
         ],
       ),
       body: _pages[_selectedIndex],
@@ -122,12 +118,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Text(
+            'Logout',
+            style: TextStyle(
+              fontFamily: 'SpotifyCircular',
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E7D5A),
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/',
+                  (route) => false,
+                ); // Navigate to login and clear stack
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF4FC3A1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
 
 class MidwifeDashboardTab extends StatefulWidget {
-  final Map<String, dynamic>? providerData;
-
-  const MidwifeDashboardTab({super.key, this.providerData});
+  const MidwifeDashboardTab({super.key});
 
   @override
   State<MidwifeDashboardTab> createState() => _MidwifeDashboardTabState();
@@ -146,15 +201,9 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
   Future<void> _fetchStatistics() async {
     try {
-      // Get provider ID from provider data, fallback to default
-      String providerId = 'MID001'; // Default fallback
-      if (widget.providerData != null && widget.providerData!['id'] != null) {
-        providerId = widget.providerData!['id'].toString();
-      }
-
       final response = await http.get(
         Uri.parse(
-          '${ApiConfig.baseApiUrl}/appointments/provider/$providerId/stats',
+          'http://10.0.2.2:8080/api/appointments/provider/MID001/stats',
         ),
         headers: {'Accept': 'application/json'},
       );
@@ -175,13 +224,11 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
       }
     } catch (e) {
       print('Error fetching statistics: $e');
-      if (mounted) {
-        setState(() {
-          pendingReviewCount = '0';
-          thisMonthCount = '0';
-          isLoading = false;
-        });
-      }
+      setState(() {
+        pendingReviewCount = '0';
+        thisMonthCount = '0';
+        isLoading = false;
+      });
     }
   }
 
@@ -200,9 +247,9 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Welcome, ${widget.providerData != null ? (widget.providerData!['providerType'] == 'MIDWIFE' ? 'Mrs. ' : '') + (widget.providerData!['fullName'] ?? 'Midwife') : 'Mrs. Midwife'}!',
-              style: const TextStyle(
+            const Text(
+              'Welcome, Mrs. Kamali Jayasinghe!',
+              style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
@@ -575,15 +622,15 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Vaccinations',
-                    subtitle: 'Manage vaccination records',
-                    icon: Icons.vaccines,
-                    color: const Color(0xFF8BC34A),
+                    title: 'Coming Soon',
+                    subtitle: 'More features',
+                    icon: Icons.more_horiz,
+                    color: Colors.grey,
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const VaccinationManagementScreen(),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('More features coming soon!'),
+                          backgroundColor: Color(0xFF4FC3A1),
                         ),
                       );
                     },
@@ -669,21 +716,68 @@ class AnalyticsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: GestureDetector(
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Growth Chart feature coming soon!'),
-              backgroundColor: Color(0xFF4FC3A1),
-            ),
-          );
-        },
-        child: const Text(
-          'Analytics Tab - Growth Chart (Coming Soon)',
-          style: TextStyle(
-            color: Colors.blue,
-            decoration: TextDecoration.underline,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.analytics, size: 80, color: const Color(0xFF4FC3A1)),
+              const SizedBox(height: 24),
+              const Text(
+                'Growth Analytics',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2E7D5A),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Track and analyze baby growth metrics',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 16,
+                  color: Color(0xFF5B6871),
+                ),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const GrowthChartScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.show_chart),
+                label: const Text(
+                  'View Growth Chart',
+                  style: TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4FC3A1),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32,
+                    vertical: 16,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -692,354 +786,11 @@ class AnalyticsTab extends StatelessWidget {
 }
 
 class ProfileTab extends StatelessWidget {
-  final Map<String, dynamic>? providerData;
-
-  const ProfileTab({super.key, this.providerData});
+  const ProfileTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (providerData == null) {
-      return const Center(
-        child: Text(
-          'No provider data available',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-            fontFamily: 'SpotifyCircular',
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Profile Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF4FC3A1), Color(0xFF3DA58A)],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  child: Icon(
-                    providerData!['providerType'] == 'DOCTOR'
-                        ? Icons.medical_services
-                        : Icons.child_care,
-                    size: 40,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  providerData!['fullName'] ?? 'Healthcare Provider',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'SpotifyCircular',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  providerData!['providerType'] ?? 'Healthcare Provider',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                    fontFamily: 'SpotifyCircular',
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Professional Information
-          _buildInfoSection('Professional Information', [
-            _buildInfoRow(
-              'Medical License',
-              providerData!['medicalLicenseNumber'] ?? 'N/A',
-            ),
-            _buildInfoRow('Institution', providerData!['institution'] ?? 'N/A'),
-            _buildInfoRow(
-              'Specialization',
-              providerData!['specialization'] ?? 'General',
-            ),
-            _buildInfoRow(
-              'Years of Experience',
-              '${providerData!['yearsOfExperience'] ?? 0} years',
-            ),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // Contact Information
-          _buildInfoSection('Contact Information', [
-            _buildInfoRow('Email', providerData!['email'] ?? 'N/A'),
-            _buildInfoRow('Phone', providerData!['phoneNumber'] ?? 'N/A'),
-            _buildInfoRow('NIC Number', providerData!['nicNumber'] ?? 'N/A'),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // Account Status
-          _buildInfoSection('Account Status', [
-            _buildStatusRow(
-              'Approval Status',
-              providerData!['isApproved'] == true ? 'Approved' : 'Pending',
-            ),
-            _buildStatusRow(
-              'Account Type',
-              providerData!['providerType'] ?? 'N/A',
-            ),
-          ]),
-
-          const SizedBox(height: 32),
-
-          // Action Buttons
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Implement edit profile
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Edit profile feature coming soon'),
-                        backgroundColor: Color(0xFF4FC3A1),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4FC3A1),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.edit, color: Colors.white),
-                  label: const Text(
-                    'Edit Profile',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'SpotifyCircular',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // Implement logout functionality
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        title: const Text(
-                          'Logout',
-                          style: TextStyle(
-                            fontFamily: 'SpotifyCircular',
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF4FC3A1),
-                          ),
-                        ),
-                        content: const Text(
-                          'Are you sure you want to logout?',
-                          style: TextStyle(fontFamily: 'SpotifyCircular'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontFamily: 'SpotifyCircular',
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              // Navigate back to login screen and clear the navigation stack
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/',
-                                (route) => false,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4FC3A1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
-                              'Logout',
-                              style: TextStyle(
-                                fontFamily: 'SpotifyCircular',
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Color(0xFF4FC3A1)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(Icons.logout, color: Color(0xFF4FC3A1)),
-                  label: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: Color(0xFF4FC3A1),
-                      fontFamily: 'SpotifyCircular',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoSection(String title, List<Widget> children) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-                fontFamily: 'SpotifyCircular',
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontFamily: 'SpotifyCircular',
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Color(0xFF2D3748),
-                fontFamily: 'SpotifyCircular',
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusRow(String label, String value) {
-    Color statusColor = value == 'Approved' ? Colors.green : Colors.orange;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontFamily: 'SpotifyCircular',
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: statusColor.withOpacity(0.3)),
-              ),
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: statusColor,
-                  fontFamily: 'SpotifyCircular',
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    return Center(child: Text('Profile Tab'));
   }
 }
 
@@ -1140,7 +891,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
     try {
       final response = await http.put(
         Uri.parse(
-          '${ApiConfig.baseApiUrl}/appointments/${appointment['id']}/complete',
+          'http://10.0.2.2:8080/api/appointments/${appointment['id']}/complete',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1167,7 +918,6 @@ class _AppointmentsTabState extends State<AppointmentsTab>
   }
 
   Future<void> _loadAppointments() async {
-    if (!mounted) return;
     setState(() {
       isLoading = true;
     });
@@ -1176,7 +926,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load today's appointments for midwife
       final todayResponse = await http.get(
         Uri.parse(
-          '${ApiConfig.baseApiUrl}/appointments/provider/MID001/today',
+          'http://10.0.2.2:8080/api/appointments/provider/MID001/today',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1184,7 +934,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load upcoming appointments (future dates)
       final upcomingResponse = await http.get(
         Uri.parse(
-          '${ApiConfig.baseApiUrl}/appointments/provider/MID001/upcoming',
+          'http://10.0.2.2:8080/api/appointments/provider/MID001/upcoming',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -1295,11 +1045,9 @@ class _AppointmentsTabState extends State<AppointmentsTab>
         ),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
