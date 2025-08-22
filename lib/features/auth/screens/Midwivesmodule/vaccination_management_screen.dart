@@ -121,6 +121,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 768;
+    
     return Scaffold(
       backgroundColor: const Color(0xFFF8FFFE),
       appBar: AppBar(
@@ -165,185 +168,239 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
           ),
         ],
       ),
-      body: Row(
-        children: [
-          // Left panel - Mother search and list
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(2, 0),
-                  ),
-                ],
+      body: isTablet 
+        ? Row(
+            children: [
+              // Left panel - Mother search and list (for tablets/desktop)
+              Expanded(
+                flex: 2,
+                child: _buildMotherSelectionPanel(),
               ),
-              child: Column(
-                children: [
-                  // Enhanced Search header
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF4FC3A1).withOpacity(0.1),
-                          const Color(0xFF4FC3A1).withOpacity(0.05),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+              // Right panel - Vaccination management
+              Expanded(
+                flex: 3,
+                child: _selectedMother == null
+                    ? _buildSelectMotherPrompt()
+                    : _buildEnhancedVaccinationPanel(),
+              ),
+            ],
+          )
+        : _selectedMother == null
+          ? _buildMotherSelectionPanel() // Show only mother selection on mobile
+          : Column( // Show vaccination panel with back option on mobile
+              children: [
+                // Mobile back navigation
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedMother = null;
+                            _vaccinations.clear();
+                          });
+                        },
+                        icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF4FC3A1)),
                       ),
-                      border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4FC3A1).withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Icon(
-                                Icons.search,
-                                color: Color(0xFF4FC3A1),
-                                size: 24,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Find Mother',
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w700,
-                                      color: Color(0xFF2E7D5A),
-                                      fontFamily: 'SpotifyCircular',
-                                    ),
-                                  ),
-                                  Text(
-                                    'Search by name or NIC number',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Color(0xFF6B7280),
-                                      fontFamily: 'SpotifyCircular',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 8),
+                      Text(
+                        'Back to Mother List',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4FC3A1),
+                          fontFamily: 'SpotifyCircular',
                         ),
-                        const SizedBox(height: 16),
-                        Container(
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF4FC3A1).withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: TextField(
-                            controller: _searchController,
-                            onChanged: _filterMothers,
-                            style: const TextStyle(
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(child: _buildEnhancedVaccinationPanel()),
+              ],
+            ),
+      floatingActionButton: _selectedMother != null ? FloatingActionButton.extended(
+        onPressed: _showEnhancedAddVaccinationDialog,
+        backgroundColor: const Color(0xFF4FC3A1),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text(
+          'Add Vaccination',
+          style: TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        elevation: 4,
+      ) : null,
+    );
+  }
+
+  Widget _buildMotherSelectionPanel() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(2, 0),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Enhanced Search header
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF4FC3A1).withOpacity(0.1),
+                  const Color(0xFF4FC3A1).withOpacity(0.05),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade100)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4FC3A1).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.search,
+                        color: Color(0xFF4FC3A1),
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Find Mother',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF2E7D5A),
                               fontFamily: 'SpotifyCircular',
-                              fontSize: 16,
                             ),
-                            decoration: InputDecoration(
-                              hintText: 'Type name or NIC number...',
-                              hintStyle: TextStyle(
-                                color: Colors.grey.shade400,
-                                fontFamily: 'SpotifyCircular',
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.search, 
-                                color: Color(0xFF4FC3A1),
-                                size: 22,
-                              ),
-                              suffixIcon: _searchController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(Icons.clear, color: Colors.grey.shade400),
-                                      onPressed: () {
-                                        _searchController.clear();
-                                        _filterMothers('');
-                                      },
-                                    )
-                                  : null,
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide.none,
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: BorderSide(color: Colors.grey.shade200),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16),
-                                borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2),
-                              ),
+                          ),
+                          Text(
+                            'Search by name or NIC number',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF6B7280),
+                              fontFamily: 'SpotifyCircular',
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterMothers,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Type name or NIC number...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontFamily: 'SpotifyCircular',
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search, 
+                        color: Color(0xFF4FC3A1),
+                        size: 22,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: Icon(Icons.clear, color: Colors.grey.shade400),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterMothers('');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Mothers list with enhanced design
+          Expanded(
+            child: _isLoading
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: Color(0xFF4FC3A1)),
+                        SizedBox(height: 16),
+                        Text(
+                          'Loading mothers...',
+                          style: TextStyle(
+                            color: Color(0xFF6B7280),
+                            fontFamily: 'SpotifyCircular',
                           ),
                         ),
                       ],
                     ),
+                  )
+                : _filteredMothers.isEmpty
+                ? _buildEmptyMothersList()
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    itemCount: _filteredMothers.length,
+                    itemBuilder: (context, index) {
+                      final mother = _filteredMothers[index];
+                      final isSelected = _selectedMother != null && 
+                          _selectedMother!['nicNumber'] == mother['nicNumber'];
+                      return _buildEnhancedMotherCard(mother, isSelected);
+                    },
                   ),
-                  // Mothers list with enhanced design
-                  Expanded(
-                    child: _isLoading
-                        ? const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                CircularProgressIndicator(color: Color(0xFF4FC3A1)),
-                                SizedBox(height: 16),
-                                Text(
-                                  'Loading mothers...',
-                                  style: TextStyle(
-                                    color: Color(0xFF6B7280),
-                                    fontFamily: 'SpotifyCircular',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _filteredMothers.isEmpty
-                        ? _buildEmptyMothersList()
-                        : ListView.builder(
-                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                            itemCount: _filteredMothers.length,
-                            itemBuilder: (context, index) {
-                              final mother = _filteredMothers[index];
-                              final isSelected = _selectedMother != null && 
-                                  _selectedMother!['nicNumber'] == mother['nicNumber'];
-                              return _buildEnhancedMotherCard(mother, isSelected);
-                            },
-                          ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Right panel - Vaccination management
-          Expanded(
-            flex: 3,
-            child: _selectedMother == null
-                ? _buildSelectMotherPrompt()
-                : _buildEnhancedVaccinationPanel(),
           ),
         ],
       ),
@@ -540,30 +597,84 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
   }
 
   Widget _buildSelectMotherPrompt() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.vaccines_outlined, size: 100, color: Colors.grey.shade300),
-          const SizedBox(height: 24),
-          Text(
-            'Select a Mother',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade600,
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFFAFDFC), Color(0xFFF0F9F7)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Icon(
+                Icons.vaccines_outlined, 
+                size: 80, 
+                color: const Color(0xFF4FC3A1).withOpacity(0.8)
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Choose a mother from the left panel to\nmanage vaccination records',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey.shade500,
+            const SizedBox(height: 24),
+            const Text(
+              'Select a Mother',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF2E7D5A),
+                fontFamily: 'SpotifyCircular',
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 12),
+            Text(
+              'Choose a mother from the left panel to\nview and manage vaccination records',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+                fontFamily: 'SpotifyCircular',
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(25),
+                border: Border.all(
+                  color: const Color(0xFF4FC3A1).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    size: 18,
+                    color: Color(0xFF4FC3A1),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Search by name or NIC number',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: const Color(0xFF4FC3A1).withOpacity(0.8),
+                      fontFamily: 'SpotifyCircular',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
