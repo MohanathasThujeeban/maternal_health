@@ -21,11 +21,16 @@ public class UserController {
         this.registrationRepository = registrationRepository;
     }
 
-    // Get user profile by NIC
-    @GetMapping("/profile/{nic}")
-    public ResponseEntity<?> getUserProfile(@PathVariable String nic) {
+    // Get user profile by NIC or Medical License Number
+    @GetMapping("/profile/{identifier}")
+    public ResponseEntity<?> getUserProfile(@PathVariable String identifier) {
         try {
-            Optional<Registration> userOptional = registrationRepository.findByNicNumber(nic);
+            Optional<Registration> userOptional = registrationRepository.findByNicNumber(identifier);
+            
+            // If not found by NIC, try to find by medical license number (for healthcare providers)
+            if (userOptional.isEmpty()) {
+                userOptional = registrationRepository.findByMedicalLicenseNumber(identifier);
+            }
             
             if (userOptional.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
@@ -43,6 +48,9 @@ public class UserController {
             response.put("email", user.getEmail());
             response.put("nicNumber", user.getNicNumber());
             response.put("phoneNumber", user.getPhoneNumber3());
+            response.put("userRole", user.getUserRole().getDisplayName());
+            response.put("medicalLicenseNumber", user.getMedicalLicenseNumber());
+            response.put("institution", user.getInstitution());
             response.put("timestamp", LocalDateTime.now());
 
             return ResponseEntity.ok(response);

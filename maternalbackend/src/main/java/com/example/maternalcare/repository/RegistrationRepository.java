@@ -8,5 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RegistrationRepository extends JpaRepository<Registration, Long> {
     Optional<Registration> findByEmail(String email);
     Optional<Registration> findByNicNumber(String nicNumber);
+    Optional<Registration> findByMedicalLicenseNumber(String medicalLicenseNumber);
     List<Registration> findByNicNumberContainingOrFullNameContainingIgnoreCase(String nicNumber, String fullName);
 }

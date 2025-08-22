@@ -538,6 +538,45 @@ public class HealthcareProviderController {
         }
     }
 
+    // Get healthcare provider profile by medical license number
+    @GetMapping("/profile/{medicalLicenseNumber}")
+    public ResponseEntity<?> getHealthcareProviderProfile(@PathVariable String medicalLicenseNumber) {
+        try {
+            Optional<HealthcareProvider> providerOptional = 
+                healthcareProviderRepository.findByMedicalLicenseNumber(medicalLicenseNumber);
+            
+            if (providerOptional.isEmpty()) {
+                return createErrorResponse("Healthcare provider not found", HttpStatus.NOT_FOUND);
+            }
+
+            HealthcareProvider provider = providerOptional.get();
+            
+            // Create response with essential profile information
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("fullName", provider.getFullName());
+            response.put("email", provider.getEmail());
+            response.put("phoneNumber", provider.getPhoneNumber());
+            response.put("nicNumber", provider.getNicNumber());
+            response.put("medicalLicenseNumber", provider.getMedicalLicenseNumber());
+            response.put("institution", provider.getInstitution());
+            response.put("providerType", provider.getProviderType().getDisplayName());
+            response.put("specialization", provider.getSpecialization());
+            response.put("yearsOfExperience", provider.getYearsOfExperience());
+            response.put("isApproved", provider.getIsApproved());
+            response.put("isActive", provider.getIsActive());
+            response.put("createdAt", provider.getCreatedAt());
+            response.put("userRole", provider.getProviderType().name()); // For UI role display
+            response.put("timestamp", LocalDateTime.now());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return createErrorResponse("Failed to get healthcare provider profile: " + e.getMessage(), 
+                                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private ResponseEntity<?> createErrorResponse(String message, HttpStatus status) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("success", false);

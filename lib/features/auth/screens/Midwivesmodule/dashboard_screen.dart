@@ -7,6 +7,8 @@ import 'package:maternal_health/features/auth/screens/Babymodule/view_updateReco
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
+import 'package:maternal_health/services/user_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -205,7 +207,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
     try {
       final response = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/stats',
+          'http://10.11.17.8:8080/api/appointments/provider/MID001/stats',
         ),
         headers: {'Accept': 'application/json'},
       );
@@ -624,15 +626,15 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Coming Soon',
-                    subtitle: 'More features',
-                    icon: Icons.more_horiz,
-                    color: Colors.grey,
+                    title: 'Vaccination Management',
+                    subtitle: 'Manage baby vaccinations',
+                    icon: Icons.vaccines,
+                    color: const Color(0xFF9C27B0),
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('More features coming soon!'),
-                          backgroundColor: Color(0xFF4FC3A1),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const VaccinationManagementScreen(),
                         ),
                       );
                     },
@@ -787,12 +789,526 @@ class AnalyticsTab extends StatelessWidget {
   }
 }
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
 
   @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  Map<String, dynamic>? userProfile;
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUserProfile();
+  }
+
+  Future<void> _loadCurrentUserProfile() async {
+    try {
+      setState(() {
+        isLoading = true;
+        errorMessage = null;
+      });
+
+      // Get current user's identifier from local storage
+      final userData = await UserService.getUserData();
+      final currentIdentifier = userData['nic']; // This is actually medical license number for healthcare providers
+
+      print('Debug: Current user identifier: $currentIdentifier'); // Debug log
+
+      if (currentIdentifier == null || currentIdentifier.isEmpty) {
+        throw Exception('User not logged in');
+      }
+
+      // Fetch healthcare provider profile from backend
+      final profileUrl = 'http://10.11.17.8:8080/api/healthcare/profile/$currentIdentifier';
+      print('Debug: Fetching healthcare provider profile from: $profileUrl'); // Debug log
+      
+      final response = await http.get(
+        Uri.parse(profileUrl),
+        headers: {'Accept': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['success'] == true) {
+          setState(() {
+            userProfile = data;
+            isLoading = false;
+          });
+        } else {
+          throw Exception(data['error'] ?? 'Failed to load profile');
+        }
+      } else {
+        print('Debug: Response status: ${response.statusCode}'); // Debug log
+        print('Debug: Response body: ${response.body}'); // Debug log
+        throw Exception('Server error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading user profile: $e');
+      setState(() {
+        isLoading = false;
+        errorMessage = e.toString();
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(child: Text('Profile Tab'));
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'My Profile',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2E7D5A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Your professional information and account details',
+              style: TextStyle(
+                fontFamily: 'SpotifyCircular',
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            if (isLoading)
+              const Expanded(
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4FC3A1)),
+                  ),
+                ),
+              )
+            else if (errorMessage != null)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Failed to load profile',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.red,
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        errorMessage!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          fontFamily: 'SpotifyCircular',
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadCurrentUserProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4FC3A1),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else if (userProfile != null)
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _loadCurrentUserProfile,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        _buildProfileCard(),
+                        const SizedBox(height: 16),
+                        _buildAccountSettingsCard(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProfileCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            // Profile Header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4FC3A1).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(
+                    Icons.person,
+                    color: Color(0xFF4FC3A1),
+                    size: 40,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userProfile!['fullName'] ?? 'Unknown User',
+                        style: const TextStyle(
+                          fontFamily: 'SpotifyCircular',
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF2E7D5A),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4FC3A1).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          userProfile!['userRole'] ?? 'Healthcare Provider',
+                          style: const TextStyle(
+                            fontFamily: 'SpotifyCircular',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF4FC3A1),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // Contact Information
+            _buildSectionTitle('Contact Information'),
+            const SizedBox(height: 12),
+            _buildInfoRow(
+              Icons.email,
+              'Email',
+              userProfile!['email'] ?? 'Not provided',
+            ),
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              Icons.phone,
+              'Phone',
+              userProfile!['phoneNumber'] ?? 'Not provided',
+            ),
+            const SizedBox(height: 8),
+            _buildInfoRow(
+              Icons.credit_card,
+              'NIC Number',
+              userProfile!['nicNumber'] ?? 'Not provided',
+            ),
+            
+            // Professional Information (for healthcare providers)
+            if (userProfile!['medicalLicenseNumber'] != null && 
+                userProfile!['medicalLicenseNumber'].toString().isNotEmpty) ...[
+              const SizedBox(height: 20),
+              _buildSectionTitle('Professional Information'),
+              const SizedBox(height: 12),
+              _buildInfoRow(
+                Icons.badge,
+                'Medical License',
+                userProfile!['medicalLicenseNumber'],
+              ),
+              if (userProfile!['institution'] != null && 
+                  userProfile!['institution'].toString().isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _buildInfoRow(
+                  Icons.business,
+                  'Institution',
+                  userProfile!['institution'],
+                ),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAccountSettingsCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTitle('Account Settings'),
+            const SizedBox(height: 16),
+            
+            _buildSettingsOption(
+              Icons.edit,
+              'Edit Profile',
+              'Update your personal information',
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Edit profile feature coming soon!'),
+                    backgroundColor: Color(0xFF4FC3A1),
+                  ),
+                );
+              },
+            ),
+            
+            const Divider(height: 24),
+            
+            _buildSettingsOption(
+              Icons.lock,
+              'Change Password',
+              'Update your account password',
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Change password feature coming soon!'),
+                    backgroundColor: Color(0xFF4FC3A1),
+                  ),
+                );
+              },
+            ),
+            
+            const Divider(height: 24),
+            
+            _buildSettingsOption(
+              Icons.notifications,
+              'Notifications',
+              'Manage notification preferences',
+              () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Notification settings coming soon!'),
+                    backgroundColor: Color(0xFF4FC3A1),
+                  ),
+                );
+              },
+            ),
+            
+            const Divider(height: 24),
+            
+            _buildSettingsOption(
+              Icons.logout,
+              'Logout',
+              'Sign out of your account',
+              () {
+                _showLogoutDialog(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontFamily: 'SpotifyCircular',
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF2E7D5A),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 20, color: Colors.grey[600]),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 16,
+                  color: Color(0xFF2E7D5A),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSettingsOption(IconData icon, String title, String subtitle, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, size: 20, color: const Color(0xFF4FC3A1)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF2E7D5A),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Colors.grey[400],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Logout',
+            style: TextStyle(
+              fontFamily: 'SpotifyCircular',
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E7D5A),
+            ),
+          ),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(fontFamily: 'SpotifyCircular'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                // Clear user data
+                await UserService.clearUserData();
+                // Navigate to login screen
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login',
+                  (route) => false,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text(
+                'Logout',
+                style: TextStyle(fontFamily: 'SpotifyCircular'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -893,7 +1409,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
     try {
       final response = await http.put(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/${appointment['id']}/complete',
+          'http://10.11.17.8:8080/api/appointments/${appointment['id']}/complete',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -928,7 +1444,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load today's appointments for midwife
       final todayResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/today',
+          'http://10.11.17.8:8080/api/appointments/provider/MID001/today',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -936,7 +1452,7 @@ class _AppointmentsTabState extends State<AppointmentsTab>
       // Load upcoming appointments (future dates)
       final upcomingResponse = await http.get(
         Uri.parse(
-          'http://10.0.2.2:8080/api/appointments/provider/MID001/upcoming',
+          'http://10.11.17.8:8080/api/appointments/provider/MID001/upcoming',
         ),
         headers: {'Content-Type': 'application/json'},
       );
