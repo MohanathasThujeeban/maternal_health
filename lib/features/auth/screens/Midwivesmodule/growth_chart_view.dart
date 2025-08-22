@@ -20,7 +20,7 @@ class ViewGraphScreen extends StatefulWidget {
 
 class _ViewGraphScreenState extends State<ViewGraphScreen> {
   final GlobalKey _chartKey = GlobalKey();
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   List<String> _filteredNics = [];
   String? _selectedNic;
   final FocusNode _searchFocus = FocusNode();
@@ -79,7 +79,7 @@ class _ViewGraphScreenState extends State<ViewGraphScreen> {
   }
 
   Future<void> _fetchEntriesFromBackend(String nic) async {
-    final url = Uri.parse('http://192.168.56.1:8080/api/growth/get/$nic');
+    final url = Uri.parse('http://10.11.20.8:8080/api/growth/get/$nic');
 
     try {
       final response = await http.get(url);

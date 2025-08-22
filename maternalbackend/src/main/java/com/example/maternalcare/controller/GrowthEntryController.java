@@ -1,7 +1,7 @@
-package com.example.maternalhealth.controller;
+package com.example.maternalcare.controller;
 
-import com.example.maternalhealth.model.GrowthEntry;
-import com.example.maternalhealth.service.GrowthEntryService;
+import com.example.maternalcare.model.GrowthEntry;
+import com.example.maternalcare.service.GrowthEntryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,7 +1,7 @@
-package com.example.maternalhealth.service;
+package com.example.maternalcare.service;
 
-import com.example.maternalhealth.model.GrowthEntry;
-import com.example.maternalhealth.repository.GrowthEntryRepository;
+import com.example.maternalcare.model.GrowthEntry;
+import com.example.maternalcare.repository.GrowthEntryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

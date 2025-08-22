@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_view.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class GrowthEntry {
   final DateTime date;
@@ -13,6 +15,16 @@ class GrowthEntry {
     required this.weight,
     required this.motherNic,
   });
+
+  // 🔹 Convert to JSON for backend
+  Map<String, dynamic> toJson() {
+    return {
+      "motherNic": motherNic,
+      "height": height,
+      "weight": weight,
+      "date": date.toIso8601String(), // backend expects ISO string
+    };
+  }
 }
 
 class GrowthChartScreen extends StatefulWidget {
@@ -31,6 +43,34 @@ class _GrowthChartScreenState extends State<GrowthChartScreen> {
 
   DateTime? _selectedDate;
 
+  // 🔹 Function to save entry to backend
+  Future<void> _saveEntryToBackend(GrowthEntry entry) async {
+    final url = Uri.parse("http://10.11.20.8:8080/api/growth/add");
+    // ⚠️ If testing on a mobile device, replace localhost with your PC IP (e.g. http://192.168.1.5:8080)
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(entry.toJson()),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Saved to backend successfully ✅")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to save ❌: ${response.body}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error connecting to backend: $e")),
+      );
+    }
+  }
+
   void _addEntry() {
     if (_nicController.text.isEmpty ||
         _heightController.text.isEmpty ||
@@ -48,16 +88,19 @@ class _GrowthChartScreenState extends State<GrowthChartScreen> {
       return;
     }
 
+    final entry = GrowthEntry(
+      date: _selectedDate!,
+      height: double.parse(_heightController.text),
+      weight: double.parse(_weightController.text),
+      motherNic: _nicController.text,
+    );
+
     setState(() {
-      _entries.add(
-        GrowthEntry(
-          date: _selectedDate!,
-          height: double.parse(_heightController.text),
-          weight: double.parse(_weightController.text),
-          motherNic: _nicController.text,
-        ),
-      );
+      _entries.add(entry);
     });
+
+    // 🔹 Save to Spring Boot backend
+    _saveEntryToBackend(entry);
 
     _nicController.clear();
     _heightController.clear();
