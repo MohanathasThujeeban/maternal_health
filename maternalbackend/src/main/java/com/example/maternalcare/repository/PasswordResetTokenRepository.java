@@ -20,10 +20,18 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     
     void deleteByUser(Registration user);
     
+    // For healthcare provider password reset
+    void deleteByProviderEmail(String providerEmail);
+    
+    Optional<PasswordResetToken> findByTokenAndProviderTypeAndUsedFalse(String token, String providerType);
+    
     @Modifying
     @Query("DELETE FROM PasswordResetToken t WHERE t.expiryDate < :now")
     void deleteExpiredTokens(@Param("now") LocalDateTime now);
     
     @Query("SELECT t FROM PasswordResetToken t WHERE t.user = :user AND t.used = false AND t.expiryDate > :now")
     Optional<PasswordResetToken> findValidTokenByUser(@Param("user") Registration user, @Param("now") LocalDateTime now);
+    
+    @Query("SELECT t FROM PasswordResetToken t WHERE t.providerEmail = :email AND t.providerType = 'HEALTHCARE_PROVIDER' AND t.used = false AND t.expiryDate > :now")
+    Optional<PasswordResetToken> findValidTokenByProviderEmail(@Param("email") String email, @Param("now") LocalDateTime now);
 }

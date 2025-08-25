@@ -15,8 +15,15 @@ public class PasswordResetToken {
     private String token;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private Registration user;
+    
+    // For healthcare provider password reset
+    @Column(name = "provider_email")
+    private String providerEmail;
+    
+    @Column(name = "provider_type")
+    private String providerType; // "REGULAR_USER" or "HEALTHCARE_PROVIDER"
     
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     private LocalDateTime expiryDate;
@@ -33,6 +40,15 @@ public class PasswordResetToken {
     public PasswordResetToken(String token, Registration user, LocalDateTime expiryDate) {
         this.token = token;
         this.user = user;
+        this.expiryDate = expiryDate;
+        this.providerType = "REGULAR_USER";
+    }
+    
+    // Constructor for healthcare provider password reset
+    public PasswordResetToken(String token, String providerEmail, String providerType, LocalDateTime expiryDate) {
+        this.token = token;
+        this.providerEmail = providerEmail;
+        this.providerType = providerType;
         this.expiryDate = expiryDate;
     }
     
@@ -83,6 +99,22 @@ public class PasswordResetToken {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    public String getProviderEmail() {
+        return providerEmail;
+    }
+    
+    public void setProviderEmail(String providerEmail) {
+        this.providerEmail = providerEmail;
+    }
+    
+    public String getProviderType() {
+        return providerType;
+    }
+    
+    public void setProviderType(String providerType) {
+        this.providerType = providerType;
     }
     
     public boolean isExpired() {

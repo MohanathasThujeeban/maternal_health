@@ -689,4 +689,318 @@ public class EmailService {
                 </html>
                 """.formatted(motherName, childName, childName, vaccinationType, ageToGive, vaccinationDate, midwifeName);
     }
+    
+    public void sendHealthcareProviderPasswordResetEmail(String to, String providerName, String providerType, String token) {
+        try {
+            System.out.println("Starting to send healthcare provider password reset email...");
+            System.out.println("Recipient: " + to);
+            System.out.println("Provider Name: " + providerName);
+            System.out.println("Provider Type: " + providerType);
+            System.out.println("Token: " + token);
+            
+            String subject = "🔐 Maternal Health - Healthcare Provider Password Reset";
+            String resetUrl = serverUrl + "/api/healthcare/reset-password-form?token=" + token;
+            
+            System.out.println("Reset URL: " + resetUrl);
+            System.out.println("Server URL: " + serverUrl);
+            
+            // Create beautiful HTML email for healthcare providers
+            String htmlContent = """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Password Reset - Healthcare Provider</title>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            background: linear-gradient(135deg, #667eea 0%%, #764ba2 100%%);
+                            padding: 20px;
+                            margin: 0;
+                        }
+                        .email-container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background: white;
+                            border-radius: 20px;
+                            overflow: hidden;
+                            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #4FC3A1 0%%, #667eea 100%%);
+                            color: white;
+                            padding: 40px 30px;
+                            text-align: center;
+                            position: relative;
+                        }
+                        .header::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+                        }
+                        .header-content {
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .logo {
+                            font-size: 3em;
+                            margin-bottom: 15px;
+                        }
+                        .title {
+                            font-size: 28px;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                        }
+                        .subtitle {
+                            font-size: 16px;
+                            opacity: 0.9;
+                        }
+                        .content {
+                            padding: 40px 30px;
+                            background: white;
+                        }
+                        .greeting {
+                            font-size: 20px;
+                            color: #2d3748;
+                            margin-bottom: 20px;
+                            font-weight: 600;
+                        }
+                        .provider-info {
+                            background: linear-gradient(135deg, #f7fafc 0%%, #edf2f7 100%%);
+                            padding: 20px;
+                            border-radius: 15px;
+                            margin: 20px 0;
+                            border-left: 5px solid #4FC3A1;
+                        }
+                        .provider-type {
+                            display: inline-block;
+                            background: linear-gradient(135deg, #4FC3A1 0%%, #667eea 100%%);
+                            color: white;
+                            padding: 8px 16px;
+                            border-radius: 25px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                        }
+                        .message {
+                            color: #4a5568;
+                            font-size: 16px;
+                            line-height: 1.8;
+                            margin-bottom: 30px;
+                        }
+                        .reset-button {
+                            display: inline-block;
+                            background: linear-gradient(135deg, #4FC3A1 0%%, #667eea 100%%);
+                            color: white;
+                            padding: 18px 40px;
+                            text-decoration: none;
+                            border-radius: 50px;
+                            font-weight: 600;
+                            font-size: 16px;
+                            text-align: center;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 10px 30px rgba(79, 195, 161, 0.3);
+                            margin: 20px 0;
+                        }
+                        .reset-button:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 15px 40px rgba(79, 195, 161, 0.4);
+                        }
+                        .alternative-link {
+                            background: #f7fafc;
+                            padding: 20px;
+                            border-radius: 10px;
+                            margin: 20px 0;
+                            border: 2px dashed #cbd5e0;
+                        }
+                        .alternative-link p {
+                            margin-bottom: 10px;
+                            color: #4a5568;
+                            font-size: 14px;
+                        }
+                        .link-text {
+                            word-break: break-all;
+                            color: #4FC3A1;
+                            font-family: monospace;
+                            font-size: 12px;
+                            background: white;
+                            padding: 10px;
+                            border-radius: 5px;
+                            border: 1px solid #e2e8f0;
+                        }
+                        .security-info {
+                            background: linear-gradient(135deg, #fed7d7 0%%, #feb2b2 100%%);
+                            padding: 20px;
+                            border-radius: 15px;
+                            margin: 25px 0;
+                            border-left: 5px solid #f56565;
+                        }
+                        .security-title {
+                            font-weight: 600;
+                            color: #742a2a;
+                            margin-bottom: 10px;
+                            font-size: 16px;
+                        }
+                        .security-list {
+                            color: #742a2a;
+                            font-size: 14px;
+                            line-height: 1.6;
+                        }
+                        .security-list li {
+                            margin-bottom: 5px;
+                        }
+                        .expiry-notice {
+                            background: linear-gradient(135deg, #fef5e7 0%%, #fed7aa 100%%);
+                            padding: 15px 20px;
+                            border-radius: 10px;
+                            margin: 20px 0;
+                            border: 2px solid #f6ad55;
+                            text-align: center;
+                        }
+                        .expiry-text {
+                            color: #744210;
+                            font-weight: 600;
+                            font-size: 16px;
+                        }
+                        .contact-info {
+                            background: #f0fff4;
+                            padding: 20px;
+                            border-radius: 15px;
+                            margin: 25px 0;
+                            border-left: 5px solid #68d391;
+                        }
+                        .footer {
+                            background: linear-gradient(135deg, #2d3748 0%%, #4a5568 100%%);
+                            color: #e2e8f0;
+                            padding: 30px;
+                            text-align: center;
+                            font-size: 14px;
+                            line-height: 1.6;
+                        }
+                        .footer-title {
+                            color: white;
+                            font-weight: 600;
+                            margin-bottom: 10px;
+                            font-size: 16px;
+                        }
+                        .copyright {
+                            margin-top: 20px;
+                            opacity: 0.8;
+                            font-size: 12px;
+                        }
+                        @media (max-width: 600px) {
+                            .email-container {
+                                margin: 10px;
+                                border-radius: 15px;
+                            }
+                            .header, .content, .footer {
+                                padding: 25px 20px;
+                            }
+                            .title {
+                                font-size: 24px;
+                            }
+                            .reset-button {
+                                padding: 15px 30px;
+                                font-size: 15px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="email-container">
+                        <div class="header">
+                            <div class="header-content">
+                                <div class="logo">🏥</div>
+                                <div class="title">Password Reset Request</div>
+                                <div class="subtitle">Healthcare Provider Portal</div>
+                            </div>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="greeting">Hello Dr./Mrs. %s,</div>
+                            
+                            <div class="provider-info">
+                                <div class="provider-type">%s</div>
+                                <p><strong>Account:</strong> %s</p>
+                            </div>
+                            
+                            <div class="message">
+                                <p>We received a request to reset the password for your healthcare provider account in the Maternal Health System.</p>
+                                
+                                <p>If you initiated this request, please click the button below to create a new password. If you did not request a password reset, please ignore this email and contact our support team immediately.</p>
+                            </div>
+                            
+                            <div style="text-align: center;">
+                                <a href="%s" class="reset-button">🔐 Reset My Password</a>
+                            </div>
+                            
+                            <div class="expiry-notice">
+                                <div class="expiry-text">⏰ This link expires in 1 hour</div>
+                            </div>
+                            
+                            <div class="alternative-link">
+                                <p><strong>Can't click the button?</strong> Copy and paste this link into your browser:</p>
+                                <div class="link-text">%s</div>
+                            </div>
+                            
+                            <div class="security-info">
+                                <div class="security-title">🛡️ Security Notice</div>
+                                <ul class="security-list">
+                                    <li>This link can only be used once</li>
+                                    <li>It will expire automatically after 1 hour</li>
+                                    <li>If you didn't request this reset, your account is still secure</li>
+                                    <li>Consider using a strong, unique password for your account</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="contact-info">
+                                <p><strong>🆘 Need Help?</strong></p>
+                                <p>If you're having trouble accessing your account or didn't request this reset, please contact our technical support team immediately.</p>
+                                <p>Your account security is our top priority.</p>
+                            </div>
+                            
+                            <p style="margin-top: 30px; color: #4a5568;">Best regards,<br><strong>Maternal Health System Security Team</strong></p>
+                        </div>
+                        
+                        <div class="footer">
+                            <div class="footer-title">Maternal Health Care System</div>
+                            <p>Providing comprehensive healthcare for mothers and children</p>
+                            <p>This is an automated security notification. Please do not reply to this email.</p>
+                            <div class="copyright">© 2025 Maternal Health System. All rights reserved.</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(providerName, providerType, to, resetUrl, resetUrl);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            System.out.println("About to send email using mailSender...");
+            mailSender.send(message);
+            System.out.println("Email sent successfully!");
+            logger.info("Healthcare provider password reset email sent successfully to: {}", to);
+        } catch (Exception e) {
+            System.err.println("ERROR: Failed to send healthcare provider password reset email");
+            System.err.println("Error message: " + e.getMessage());
+            e.printStackTrace();
+            logger.error("Failed to send healthcare provider password reset email to: {}", to, e);
+            throw new RuntimeException("Failed to send password reset email", e);
+        }
+    }
 }

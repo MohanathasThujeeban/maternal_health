@@ -4,6 +4,7 @@ import 'Doctormodule/doctor_dashboard.dart';
 import '../services/api_service.dart';
 import '../../../services/user_service.dart';
 import '../../../widgets/custom_loading.dart';
+import 'healthcare_provider_forgot_password_screen.dart';
 
 class HealthcareProviderLoginScreen extends StatefulWidget {
   const HealthcareProviderLoginScreen({super.key});
@@ -229,6 +230,42 @@ class _HealthcareProviderLoginScreenState
                           text: 'Sign In',
                           onPressed: isLoading ? () {} : _handleLogin,
                           color: const Color(0xFF4FC3A1),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Forgot Password link
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const HealthcareProviderForgotPasswordScreen(),
+                                ),
+                              );
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.lock_reset,
+                                  color: const Color(0xFF4FC3A1),
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    color: const Color(0xFF4FC3A1),
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'SpotifyCircular',
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 24),
 
