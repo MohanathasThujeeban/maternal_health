@@ -243,7 +243,9 @@ class _VaccinationManagementScreenState
                 style: TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontWeight: FontWeight.w600,
+                  fontSize: 12,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
               elevation: 4,
             )
@@ -855,27 +857,31 @@ class _VaccinationManagementScreenState
                     child: InkWell(
                       onTap: _showEnhancedAddVaccinationDialog,
                       borderRadius: BorderRadius.circular(16),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.add_circle_outline,
                               color: Colors.white,
-                              size: 20,
+                              size: 18,
                             ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Add Vaccination',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                                fontFamily: 'SpotifyCircular',
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                'Add Vaccination',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                  fontFamily: 'SpotifyCircular',
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
                           ],
@@ -937,7 +943,15 @@ class _VaccinationManagementScreenState
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('Add Vaccination for ${_selectedMother!['fullName']}'),
+          title: SizedBox(
+            width: double.maxFinite,
+            child: Text(
+              'Add Vaccination for ${_selectedMother!['fullName']}',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
+          ),
           content: SizedBox(
             width: double.maxFinite,
             child: SingleChildScrollView(
@@ -1492,20 +1506,24 @@ class _VaccinationManagementScreenState
                             const Text(
                               'Add Vaccination Record',
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
                                 fontFamily: 'SpotifyCircular',
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'For ${_selectedMother!['fullName']}',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 13,
                                 color: Colors.white.withOpacity(0.9),
                                 fontFamily: 'SpotifyCircular',
                               ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ],
                         ),
@@ -1711,13 +1729,16 @@ class _VaccinationManagementScreenState
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        const Text(
-                                          'Vaccination Status',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Color(0xFF2E7D5A),
-                                            fontFamily: 'SpotifyCircular',
+                                        const Flexible(
+                                          child: Text(
+                                            'Vaccination Status',
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Color(0xFF2E7D5A),
+                                              fontFamily: 'SpotifyCircular',
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
@@ -1725,7 +1746,8 @@ class _VaccinationManagementScreenState
                                     const SizedBox(height: 16),
                                     Row(
                                       children: [
-                                        Expanded(
+                                        Flexible(
+                                          flex: 1,
                                           child: _buildStatusOption(
                                             'COMPLETED',
                                             'Completed',
@@ -1735,8 +1757,9 @@ class _VaccinationManagementScreenState
                                             setDialogState,
                                           ),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
+                                        const SizedBox(width: 8),
+                                        Flexible(
+                                          flex: 1,
                                           child: _buildStatusOption(
                                             'PENDING',
                                             'Pending',
@@ -2177,19 +2200,26 @@ class _VaccinationManagementScreenState
           },
           borderRadius: BorderRadius.circular(8),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, color: isSelected ? color : Colors.grey, size: 18),
-                const SizedBox(width: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? color : Colors.grey,
-                    fontFamily: 'SpotifyCircular',
+                Icon(icon, color: isSelected ? color : Colors.grey, size: 16),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                      color: isSelected ? color : Colors.grey,
+                      fontFamily: 'SpotifyCircular',
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],
