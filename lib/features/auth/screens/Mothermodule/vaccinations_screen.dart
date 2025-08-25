@@ -14,76 +14,6 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
   bool _isLoading = true;
   String? _motherNic;
 
-  // Mock data for now - will be replaced with API calls later
-  final List<Map<String, dynamic>> _mockVaccinations = [
-    {
-      'id': 1,
-      'childName': 'Baby John',
-      'vaccinationType': 'BCG',
-      'description': 'Protection against tuberculosis',
-      'ageToGive': 'At birth',
-      'vaccinationDate': DateTime(2025, 1, 15),
-      'batchNumber': 'BCG2025001',
-      'effectsFollowingImmunization': 'None',
-      'status': 'COMPLETED'
-    },
-    {
-      'id': 2,
-      'childName': 'Baby John',
-      'vaccinationType': 'Hepatitis B',
-      'description': 'Protection against hepatitis B virus',
-      'ageToGive': 'At birth',
-      'vaccinationDate': DateTime(2025, 1, 15),
-      'batchNumber': 'HEP2025001',
-      'effectsFollowingImmunization': 'None',
-      'status': 'COMPLETED'
-    },
-    {
-      'id': 3,
-      'childName': 'Baby John',
-      'vaccinationType': 'DPT (1st dose)',
-      'description': 'Diphtheria, Pertussis, Tetanus',
-      'ageToGive': '2 months',
-      'vaccinationDate': DateTime(2025, 3, 15),
-      'batchNumber': 'DPT2025001',
-      'effectsFollowingImmunization': 'Mild fever',
-      'status': 'COMPLETED'
-    },
-    {
-      'id': 4,
-      'childName': 'Baby John',
-      'vaccinationType': 'OPV (1st dose)',
-      'description': 'Oral Polio Vaccine',
-      'ageToGive': '2 months',
-      'vaccinationDate': DateTime(2025, 3, 15),
-      'batchNumber': 'OPV2025001',
-      'effectsFollowingImmunization': 'None',
-      'status': 'COMPLETED'
-    },
-    {
-      'id': 5,
-      'childName': 'Baby John',
-      'vaccinationType': 'MMR',
-      'description': 'Measles, Mumps, Rubella',
-      'ageToGive': '12 months',
-      'vaccinationDate': null,
-      'batchNumber': '',
-      'effectsFollowingImmunization': '',
-      'status': 'PENDING'
-    },
-    {
-      'id': 6,
-      'childName': 'Baby John',
-      'vaccinationType': 'Varicella',
-      'description': 'Chickenpox vaccine',
-      'ageToGive': '15 months',
-      'vaccinationDate': null,
-      'batchNumber': '',
-      'effectsFollowingImmunization': '',
-      'status': 'PENDING'
-    },
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -99,14 +29,15 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
       // Get current user's NIC
       _motherNic = await UserService.getUserNic();
       print('DEBUG: Mother NIC from UserService: $_motherNic');
-      
+
       if (_motherNic != null) {
         print('DEBUG: Attempting to fetch vaccinations for NIC: $_motherNic');
         // Fetch vaccinations from backend using mother's NIC
-        final vaccinations = await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
+        final vaccinations =
+            await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
         print('DEBUG: Fetched ${vaccinations.length} vaccination records');
         print('DEBUG: Vaccination data: $vaccinations');
-        
+
         // Check if we got real data or empty array
         if (vaccinations.isNotEmpty) {
           print('DEBUG: Using real vaccination data from backend');
@@ -115,38 +46,38 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
             _isLoading = false;
           });
         } else {
-          print('DEBUG: No vaccination records found for this mother, showing mock data');
+          print('DEBUG: No vaccination records found for this mother');
           setState(() {
-            _vaccinations = _mockVaccinations;
+            _vaccinations = []; // Show empty state instead of mock data
             _isLoading = false;
           });
         }
       } else {
-        print('DEBUG: No user NIC found, using mock data');
-        // Fallback to mock data if no user NIC found
+        print('DEBUG: No user NIC found');
+        // Show empty state instead of mock data
         setState(() {
-          _vaccinations = _mockVaccinations;
+          _vaccinations = [];
           _isLoading = false;
         });
       }
     } catch (e) {
       print('DEBUG: Error loading vaccinations: $e');
-      // Fallback to mock data on error
+      // Show empty state instead of mock data on error
       setState(() {
-        _vaccinations = _mockVaccinations;
+        _vaccinations = [];
         _isLoading = false;
       });
     }
   }
 
-  List<Map<String, dynamic>> get completedVaccinations => 
+  List<Map<String, dynamic>> get completedVaccinations =>
       _vaccinations.where((v) => v['status'] == 'COMPLETED').toList();
 
-  List<Map<String, dynamic>> get pendingVaccinations => 
+  List<Map<String, dynamic>> get pendingVaccinations =>
       _vaccinations.where((v) => v['status'] == 'PENDING').toList();
 
-  double get completionPercentage => _vaccinations.isEmpty 
-      ? 0.0 
+  double get completionPercentage => _vaccinations.isEmpty
+      ? 0.0
       : completedVaccinations.length / _vaccinations.length;
 
   @override
@@ -167,104 +98,115 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                // Header
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+          : SafeArea(
+              child: Column(
+                children: [
+                  // Header
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const Text(
+                          'Vaccination Records',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontFamily: 'SpotifyCircular',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.vaccines,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(
+                                  '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} Recorded',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontFamily: 'SpotifyCircular',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        'Vaccination Records',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontFamily: 'SpotifyCircular',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.vaccines,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} Recorded',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontFamily: 'SpotifyCircular',
-                                fontWeight: FontWeight.w500,
+
+                  // Vaccination List
+                  Expanded(
+                    child: _vaccinations.isEmpty
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.vaccines_outlined,
+                                    size: 64,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No vaccination records found',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey,
+                                      fontFamily: 'SpotifyCircular',
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Vaccination List
-                Expanded(
-                  child: _vaccinations.isEmpty
-                      ? const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(32.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.vaccines_outlined,
-                                  size: 64,
-                                  color: Colors.grey,
-                                ),
-                                SizedBox(height: 16),
-                                Text(
-                                  'No vaccination records found',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey,
-                                    fontFamily: 'SpotifyCircular',
-                                  ),
-                                ),
-                              ],
-                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16.0),
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: _vaccinations.length,
+                            itemBuilder: (context, index) {
+                              return _buildVaccinationCard(
+                                context,
+                                _vaccinations[index],
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount: _vaccinations.length,
-                          itemBuilder: (context, index) {
-                            return _buildVaccinationCard(context, _vaccinations[index]);
-                          },
-                        ),
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
     );
   }
 
   Widget _buildVaccinationCard(
-    BuildContext context, 
+    BuildContext context,
     Map<String, dynamic> vaccination,
   ) {
     return Card(
@@ -272,6 +214,7 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: Container(
+        width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
           gradient: LinearGradient(
@@ -284,9 +227,11 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Header with vaccination type and child name
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -313,6 +258,9 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                             fontFamily: 'SpotifyCircular',
                             color: Color(0xFF2E7D5A),
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
                         ),
                         const SizedBox(height: 4),
                         if (vaccination['childName']?.isNotEmpty == true)
@@ -324,49 +272,55 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                               fontFamily: 'SpotifyCircular',
                               fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Details Grid
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (vaccination['ageToGive']?.isNotEmpty == true)
                       _buildDetailRow(
-                        Icons.child_care, 
-                        'Recommended Age', 
+                        Icons.child_care,
+                        'Recommended Age',
                         vaccination['ageToGive'],
                       ),
-                    
+
                     if (vaccination['vaccinationDate'] != null)
                       _buildDetailRow(
-                        Icons.calendar_today, 
-                        'Date Given', 
+                        Icons.calendar_today,
+                        'Date Given',
                         vaccination['vaccinationDate'].toString().split(' ')[0],
                       ),
-                    
+
                     if (vaccination['batchNumber']?.isNotEmpty == true)
                       _buildDetailRow(
-                        Icons.inventory, 
-                        'Batch Number', 
+                        Icons.inventory,
+                        'Batch Number',
                         vaccination['batchNumber'],
                       ),
-                    
-                    if (vaccination['effectsFollowingImmunization']?.isNotEmpty == true)
+
+                    if (vaccination['effectsFollowingImmunization']
+                            ?.isNotEmpty ==
+                        true)
                       _buildDetailRow(
-                        Icons.medical_information, 
-                        'Effects/Notes', 
+                        Icons.medical_information,
+                        'Effects/Notes',
                         vaccination['effectsFollowingImmunization'],
                         isLast: true,
                       ),
@@ -380,17 +334,18 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value, {bool isLast = false}) {
+  Widget _buildDetailRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isLast = false,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon, 
-            size: 18, 
-            color: const Color(0xFF4FC3A1),
-          ),
+          Icon(icon, size: 18, color: const Color(0xFF4FC3A1)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -414,6 +369,9 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                     fontFamily: 'SpotifyCircular',
                     color: Color(0xFF2E7D5A),
                   ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                 ),
               ],
             ),

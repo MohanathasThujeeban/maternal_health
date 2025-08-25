@@ -75,66 +75,21 @@ class VaccinationService {
     String motherNic,
   ) async {
     try {
-      final url = '${ApiConfig.baseApiUrl}$_endpoint/mother/$motherNic';
-      print('DEBUG: Making API call to: $url');
-      
       final response = await http.get(
-        Uri.parse(url),
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/mother/$motherNic'),
         headers: {'Content-Type': 'application/json'},
       );
 
-      print('DEBUG: API response status code: ${response.statusCode}');
-      print('DEBUG: API response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        List<dynamic> data;
-        
-        // Handle both single object and array responses
-        if (responseData is List) {
-          data = responseData;
-        } else if (responseData is Map) {
-          data = [responseData];
-        } else {
-          data = [];
-        }
-        
-        print('DEBUG: Parsed ${data.length} vaccination records');
-        
-        // Transform the data to match expected format for both mother and midwife screens
-        final transformedData = data.map((item) {
-          final vaccination = item as Map<String, dynamic>;
-          return {
-            'id': vaccination['id'],
-            'vaccinationId': vaccination['id'], // For midwife screen compatibility
-            'childName': vaccination['childName'] ?? '',
-            'vaccinationType': vaccination['vaccinationType'] ?? '',
-            'vaccineName': vaccination['vaccinationType'] ?? '', // For midwife screen compatibility
-            'description': '', // API doesn't provide description
-            'ageToGive': vaccination['ageToGive'] ?? '',
-            'vaccinationDate': vaccination['vaccinationDate'],
-            'dateOfVaccination': vaccination['vaccinationDate'], // For midwife screen compatibility
-            'batchNumber': vaccination['batchNumber'] ?? '',
-            'effectsFollowingImmunization': vaccination['effectsFollowingImmunization'] ?? '',
-            'status': vaccination['status']?.toUpperCase() ?? 'PENDING',
-            'weightAtVaccination': null, // Not available in current backend
-            'nextVaccinationDate': null, // Not available in current backend
-            'createdAt': vaccination['createdAt'],
-            'updatedAt': vaccination['updatedAt'],
-          };
-        }).toList();
-        
-        print('DEBUG: Transformed vaccination data: $transformedData');
-        return transformedData;
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => item as Map<String, dynamic>).toList();
       } else {
         final error = json.decode(response.body);
-        print('DEBUG: API error: ${error['message']}');
         throw Exception(
           error['message'] ?? 'Failed to get vaccination records',
         );
       }
     } catch (e) {
-      print('DEBUG: Network error in getVaccinationsByMotherNic: $e');
       throw Exception('Network error: $e');
     }
   }

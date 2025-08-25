@@ -12,14 +12,15 @@ class VaccinationManagementScreen extends StatefulWidget {
       _VaccinationManagementScreenState();
 }
 
-class _VaccinationManagementScreenState extends State<VaccinationManagementScreen> {
+class _VaccinationManagementScreenState
+    extends State<VaccinationManagementScreen> {
   final TextEditingController _searchController = TextEditingController();
-  
+
   List<Map<String, dynamic>> _registeredMothers = [];
   List<Map<String, dynamic>> _filteredMothers = [];
   Map<String, dynamic>? _selectedMother;
   List<Map<String, dynamic>> _vaccinations = [];
-  
+
   bool _isLoading = false;
   bool _isLoadingVaccinations = false;
 
@@ -50,7 +51,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          _registeredMothers = data.map((item) => item as Map<String, dynamic>).toList();
+          _registeredMothers = data
+              .map((item) => item as Map<String, dynamic>)
+              .toList();
           _filteredMothers = _registeredMothers;
           _isLoading = false;
         });
@@ -82,8 +85,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
 
     try {
       final nicNumber = mother['nicNumber'];
-      final vaccinations = await VaccinationService.getVaccinationsByMotherNic(nicNumber);
-      
+      final vaccinations = await VaccinationService.getVaccinationsByMotherNic(
+        nicNumber,
+      );
+
       setState(() {
         _vaccinations = vaccinations;
         _isLoadingVaccinations = false;
@@ -112,8 +117,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
           final fullName = mother['fullName']?.toString().toLowerCase() ?? '';
           final nicNumber = mother['nicNumber']?.toString().toLowerCase() ?? '';
           final searchQuery = query.toLowerCase();
-          
-          return fullName.contains(searchQuery) || nicNumber.contains(searchQuery);
+
+          return fullName.contains(searchQuery) ||
+              nicNumber.contains(searchQuery);
         }).toList();
       }
     });
@@ -123,7 +129,7 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 768;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FFFE),
       appBar: AppBar(
@@ -156,7 +162,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                 const Icon(Icons.vaccines, color: Colors.white, size: 18),
                 const SizedBox(width: 8),
                 Text(
-                  _selectedMother != null ? '${_vaccinations.length} Records' : 'Select Mother',
+                  _selectedMother != null
+                      ? '${_vaccinations.length} Records'
+                      : 'Select Mother',
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -168,31 +176,32 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
           ),
         ],
       ),
-      body: isTablet 
-        ? Row(
-            children: [
-              // Left panel - Mother search and list (for tablets/desktop)
-              Expanded(
-                flex: 2,
-                child: _buildMotherSelectionPanel(),
-              ),
-              // Right panel - Vaccination management
-              Expanded(
-                flex: 3,
-                child: _selectedMother == null
-                    ? _buildSelectMotherPrompt()
-                    : _buildEnhancedVaccinationPanel(),
-              ),
-            ],
-          )
-        : _selectedMother == null
+      body: isTablet
+          ? Row(
+              children: [
+                // Left panel - Mother search and list (for tablets/desktop)
+                Expanded(flex: 2, child: _buildMotherSelectionPanel()),
+                // Right panel - Vaccination management
+                Expanded(
+                  flex: 3,
+                  child: _selectedMother == null
+                      ? _buildSelectMotherPrompt()
+                      : _buildEnhancedVaccinationPanel(),
+                ),
+              ],
+            )
+          : _selectedMother == null
           ? _buildMotherSelectionPanel() // Show only mother selection on mobile
-          : Column( // Show vaccination panel with back option on mobile
+          : Column(
+              // Show vaccination panel with back option on mobile
               children: [
                 // Mobile back navigation
                 Container(
                   color: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: Row(
                     children: [
                       IconButton(
@@ -202,7 +211,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                             _vaccinations.clear();
                           });
                         },
-                        icon: const Icon(Icons.arrow_back_ios, color: Color(0xFF4FC3A1)),
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Color(0xFF4FC3A1),
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -220,20 +232,22 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                 Expanded(child: _buildEnhancedVaccinationPanel()),
               ],
             ),
-      floatingActionButton: _selectedMother != null ? FloatingActionButton.extended(
-        onPressed: _showEnhancedAddVaccinationDialog,
-        backgroundColor: const Color(0xFF4FC3A1),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text(
-          'Add Vaccination',
-          style: TextStyle(
-            fontFamily: 'SpotifyCircular',
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        elevation: 4,
-      ) : null,
+      floatingActionButton: _selectedMother != null
+          ? FloatingActionButton.extended(
+              onPressed: _showEnhancedAddVaccinationDialog,
+              backgroundColor: const Color(0xFF4FC3A1),
+              foregroundColor: Colors.white,
+              icon: const Icon(Icons.add),
+              label: const Text(
+                'Add Vaccination',
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              elevation: 4,
+            )
+          : null,
     );
   }
 
@@ -336,13 +350,16 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                         fontFamily: 'SpotifyCircular',
                       ),
                       prefixIcon: const Icon(
-                        Icons.search, 
+                        Icons.search,
                         color: Color(0xFF4FC3A1),
                         size: 22,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear, color: Colors.grey.shade400),
+                              icon: Icon(
+                                Icons.clear,
+                                color: Colors.grey.shade400,
+                              ),
                               onPressed: () {
                                 _searchController.clear();
                                 _filterMothers('');
@@ -351,7 +368,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                           : null,
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none,
@@ -362,7 +382,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4FC3A1),
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
@@ -392,11 +415,15 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                 : _filteredMothers.isEmpty
                 ? _buildEmptyMothersList()
                 : ListView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
                     itemCount: _filteredMothers.length,
                     itemBuilder: (context, index) {
                       final mother = _filteredMothers[index];
-                      final isSelected = _selectedMother != null && 
+                      final isSelected =
+                          _selectedMother != null &&
                           _selectedMother!['nicNumber'] == mother['nicNumber'];
                       return _buildEnhancedMotherCard(mother, isSelected);
                     },
@@ -407,7 +434,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
     );
   }
 
-  Widget _buildEnhancedMotherCard(Map<String, dynamic> mother, bool isSelected) {
+  Widget _buildEnhancedMotherCard(
+    Map<String, dynamic> mother,
+    bool isSelected,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -428,7 +458,7 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
         ),
         boxShadow: [
           BoxShadow(
-            color: isSelected 
+            color: isSelected
                 ? const Color(0xFF4FC3A1).withOpacity(0.2)
                 : Colors.grey.withOpacity(0.1),
             spreadRadius: isSelected ? 2 : 1,
@@ -451,9 +481,12 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                   height: 50,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: isSelected 
+                      colors: isSelected
                           ? [const Color(0xFF4FC3A1), const Color(0xFF3A9B7A)]
-                          : [const Color(0xFF4FC3A1).withOpacity(0.8), const Color(0xFF4FC3A1).withOpacity(0.6)],
+                          : [
+                              const Color(0xFF4FC3A1).withOpacity(0.8),
+                              const Color(0xFF4FC3A1).withOpacity(0.6),
+                            ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -492,7 +525,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
-                          color: isSelected ? const Color(0xFF2E7D5A) : const Color(0xFF374151),
+                          color: isSelected
+                              ? const Color(0xFF2E7D5A)
+                              : const Color(0xFF374151),
                           fontFamily: 'SpotifyCircular',
                         ),
                       ),
@@ -578,14 +613,18 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: _searchController.text.isEmpty 
+            onPressed: _searchController.text.isEmpty
                 ? _loadAllRegisteredMothers
                 : () {
                     _searchController.clear();
                     _filterMothers('');
                   },
-            icon: Icon(_searchController.text.isEmpty ? Icons.refresh : Icons.clear),
-            label: Text(_searchController.text.isEmpty ? 'Refresh' : 'Clear Search'),
+            icon: Icon(
+              _searchController.text.isEmpty ? Icons.refresh : Icons.clear,
+            ),
+            label: Text(
+              _searchController.text.isEmpty ? 'Refresh' : 'Clear Search',
+            ),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF4FC3A1),
               foregroundColor: Colors.white,
@@ -616,9 +655,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Icon(
-                Icons.vaccines_outlined, 
-                size: 80, 
-                color: const Color(0xFF4FC3A1).withOpacity(0.8)
+                Icons.vaccines_outlined,
+                size: 80,
+                color: const Color(0xFF4FC3A1).withOpacity(0.8),
               ),
             ),
             const SizedBox(height: 24),
@@ -757,7 +796,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.badge_outlined, size: 16, color: Colors.grey.shade600),
+                          Icon(
+                            Icons.badge_outlined,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             _selectedMother!['nicNumber'] ?? 'N/A',
@@ -771,7 +814,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       ),
                       Row(
                         children: [
-                          Icon(Icons.phone_outlined, size: 16, color: Colors.grey.shade600),
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 16,
+                            color: Colors.grey.shade600,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             _selectedMother!['phoneNumber'] ?? 'N/A',
@@ -809,11 +856,18 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       onTap: _showEnhancedAddVaccinationDialog,
                       borderRadius: BorderRadius.circular(16),
                       child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
+                            Icon(
+                              Icons.add_circle_outline,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Add Vaccination',
@@ -958,7 +1012,9 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                         children: [
                           const Icon(Icons.calendar_today),
                           const SizedBox(width: 8),
-                          Text('Vaccination Date: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}'),
+                          Text(
+                            'Vaccination Date: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                          ),
                         ],
                       ),
                     ),
@@ -974,7 +1030,7 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
             ),
             ElevatedButton(
               onPressed: () async {
-                if (childNameController.text.isEmpty || 
+                if (childNameController.text.isEmpty ||
                     vaccinationTypeController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -1000,7 +1056,7 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
 
                   Navigator.of(context).pop();
                   _loadVaccinationsForMother(_selectedMother!);
-                  
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Vaccination record added successfully!'),
@@ -1101,7 +1157,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.add_circle_outline, color: Colors.white, size: 20),
+                      Icon(
+                        Icons.add_circle_outline,
+                        color: Colors.white,
+                        size: 20,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'Add First Vaccination',
@@ -1123,7 +1183,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
     );
   }
 
-  Widget _buildEnhancedVaccinationCard(Map<String, dynamic> vaccination, int index) {
+  Widget _buildEnhancedVaccinationCard(
+    Map<String, dynamic> vaccination,
+    int index,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -1192,7 +1255,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 14,
+                            color: Colors.grey.shade600,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             vaccination['dateOfVaccination'] ?? 'No date',
@@ -1220,9 +1287,16 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       value: 'edit',
                       child: Row(
                         children: [
-                          Icon(Icons.edit_outlined, size: 18, color: Color(0xFF4FC3A1)),
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 18,
+                            color: Color(0xFF4FC3A1),
+                          ),
                           SizedBox(width: 8),
-                          Text('Edit', style: TextStyle(fontFamily: 'SpotifyCircular')),
+                          Text(
+                            'Edit',
+                            style: TextStyle(fontFamily: 'SpotifyCircular'),
+                          ),
                         ],
                       ),
                     ),
@@ -1230,9 +1304,16 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                          Icon(
+                            Icons.delete_outline,
+                            size: 18,
+                            color: Colors.red,
+                          ),
                           SizedBox(width: 8),
-                          Text('Delete', style: TextStyle(fontFamily: 'SpotifyCircular')),
+                          Text(
+                            'Delete',
+                            style: TextStyle(fontFamily: 'SpotifyCircular'),
+                          ),
                         ],
                       ),
                     ),
@@ -1243,7 +1324,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(Icons.more_vert, size: 18, color: Colors.grey.shade600),
+                    child: Icon(
+                      Icons.more_vert,
+                      size: 18,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ),
               ],
@@ -1270,8 +1355,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                           color: const Color(0xFF4FC3A1).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        child: const Icon(Icons.info_outline, 
-                                         size: 18, color: Color(0xFF4FC3A1)),
+                        child: const Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: Color(0xFF4FC3A1),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
@@ -1286,7 +1374,10 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                                 fontFamily: 'SpotifyCircular',
                               ),
                             ),
-                            if (vaccination['batchNumber'] != null && vaccination['batchNumber'].toString().isNotEmpty)
+                            if (vaccination['batchNumber'] != null &&
+                                vaccination['batchNumber']
+                                    .toString()
+                                    .isNotEmpty)
                               Text(
                                 'Batch: ${vaccination['batchNumber']}',
                                 style: const TextStyle(
@@ -1296,7 +1387,11 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
                                   fontFamily: 'SpotifyCircular',
                                 ),
                               ),
-                            if (vaccination['effectsFollowingImmunization'] != null && vaccination['effectsFollowingImmunization'].toString().isNotEmpty)
+                            if (vaccination['effectsFollowingImmunization'] !=
+                                    null &&
+                                vaccination['effectsFollowingImmunization']
+                                    .toString()
+                                    .isNotEmpty)
                               Text(
                                 'Effects: ${vaccination['effectsFollowingImmunization']}',
                                 style: const TextStyle(
@@ -1321,7 +1416,570 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
   }
 
   void _showEnhancedAddVaccinationDialog() {
-    _showAddVaccinationDialog(); // Use existing functionality
+    if (_selectedMother == null) return;
+
+    final childNameController = TextEditingController();
+    final vaccinationTypeController = TextEditingController();
+    final ageToGiveController = TextEditingController();
+    final batchNumberController = TextEditingController();
+    final effectsController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+    String selectedStatus = 'COMPLETED';
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 16,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            height: MediaQuery.of(context).size.height * 0.85,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              gradient: const LinearGradient(
+                colors: [Color(0xFFFAFDFC), Color(0xFFF0F9F7)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Column(
+              children: [
+                // Enhanced Header
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4FC3A1).withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.vaccines,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Add Vaccination Record',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'For ${_selectedMother!['fullName']}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.9),
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.close, color: Colors.white),
+                        tooltip: 'Close',
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Form Content
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Child Information Section
+                        _buildFormSection(
+                          title: 'Child Information',
+                          icon: Icons.child_care,
+                          children: [
+                            _buildEnhancedTextField(
+                              controller: childNameController,
+                              label: 'Child Name',
+                              hint: 'Enter child\'s name',
+                              icon: Icons.person_outline,
+                              isRequired: true,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Vaccination Details Section
+                        _buildFormSection(
+                          title: 'Vaccination Details',
+                          icon: Icons.medical_services,
+                          children: [
+                            _buildEnhancedTextField(
+                              controller: vaccinationTypeController,
+                              label: 'Vaccination Type',
+                              hint: 'e.g., BCG, DPT, MMR, Polio',
+                              icon: Icons.vaccines,
+                              isRequired: true,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildEnhancedTextField(
+                              controller: ageToGiveController,
+                              label: 'Recommended Age',
+                              hint: 'e.g., At birth, 2 months, 6 months',
+                              icon: Icons.schedule,
+                              isRequired: true,
+                            ),
+                            const SizedBox(height: 16),
+                            _buildEnhancedTextField(
+                              controller: batchNumberController,
+                              label: 'Batch Number',
+                              hint: 'Enter vaccine batch number',
+                              icon: Icons.inventory_2_outlined,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Administration Details Section
+                        _buildFormSection(
+                          title: 'Administration Details',
+                          icon: Icons.event_note,
+                          children: [
+                            // Date Selection
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                                color: Colors.white,
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate: selectedDate,
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime.now().add(
+                                        const Duration(days: 365),
+                                      ),
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme:
+                                                const ColorScheme.light(
+                                                  primary: Color(0xFF4FC3A1),
+                                                  onPrimary: Colors.white,
+                                                  surface: Colors.white,
+                                                  onSurface: Colors.black,
+                                                ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      },
+                                    );
+                                    if (picked != null) {
+                                      setDialogState(() {
+                                        selectedDate = picked;
+                                      });
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: const Color(
+                                              0xFF4FC3A1,
+                                            ).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.calendar_today,
+                                            color: Color(0xFF4FC3A1),
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                'Vaccination Date',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey,
+                                                  fontFamily: 'SpotifyCircular',
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Color(0xFF2E7D5A),
+                                                  fontFamily: 'SpotifyCircular',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Status Selection
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: Colors.grey.shade300),
+                                color: Colors.white,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: const Color(
+                                              0xFF4FC3A1,
+                                            ).withOpacity(0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.assignment_turned_in_outlined,
+                                            color: Color(0xFF4FC3A1),
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        const Text(
+                                          'Vaccination Status',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Color(0xFF2E7D5A),
+                                            fontFamily: 'SpotifyCircular',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _buildStatusOption(
+                                            'COMPLETED',
+                                            'Completed',
+                                            Icons.check_circle,
+                                            const Color(0xFF4FC3A1),
+                                            selectedStatus,
+                                            setDialogState,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: _buildStatusOption(
+                                            'PENDING',
+                                            'Pending',
+                                            Icons.schedule,
+                                            const Color(0xFFFF8C42),
+                                            selectedStatus,
+                                            setDialogState,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Additional Information Section
+                        _buildFormSection(
+                          title: 'Additional Information',
+                          icon: Icons.note_add,
+                          children: [
+                            _buildEnhancedTextField(
+                              controller: effectsController,
+                              label: 'Effects Following Immunization',
+                              hint: 'Any side effects or reactions observed',
+                              icon: Icons.medical_information_outlined,
+                              maxLines: 3,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Enhanced Action Buttons
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.grey.shade300),
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () => Navigator.of(context).pop(),
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Center(
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey,
+                                    fontFamily: 'SpotifyCircular',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF4FC3A1).withOpacity(0.3),
+                                spreadRadius: 1,
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: () async {
+                                if (childNameController.text.isEmpty ||
+                                    vaccinationTypeController.text.isEmpty ||
+                                    ageToGiveController.text.isEmpty) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.error_outline,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Please fill in all required fields',
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  return;
+                                }
+
+                                try {
+                                  final vaccinationData = {
+                                    'motherNic': _selectedMother!['nicNumber'],
+                                    'childName': childNameController.text,
+                                    'vaccinationType':
+                                        vaccinationTypeController.text,
+                                    'ageToGive': ageToGiveController.text,
+                                    'vaccinationDate': selectedDate
+                                        .toIso8601String(),
+                                    'batchNumber': batchNumberController.text,
+                                    'effectsFollowingImmunization':
+                                        effectsController.text,
+                                    'status': selectedStatus,
+                                  };
+
+                                  await VaccinationService.createVaccination(
+                                    vaccinationData,
+                                  );
+
+                                  Navigator.of(context).pop();
+                                  _loadVaccinationsForMother(_selectedMother!);
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle,
+                                            color: Colors.white,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            'Vaccination record added successfully!',
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: const Color(0xFF4FC3A1),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                } catch (e) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.error_outline,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              'Failed to add vaccination: $e',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: const Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle_outline,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Add Vaccination',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                        fontFamily: 'SpotifyCircular',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showEnhancedEditVaccinationDialog(Map<String, dynamic> vaccination) {
@@ -1331,12 +1989,14 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
 
   void _confirmDeleteVaccination(int? vaccinationId) {
     if (vaccinationId == null) return;
-    
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Vaccination'),
-        content: const Text('Are you sure you want to delete this vaccination record?'),
+        content: const Text(
+          'Are you sure you want to delete this vaccination record?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -1356,6 +2016,186 @@ class _VaccinationManagementScreenState extends State<VaccinationManagementScree
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper method to build form sections
+  Widget _buildFormSection({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, color: const Color(0xFF4FC3A1), size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2E7D5A),
+                    fontFamily: 'SpotifyCircular',
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build enhanced text fields
+  Widget _buildEnhancedTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    bool isRequired = false,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF2E7D5A),
+                fontFamily: 'SpotifyCircular',
+              ),
+            ),
+            if (isRequired)
+              const Text(
+                ' *',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: const TextStyle(fontFamily: 'SpotifyCircular', fontSize: 16),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: Colors.grey.shade400,
+              fontFamily: 'SpotifyCircular',
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(icon, color: const Color(0xFF4FC3A1), size: 20),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF4FC3A1), width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper method to build status selection options
+  Widget _buildStatusOption(
+    String value,
+    String label,
+    IconData icon,
+    Color color,
+    String selectedStatus,
+    StateSetter setState,
+  ) {
+    final isSelected = selectedStatus == value;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isSelected ? color : Colors.grey.shade300,
+          width: isSelected ? 2 : 1,
+        ),
+        color: isSelected ? color.withOpacity(0.1) : Colors.transparent,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              selectedStatus = value;
+            });
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: isSelected ? color : Colors.grey, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? color : Colors.grey,
+                    fontFamily: 'SpotifyCircular',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
