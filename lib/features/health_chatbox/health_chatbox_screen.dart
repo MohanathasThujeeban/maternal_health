@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'category_questions_screen.dart';
+import 'models.dart';
 
 class HealthChatboxScreen extends StatefulWidget {
   final String? initialTopic;
@@ -15,7 +17,6 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
   
   // Add view state management
   bool _showCategories = true;
-  String? _selectedCategory;
 
   List<ChatMessage> messages = [
     ChatMessage(
@@ -356,51 +357,27 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
   }
 
   void _selectCategory(HealthCategory category) {
-    setState(() {
-      _selectedCategory = category.id;
-      _showCategories = false;
-    });
-  }
-
-  void _selectPredefinedQuestion(PredefinedQuestion question) {
-    setState(() {
-      messages.add(
-        ChatMessage(
-          text: question.question,
-          isUser: true,
-          timestamp: DateTime.now(),
+    // Navigate to questions list for this category
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CategoryQuestionsScreen(
+          category: category,
+          questions: categoryQuestions[category.id] ?? [],
         ),
-      );
-    });
-
-    _scrollToBottom();
-
-    // Simulate bot response delay
-    Future.delayed(const Duration(milliseconds: 1000), () {
-      setState(() {
-        messages.add(
-          ChatMessage(
-            text: question.answer,
-            isUser: false,
-            timestamp: DateTime.now(),
-          ),
-        );
-      });
-      _scrollToBottom();
-    });
+      ),
+    );
   }
 
   void _backToCategories() {
     setState(() {
       _showCategories = true;
-      _selectedCategory = null;
     });
   }
 
   void _startChatting() {
     setState(() {
       _showCategories = false;
-      _selectedCategory = null;
     });
   }
 
@@ -481,12 +458,9 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _showCategories ? 'Health Assistant' : 
-          _selectedCategory != null ? 
-            categories.firstWhere((c) => c.id == _selectedCategory).title :
-            'Health Assistant',
-          style: const TextStyle(
+        title: const Text(
+          'Health Assistant',
+          style: TextStyle(
             fontFamily: 'SpotifyCircular',
             fontWeight: FontWeight.w600,
             color: Colors.white,
@@ -497,9 +471,7 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            if (_selectedCategory != null) {
-              _backToCategories();
-            } else if (!_showCategories && widget.initialTopic == null) {
+            if (!_showCategories && widget.initialTopic == null) {
               _backToCategories();
             } else {
               Navigator.pop(context);
@@ -666,80 +638,9 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
   }
 
   Widget _buildChatView() {
-    final questions = _selectedCategory != null ? 
-        categoryQuestions[_selectedCategory!] ?? [] : <PredefinedQuestion>[];
-    
     return Column(
       children: [
-        // Show predefined questions if category is selected
-        if (_selectedCategory != null && questions.isNotEmpty) ...[
-          Container(
-            height: 120,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFE8F5F2), Color(0xFFFFFFFF)],
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    'Quick Questions:',
-                    style: TextStyle(
-                      fontFamily: 'SpotifyCircular',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2E7D5A),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: questions.length,
-                    itemBuilder: (context, index) {
-                      final question = questions[index];
-                      return Container(
-                        width: 200,
-                        margin: const EdgeInsets.only(right: 12),
-                        child: Material(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          elevation: 2,
-                          child: InkWell(
-                            onTap: () => _selectPredefinedQuestion(question),
-                            borderRadius: BorderRadius.circular(12),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Text(
-                                question.question,
-                                style: const TextStyle(
-                                  fontFamily: 'SpotifyCircular',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color(0xFF2E7D5A),
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-
-        // Chat Messages (your existing chat implementation)
+        // Chat Messages
         Expanded(
           child: Container(
             decoration: const BoxDecoration(
@@ -853,46 +754,6 @@ class _HealthChatboxScreenState extends State<HealthChatboxScreen> {
       ),
     );
   }
-}
-
-// Data Models
-class HealthCategory {
-  final String id;
-  final String title;
-  final IconData icon;
-  final Color color;
-  final String description;
-
-  HealthCategory({
-    required this.id,
-    required this.title,
-    required this.icon,
-    required this.color,
-    required this.description,
-  });
-}
-
-class PredefinedQuestion {
-  final String question;
-  final String answer;
-
-  PredefinedQuestion({
-    required this.question,
-    required this.answer,
-  });
-}
-
-// Your existing ChatMessage and ChatBubble classes remain the same
-class ChatMessage {
-  final String text;
-  final bool isUser;
-  final DateTime timestamp;
-
-  ChatMessage({
-    required this.text,
-    required this.isUser,
-    required this.timestamp,
-  });
 }
 
 class ChatBubble extends StatelessWidget {
