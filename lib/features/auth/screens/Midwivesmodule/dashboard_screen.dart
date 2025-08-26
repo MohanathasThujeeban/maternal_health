@@ -3,14 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'package:maternal_health/features/auth/screens/Babymodule/EarProblemTracker.dart';
 import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.dart';
-import 'package:maternal_health/features/auth/screens/Babymodule/view_updateRecords.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_input.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_data_input_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/view_mothers_records_screen.dart';
+import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
 import 'package:maternal_health/services/user_service.dart';
 import 'package:maternal_health/config/api_config.dart';
 
@@ -796,15 +795,15 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Ear Problems',
-                    subtitle: 'Track baby ear issues',
-                    icon: Icons.hearing,
+                    title: 'Eye and Ear Records',
+                    subtitle: 'Track baby eye and ear issues',
+                    icon: Icons.visibility,
                     color: const Color(0xFF4FC3A1),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const BabyProblemsScreen(),
+                          builder: (_) => const AllMothersRecordsScreen(),
                         ),
                       );
                     },
@@ -827,14 +826,14 @@ class PatientsTab extends StatelessWidget {
                   _buildActionCard(
                     context,
                     title: 'View Records',
-                    subtitle: 'Browse all records',
+                    subtitle: 'Browse all mothers records',
                     icon: Icons.folder_open,
                     color: const Color(0xFF2196F3),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ViewUpdateRecordsScreen(),
+                          builder: (_) => const ViewMothersRecordsScreen(),
                         ),
                       );
                     },
