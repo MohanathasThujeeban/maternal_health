@@ -25,6 +25,7 @@ class MainApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           locale: languageProvider.currentLocale,
+          theme: ThemeData(fontFamily: 'CircularStd'),
           localizationsDelegates: [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

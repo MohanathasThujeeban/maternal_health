@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CustomLoading extends StatefulWidget {
@@ -115,6 +116,9 @@ class _CustomLoadingState extends State<CustomLoading>
                             height: widget.size,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
+                              // Debug: Print error to console
+                              debugPrint('Error loading load.png: $error');
+
                               // Fallback if logo doesn't load
                               return Container(
                                 width: widget.size,
@@ -178,7 +182,7 @@ class _CustomLoadingState extends State<CustomLoading>
               Text(
                 widget.message!,
                 style: const TextStyle(
-                  fontFamily: 'SpotifyCircular',
+                  fontFamily: 'CircularStd',
                   fontSize: 16,
                   color: Color(0xFF2E7D5A),
                   fontWeight: FontWeight.w500,
@@ -192,7 +196,7 @@ class _CustomLoadingState extends State<CustomLoading>
             const Text(
               'Maternal Health',
               style: TextStyle(
-                fontFamily: 'SpotifyCircular',
+                fontFamily: 'CircularStd',
                 fontSize: 20,
                 color: Color(0xFF4FC3A1),
                 fontWeight: FontWeight.w600,

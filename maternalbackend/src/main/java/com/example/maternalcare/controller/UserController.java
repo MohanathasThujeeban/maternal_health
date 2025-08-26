@@ -137,8 +137,8 @@ public class UserController {
                     }
                     registrationRepository.save(user);
                     medicalProfessionalCount++;
-                } else if (user.getUserRole() == null || user.getUserRole() == UserRole.DOCTOR || user.getUserRole() == UserRole.MIDWIFE) {
-                    // Set as MOTHER for non-medical users
+                } else {
+                    // Set as MOTHER for ALL non-medical users (regardless of current role)
                     user.setUserRole(UserRole.MOTHER);
                     registrationRepository.save(user);
                     updatedCount++;
