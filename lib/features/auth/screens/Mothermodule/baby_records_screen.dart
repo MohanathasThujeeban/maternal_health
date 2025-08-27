@@ -14,7 +14,7 @@ class BabyRecordsScreen extends StatelessWidget {
           automaticallyImplyLeading: true,
           elevation: 0,
           backgroundColor: Colors.transparent,
-          centerTitle: true, // title centered (not bottom)
+          centerTitle: true,
           title: const Text(
             'Baby Records',
             style: TextStyle(
@@ -26,15 +26,13 @@ class BabyRecordsScreen extends StatelessWidget {
           ),
           flexibleSpace: ClipPath(
             clipper: AppBarClipper(),
-            child: Container(
-              color: const Color(0xFF4FC3A1), // curved green header
-            ),
+            child: Container(color: const Color(0xFF4FC3A1)),
           ),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        // Use Grid like PatientsTab (2 per row; last one goes to next row, left-aligned)
+
         child: GridView.count(
           crossAxisCount: 2,
           crossAxisSpacing: 12,
@@ -76,23 +74,23 @@ class BabyRecordsScreen extends StatelessWidget {
     );
   }
 
+  // Box type card widget for each record type
   Widget _buildRecordCard(
     BuildContext context, {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
-    // Choose colors to match PatientsTab styles (no param changes)
     final Color baseColor;
     switch (title) {
       case 'Growth Records':
-        baseColor = const Color(0xFFFF9800); // Orange (Problem Updates style)
+        baseColor = const Color(0xFFFF9800);
         break;
       case 'Health Check-ups':
-        baseColor = const Color(0xFF2196F3); // Blue (View Records style)
+        baseColor = const Color(0xFF2196F3);
         break;
       case 'Development Milestones':
-        baseColor = const Color(0xFF9C27B0); // Purple (Reports style)
+        baseColor = const Color(0xFF9C27B0);
         break;
       default:
         baseColor = const Color(0xFF4FC3A1);
