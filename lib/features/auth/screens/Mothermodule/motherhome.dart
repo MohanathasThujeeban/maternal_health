@@ -1116,9 +1116,6 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
       isLoading = true;
     });
 
-    // Force fix user data first
-    await UserService.forceFixUserData();
-
     // Get current user data from UserService
     final userData = await UserService.getUserData();
     motherNic = userData['nic'];
@@ -1767,33 +1764,19 @@ class _MeasurementCard extends StatelessWidget {
 }
 
 class _VaccinationCard extends StatelessWidget {
-  final String? name;
-  final String? date;
-  final String? status;
-  final bool? isCompleted;
   final Map<String, dynamic>? vaccination;
   final AppLocalizations? localizations;
 
-  const _VaccinationCard({
-    this.name,
-    this.date,
-    this.status,
-    this.isCompleted,
-    this.vaccination,
-    this.localizations,
-  });
+  const _VaccinationCard({required this.vaccination, this.localizations});
 
   @override
   Widget build(BuildContext context) {
-    // Use vaccination data if provided, otherwise use individual parameters
-    final vaccinationName = vaccination?['vaccinationType'] ?? name ?? '';
+    final vaccinationName = vaccination?['vaccinationType'] ?? '';
     final vaccinationDate = vaccination?['vaccinationDate'] != null
         ? vaccination!['vaccinationDate'].toString().split(' ')[0]
-        : date ?? '';
-    final vaccinationStatus = vaccination?['status'] ?? status ?? '';
-    final completed = vaccination != null
-        ? vaccination!['status'] == 'COMPLETED'
-        : isCompleted ?? false;
+        : '';
+    final vaccinationStatus = vaccination?['status'] ?? '';
+    final completed = vaccination?['status'] == 'COMPLETED';
 
     // Get status display text
     String getStatusText(String status) {
@@ -2080,7 +2063,7 @@ class _RealAppointmentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${localizations.additionalNotes}',
+                    localizations.additionalNotes,
                     style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 12,
@@ -2114,7 +2097,7 @@ class _RealAppointmentCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${localizations.doctorNotes}',
+                    localizations.doctorNotes,
                     style: const TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 12,

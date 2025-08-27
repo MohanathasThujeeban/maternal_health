@@ -45,11 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (result['success']) {
-        // Save user data to local storage
+        // Save user data to local storage with role-specific fields
         await UserService.saveUserData(
           nic: result['nicNumber'] ?? '',
           name: result['fullName'] ?? '',
           email: result['email'] ?? '',
+          role: result['userRole'] ?? 'MOTHER',
+          medicalLicenseNumber: result['medicalLicenseNumber'],
+          clinic: result['clinic'],
         );
 
         ScaffoldMessenger.of(context).showSnackBar(

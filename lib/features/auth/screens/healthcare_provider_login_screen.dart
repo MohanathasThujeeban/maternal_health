@@ -48,10 +48,12 @@ class _HealthcareProviderLoginScreenState
 
       if (result['success']) {
         // Save healthcare provider data to local storage
-        await UserService.saveUserData(
-          nic: result['medicalLicenseNumber'] ?? '',
+        await UserService.saveHealthcareProviderData(
+          licenseNumber: result['medicalLicenseNumber'] ?? '',
           name: result['fullName'] ?? '',
           email: result['email'] ?? '',
+          role: result['userRole'] ?? 'MIDWIFE',
+          clinic: result['clinic'],
         );
 
         ScaffoldMessenger.of(context).showSnackBar(

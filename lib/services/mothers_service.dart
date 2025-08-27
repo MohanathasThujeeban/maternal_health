@@ -22,14 +22,15 @@ class MothersService {
         final data = json.decode(response.body);
         if (data['success'] == true) {
           return List<Map<String, dynamic>>.from(data['mothers']);
-        } else {
-          throw Exception(data['error'] ?? 'Failed to load mothers data');
         }
-      } else if (response.statusCode == 404) {
-        throw Exception('Mothers endpoint not found');
-      } else {
-        throw Exception('Server error: ${response.statusCode}');
+        throw Exception(data['error'] ?? 'Failed to load mothers data');
       }
+
+      if (response.statusCode == 404) {
+        throw Exception('Mothers endpoint not found');
+      }
+
+      throw Exception('Server error: ${response.statusCode}');
     } catch (e) {
       throw Exception('Failed to fetch mothers data: $e');
     }
