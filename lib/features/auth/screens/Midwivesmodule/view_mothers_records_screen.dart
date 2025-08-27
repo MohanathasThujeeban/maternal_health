@@ -42,6 +42,8 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
   }
 
   Future<void> _loadMothersData() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = '';
@@ -49,6 +51,8 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
 
     try {
       final mothers = await MothersService.getAllMothers();
+      if (!mounted) return;
+      
       setState(() {
         _allMothers = mothers;
         _filteredMothers = mothers;
@@ -56,6 +60,8 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
       });
       _animationController.forward();
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;

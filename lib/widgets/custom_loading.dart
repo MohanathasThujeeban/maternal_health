@@ -115,9 +115,48 @@ class _CustomLoadingState extends State<CustomLoading>
                             width: widget.size,
                             height: widget.size,
                             fit: BoxFit.cover,
+                            frameBuilder:
+                                (
+                                  context,
+                                  child,
+                                  frame,
+                                  wasSynchronouslyLoaded,
+                                ) {
+                                  if (frame == null) {
+                                    // Still loading
+                                    return Container(
+                                      width: widget.size,
+                                      height: widget.size,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                      ),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: Color(0xFF4FC3A1),
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  if (kDebugMode) {
+                                    print(
+                                      '✅ Successfully loaded assets/load.png',
+                                    );
+                                  }
+                                  return child;
+                                },
                             errorBuilder: (context, error, stackTrace) {
-                              // Debug: Print error to console
-                              debugPrint('Error loading load.png: $error');
+                              // Debug: Print detailed error information
+                              if (kDebugMode) {
+                                print(
+                                  '❌ Error loading assets/load.png: $error',
+                                );
+                                print('📍 Stack trace: $stackTrace');
+                              }
 
                               // Fallback if logo doesn't load
                               return Container(
@@ -125,10 +164,17 @@ class _CustomLoadingState extends State<CustomLoading>
                                 height: widget.size,
                                 decoration: const BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Color(0xFF4FC3A1),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xFF4FC3A1),
+                                      Color(0xFF2E7D5A),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                 ),
                                 child: const Icon(
-                                  Icons.favorite,
+                                  Icons.favorite_rounded,
                                   size: 60,
                                   color: Colors.white,
                                 ),

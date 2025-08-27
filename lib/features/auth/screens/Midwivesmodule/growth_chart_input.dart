@@ -45,7 +45,7 @@ class _GrowthChartScreenState extends State<GrowthChartScreen> {
 
   // 🔹 Function to save entry to backend
   Future<void> _saveEntryToBackend(GrowthEntry entry) async {
-    final url = Uri.parse("http://10.11.20.8:8080/api/growth/add");
+    final url = Uri.parse("http://10.0.2.2:8080/api/growth/add");
     // ⚠️ If testing on a mobile device, replace localhost with your PC IP (e.g. http://192.168.1.5:8080)
 
     try {
