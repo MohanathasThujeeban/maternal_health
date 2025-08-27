@@ -11,7 +11,7 @@ class BabyRecordsScreen extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(120),
         child: AppBar(
-          automaticallyImplyLeading: true, // keep back button
+          automaticallyImplyLeading: true,
           elevation: 0,
           backgroundColor: Colors.transparent,
           centerTitle: true, // title centered (not bottom)
