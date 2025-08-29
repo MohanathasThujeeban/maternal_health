@@ -13,6 +13,8 @@ import '../../../thiriposa/thiriposa_records_screen.dart';
 import './health_records_screen.dart';
 import './vaccinations_screen.dart';
 import './mother_growth_chart_screen.dart';
+import './comprehensive_profile_screen.dart';
+import './privacy_security_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -302,12 +304,40 @@ class MotherDashboardScreen extends StatelessWidget {
                 },
               ),
               _CategoryCard(
+                icon: Icons.account_circle,
+                title: 'Complete Profile',
+                description: 'Complete your comprehensive maternal profile',
+                color: const Color(0xFF673AB7),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ComprehensiveProfileScreen(),
+                    ),
+                  );
+                },
+              ),
+              _CategoryCard(
                 icon: Icons.phone,
                 title: localizations.emergencyContact,
                 description: localizations.quickEmergencyAccess,
                 color: const Color(0xFFF44336),
                 onTap: () {
                   _showEmergencyDialog(context);
+                },
+              ),
+              _CategoryCard(
+                icon: Icons.security,
+                title: 'Privacy & Security',
+                description: 'Manage password and privacy settings',
+                color: const Color(0xFF795548),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PrivacySecurityScreen(),
+                    ),
+                  );
                 },
               ),
             ],

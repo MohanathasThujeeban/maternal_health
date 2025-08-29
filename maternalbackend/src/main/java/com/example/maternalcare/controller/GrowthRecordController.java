@@ -1,7 +1,7 @@
-package com.bloomcare.maternalbackend.controller;
+package com.example.maternalcare.controller;
 
-import com.bloomcare.maternalbackend.model.GrowthRecord;
-import com.bloomcare.maternalbackend.repository.GrowthRecordRepository;
+import com.example.maternalcare.model.GrowthRecord;
+import com.example.maternalcare.repository.GrowthRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/growth")
+@RequestMapping("/api/growth-records")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class GrowthRecordController {
 

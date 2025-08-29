@@ -1109,4 +1109,511 @@ public class EmailService {
                         "<div class=\"note-section\"><div class=\"note-title\">💊 Treatment Plan:</div><div class=\"note-content\">" + treatmentPlan + "</div></div>" : ""
                 );
     }
+
+    /**
+     * Send growth record update notification email to mother
+     */
+    public void sendGrowthRecordUpdateEmail(String to, String motherName, String midwifeName, 
+                                          double height, double weight, String recordDate) {
+        try {
+            String subject = "🌱 Baby Growth Record Updated - Maternal Health";
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            
+            String htmlContent = buildGrowthRecordUpdateEmailHtml(motherName, midwifeName, height, weight, recordDate);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Growth record update email sent successfully to: {}", to);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send growth record update email to: {}", to, e);
+            throw new RuntimeException("Failed to send growth record update email", e);
+        }
+    }
+
+    /**
+     * Build HTML content for growth record update email
+     */
+    private String buildGrowthRecordUpdateEmailHtml(String motherName, String midwifeName, 
+                                                   double height, double weight, String recordDate) {
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Baby Growth Record Updated</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            margin: 0;
+                            padding: 0;
+                            background: linear-gradient(135deg, #f5f7fa 0%%, #c3cfe2 100%%);
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 20px auto;
+                            background: white;
+                            border-radius: 15px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #4FC3A1 0%%, #66D4B7 100%%);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: 300;
+                        }
+                        .header .icon {
+                            font-size: 50px;
+                            margin-bottom: 15px;
+                            display: block;
+                        }
+                        .content {
+                            padding: 40px 30px;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            color: #4FC3A1;
+                            margin-bottom: 20px;
+                            font-weight: 600;
+                        }
+                        .message {
+                            font-size: 16px;
+                            line-height: 1.8;
+                            margin-bottom: 30px;
+                            color: #555;
+                        }
+                        .growth-card {
+                            background: linear-gradient(135deg, #f8f9fa 0%%, #e9ecef 100%%);
+                            border-radius: 12px;
+                            padding: 25px;
+                            margin: 25px 0;
+                            border-left: 4px solid #4FC3A1;
+                        }
+                        .growth-title {
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #4FC3A1;
+                            margin-bottom: 15px;
+                            display: flex;
+                            align-items: center;
+                        }
+                        .growth-title .emoji {
+                            margin-right: 10px;
+                            font-size: 22px;
+                        }
+                        .growth-details {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 20px;
+                            margin-top: 15px;
+                        }
+                        .growth-item {
+                            background: white;
+                            padding: 15px;
+                            border-radius: 8px;
+                            text-align: center;
+                            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        }
+                        .growth-label {
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            letter-spacing: 1px;
+                            color: #7C7C7C;
+                            margin-bottom: 5px;
+                        }
+                        .growth-value {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: #4FC3A1;
+                        }
+                        .growth-unit {
+                            font-size: 14px;
+                            color: #7C7C7C;
+                        }
+                        .date-info {
+                            background: #fff3cd;
+                            border: 1px solid #ffeaa7;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            text-align: center;
+                        }
+                        .date-info .icon {
+                            font-size: 20px;
+                            margin-right: 8px;
+                        }
+                        .midwife-info {
+                            background: #e8f5e8;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            text-align: center;
+                        }
+                        .midwife-info .icon {
+                            font-size: 20px;
+                            margin-right: 8px;
+                        }
+                        .encouragement {
+                            background: linear-gradient(135deg, #ff9a9e 0%%, #fecfef 100%%);
+                            border-radius: 12px;
+                            padding: 20px;
+                            margin: 25px 0;
+                            text-align: center;
+                            color: #d63384;
+                        }
+                        .encouragement .heart {
+                            font-size: 30px;
+                            margin-bottom: 10px;
+                            display: block;
+                        }
+                        .footer {
+                            background: #f8f9fa;
+                            padding: 25px;
+                            text-align: center;
+                            color: #6c757d;
+                            font-size: 14px;
+                        }
+                        .footer .app-name {
+                            color: #4FC3A1;
+                            font-weight: 600;
+                            font-size: 16px;
+                        }
+                        .highlight {
+                            background: linear-gradient(135deg, #4FC3A1, #66D4B7);
+                            -webkit-background-clip: text;
+                            -webkit-text-fill-color: transparent;
+                            background-clip: text;
+                            font-weight: 600;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <span class="icon">🌱</span>
+                            <h1>Baby Growth Record Updated!</h1>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="greeting">Hello %s! 👋</div>
+                            
+                            <div class="message">
+                                Great news! Your baby's growth record has been updated by your midwife. 
+                                Here are the latest measurements taken during your visit:
+                            </div>
+                            
+                            <div class="growth-card">
+                                <div class="growth-title">
+                                    <span class="emoji">📏</span>
+                                    Latest Growth Measurements
+                                </div>
+                                <div class="growth-details">
+                                    <div class="growth-item">
+                                        <div class="growth-label">Height</div>
+                                        <div class="growth-value">%.1f <span class="growth-unit">cm</span></div>
+                                    </div>
+                                    <div class="growth-item">
+                                        <div class="growth-label">Weight</div>
+                                        <div class="growth-value">%.1f <span class="growth-unit">kg</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="date-info">
+                                <span class="icon">📅</span>
+                                <strong>Record Date:</strong> %s
+                            </div>
+                            
+                            <div class="midwife-info">
+                                <span class="icon">👩‍⚕️</span>
+                                <strong>Updated by:</strong> %s (Midwife)
+                            </div>
+                            
+                            <div class="encouragement">
+                                <span class="heart">💖</span>
+                                <strong>Your baby is growing beautifully!</strong><br>
+                                Keep up the excellent care and continue with regular check-ups.
+                            </div>
+                            
+                            <div class="message">
+                                You can view the complete growth chart and track your baby's progress 
+                                in the <span class="highlight">Maternal Health</span> mobile app.
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <div class="app-name">Maternal Health Care System</div>
+                            <div>Caring for mothers and babies, every step of the way 💚</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """, motherName, height, weight, recordDate, midwifeName);
+    }
+
+    public void sendPasswordChangeConfirmationEmail(String to, String motherName, String changeDateTime, String deviceInfo) {
+        try {
+            String subject = "🔐 Password Changed Successfully - Maternal Health";
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            
+            String htmlContent = buildPasswordChangeConfirmationEmailHtml(motherName, changeDateTime, deviceInfo);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Password change confirmation email sent successfully to: {}", to);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send password change confirmation email to: {}", to, e);
+            throw new RuntimeException("Failed to send password change confirmation email", e);
+        }
+    }
+
+    private String buildPasswordChangeConfirmationEmailHtml(String motherName, String changeDateTime, String deviceInfo) {
+        return String.format("""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Password Changed Successfully</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            margin: 0;
+                            padding: 0;
+                            background-color: #f0f8f0;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 20px auto;
+                            background: white;
+                            border-radius: 15px;
+                            overflow: hidden;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #4FC3A1, #66D4B7);
+                            color: white;
+                            padding: 30px;
+                            text-align: center;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: bold;
+                        }
+                        .header .icon {
+                            font-size: 48px;
+                            margin-bottom: 10px;
+                        }
+                        .content {
+                            padding: 40px 30px;
+                        }
+                        .greeting {
+                            font-size: 20px;
+                            color: #2E7D5A;
+                            margin-bottom: 20px;
+                            font-weight: 600;
+                        }
+                        .message {
+                            font-size: 16px;
+                            color: #333;
+                            margin-bottom: 20px;
+                        }
+                        .security-info {
+                            background: #f8f9fa;
+                            border-left: 4px solid #4FC3A1;
+                            padding: 20px;
+                            margin: 25px 0;
+                            border-radius: 0 8px 8px 0;
+                        }
+                        .security-info h3 {
+                            color: #2E7D5A;
+                            margin: 0 0 15px 0;
+                            font-size: 18px;
+                        }
+                        .detail-item {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #e9ecef;
+                        }
+                        .detail-item:last-child {
+                            border-bottom: none;
+                        }
+                        .detail-label {
+                            font-weight: 600;
+                            color: #495057;
+                        }
+                        .detail-value {
+                            color: #6c757d;
+                            text-align: right;
+                        }
+                        .security-tips {
+                            background: #e8f4f8;
+                            border: 1px solid #bee5eb;
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin: 25px 0;
+                        }
+                        .security-tips h3 {
+                            color: #0c5460;
+                            margin: 0 0 15px 0;
+                            font-size: 18px;
+                        }
+                        .security-tips ul {
+                            margin: 0;
+                            padding-left: 20px;
+                            color: #0c5460;
+                        }
+                        .security-tips li {
+                            margin-bottom: 8px;
+                        }
+                        .warning-box {
+                            background: #fff3cd;
+                            border: 1px solid #ffeaa7;
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin: 25px 0;
+                        }
+                        .warning-box h3 {
+                            color: #856404;
+                            margin: 0 0 10px 0;
+                            font-size: 16px;
+                        }
+                        .warning-box p {
+                            color: #856404;
+                            margin: 0;
+                            font-size: 14px;
+                        }
+                        .support-info {
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin: 25px 0;
+                            text-align: center;
+                        }
+                        .support-info h3 {
+                            color: #2E7D5A;
+                            margin: 0 0 15px 0;
+                            font-size: 18px;
+                        }
+                        .support-info p {
+                            color: #6c757d;
+                            margin: 0;
+                            font-size: 14px;
+                        }
+                        .footer {
+                            background: #2E7D5A;
+                            color: white;
+                            text-align: center;
+                            padding: 25px;
+                        }
+                        .footer .app-name {
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .highlight {
+                            color: #4FC3A1;
+                            font-weight: bold;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="icon">🔐</div>
+                            <h1>Password Changed Successfully</h1>
+                        </div>
+                        
+                        <div class="content">
+                            <div class="greeting">Hello %s! 👋</div>
+                            
+                            <div class="message">
+                                Your password has been successfully changed for your Maternal Health account. 
+                                This email confirms that the password change was completed.
+                            </div>
+                            
+                            <div class="security-info">
+                                <h3>🛡️ Change Details</h3>
+                                <div class="detail-item">
+                                    <span class="detail-label">Date & Time:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Device/Browser:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Account:</span>
+                                    <span class="detail-value">Maternal Health Profile</span>
+                                </div>
+                            </div>
+                            
+                            <div class="warning-box">
+                                <h3>⚠️ Didn't change your password?</h3>
+                                <p>
+                                    If you did not request this password change, please contact our support team 
+                                    immediately and secure your account.
+                                </p>
+                            </div>
+                            
+                            <div class="security-tips">
+                                <h3>🔒 Security Tips</h3>
+                                <ul>
+                                    <li>Use a strong, unique password for your account</li>
+                                    <li>Don't share your password with anyone</li>
+                                    <li>Log out from shared devices after use</li>
+                                    <li>Review your account activity regularly</li>
+                                    <li>Contact support if you notice any suspicious activity</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="message">
+                                Your account security is important to us. We're committed to keeping your 
+                                personal health information safe and secure.
+                            </div>
+                            
+                            <div class="support-info">
+                                <h3>📞 Need Help?</h3>
+                                <p>
+                                    If you have any questions or concerns about your account security, 
+                                    our support team is here to help you 24/7.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="footer">
+                            <div class="app-name">Maternal Health Care System</div>
+                            <div>Keeping your health information secure 🔐</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """, motherName, changeDateTime, deviceInfo);
+    }
 }

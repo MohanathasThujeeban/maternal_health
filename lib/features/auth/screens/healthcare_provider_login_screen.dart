@@ -52,13 +52,7 @@ class _HealthcareProviderLoginScreenState
           licenseNumber: result['medicalLicenseNumber'] ?? '',
           name: result['fullName'] ?? '',
           email: result['email'] ?? '',
-<<<<<<< HEAD
-          medicalLicense: result['medicalLicenseNumber'],
           institution: result['institution'],
-=======
-          role: result['userRole'] ?? 'MIDWIFE',
-          clinic: result['clinic'],
->>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
         );
 
         ScaffoldMessenger.of(context).showSnackBar(

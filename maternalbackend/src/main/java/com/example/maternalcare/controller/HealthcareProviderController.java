@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.model.HealthcareProvider;
-import com.example.maternalcare.model.ProviderType;
 import com.example.maternalcare.model.EmailVerificationToken;
 import com.example.maternalcare.repository.HealthcareProviderRepository;
 import com.example.maternalcare.repository.EmailVerificationTokenRepository;
@@ -16,6 +15,7 @@ import com.example.maternalcare.services.EmailVerificationService;
 
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -574,6 +574,117 @@ public class HealthcareProviderController {
         } catch (Exception e) {
             return createErrorResponse("Failed to get healthcare provider profile: " + e.getMessage(), 
                                      HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/change-password/{identifier}")
+    public ResponseEntity<?> changeHealthcareProviderPassword(@PathVariable String identifier, @RequestBody Map<String, String> passwordRequest) {
+        System.out.println("=== HEALTHCARE PROVIDER CHANGE PASSWORD ENDPOINT HIT ===");
+        System.out.println("Identifier: " + identifier);
+        
+        try {
+            // Validate request
+            if (passwordRequest == null) {
+                return createErrorResponse("Invalid request body", HttpStatus.BAD_REQUEST);
+            }
+
+            String currentPassword = passwordRequest.get("currentPassword");
+            String newPassword = passwordRequest.get("newPassword");
+
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                return createErrorResponse("Current password is required", HttpStatus.BAD_REQUEST);
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                return createErrorResponse("New password is required", HttpStatus.BAD_REQUEST);
+            }
+
+            if (newPassword.length() < 6) {
+                return createErrorResponse("New password must be at least 6 characters long", HttpStatus.BAD_REQUEST);
+            }
+
+            // Find healthcare provider by identifier (could be NIC or medical license number)
+            Optional<HealthcareProvider> providerOptional = healthcareProviderRepository.findByNicNumber(identifier.trim());
+            
+            if (providerOptional.isEmpty()) {
+                // Try finding by medical license number
+                providerOptional = healthcareProviderRepository.findByMedicalLicenseNumber(identifier.trim());
+            }
+            
+            if (providerOptional.isEmpty()) {
+                System.out.println("Healthcare provider not found with identifier: " + identifier);
+                return createErrorResponse("Healthcare provider not found", HttpStatus.NOT_FOUND);
+            }
+
+            HealthcareProvider provider = providerOptional.get();
+            
+            // Verify current password
+            boolean currentPasswordMatches = false;
+            String storedPassword = provider.getPassword();
+            
+            // First, try password encoder (for encrypted passwords)
+            try {
+                currentPasswordMatches = passwordEncoder.matches(currentPassword, storedPassword);
+            } catch (Exception e) {
+                // If password encoder fails, it might be a plain text password
+                currentPasswordMatches = false;
+            }
+            
+            // If encoder doesn't match, try direct comparison (for plain text passwords)
+            if (!currentPasswordMatches) {
+                currentPasswordMatches = storedPassword.equals(currentPassword);
+            }
+            
+            if (!currentPasswordMatches) {
+                System.out.println("Invalid current password for healthcare provider: " + identifier);
+                return createErrorResponse("Current password is incorrect", HttpStatus.BAD_REQUEST);
+            }
+
+            // Check if new password is different from current password
+            if (currentPassword.equals(newPassword)) {
+                return createErrorResponse("New password must be different from current password", HttpStatus.BAD_REQUEST);
+            }
+
+            // Encrypt the new password
+            String encryptedNewPassword = passwordEncoder.encode(newPassword);
+            
+            // Update password
+            provider.setPassword(encryptedNewPassword);
+            healthcareProviderRepository.save(provider);
+
+            System.out.println("Password changed successfully for healthcare provider: " + provider.getEmail());
+
+            // Send email confirmation
+            try {
+                String changeDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm"));
+                String deviceInfo = "Healthcare Dashboard"; // Can be enhanced to get actual device info
+                String providerName = provider.getFullName() != null ? provider.getFullName() : "Healthcare Provider";
+                
+                emailService.sendPasswordChangeConfirmationEmail(
+                    provider.getEmail(), 
+                    providerName, 
+                    changeDateTime, 
+                    deviceInfo
+                );
+                System.out.println("Password change confirmation email sent to: " + provider.getEmail());
+            } catch (Exception emailError) {
+                System.err.println("Failed to send password change confirmation email: " + emailError.getMessage());
+                // Don't fail the entire operation if email fails
+            }
+
+            // Create success response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password changed successfully. A confirmation email has been sent.");
+            response.put("timestamp", LocalDateTime.now());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Healthcare provider password change error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            
+            return createErrorResponse("Password change failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

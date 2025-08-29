@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
+import '../shared/healthcare_provider_privacy_screen.dart';
 
 class DoctorDashboard extends StatefulWidget {
   final Map<String, dynamic>? providerData;
@@ -2348,22 +2349,25 @@ class ProfileTab extends StatelessWidget {
           _buildInfoSection('Contact Information', [
             _buildInfoRow('Email', providerData!['email'] ?? 'N/A'),
             _buildInfoRow('Phone', providerData!['phoneNumber'] ?? 'N/A'),
-            _buildInfoRow('NIC Number', providerData!['nicNumber'] ?? 'N/A'),
           ]),
 
           const SizedBox(height: 32),
 
           // Action Buttons
-          Row(
+          Column(
             children: [
-              Expanded(
+              // First row - Privacy & Security
+              SizedBox(
+                width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: Implement edit profile
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Edit profile feature coming soon'),
-                        backgroundColor: Color(0xFF2E7D5A),
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const HealthcareProviderPrivacyScreen(
+                              userRole: 'DOCTOR',
+                            ),
                       ),
                     );
                   },
@@ -2374,9 +2378,9 @@ class ProfileTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  icon: const Icon(Icons.edit, color: Colors.white),
+                  icon: const Icon(Icons.security, color: Colors.white),
                   label: const Text(
-                    'Edit Profile',
+                    'Privacy & Security',
                     style: TextStyle(
                       color: Colors.white,
                       fontFamily: 'SpotifyCircular',
@@ -2385,85 +2389,120 @@ class ProfileTab extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    // Implement logout functionality
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
+              const SizedBox(height: 16),
+              // Second row - Edit Profile and Logout
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // TODO: Implement edit profile
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Edit profile feature coming soon'),
+                            backgroundColor: Color(0xFF2E7D5A),
+                          ),
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFF2E7D5A)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        title: const Text(
-                          'Logout',
-                          style: TextStyle(
-                            fontFamily: 'SpotifyCircular',
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF2E7D5A),
-                          ),
+                      ),
+                      icon: const Icon(Icons.edit, color: Color(0xFF2E7D5A)),
+                      label: const Text(
+                        'Edit Profile',
+                        style: TextStyle(
+                          color: Color(0xFF2E7D5A),
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
                         ),
-                        content: const Text(
-                          'Are you sure you want to logout?',
-                          style: TextStyle(fontFamily: 'SpotifyCircular'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontFamily: 'SpotifyCircular',
-                                color: Colors.grey,
-                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        // Implement logout functionality
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
                             ),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              // Navigate back to login screen and clear the navigation stack
-                              Navigator.pushNamedAndRemoveUntil(
-                                context,
-                                '/',
-                                (route) => false,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2E7D5A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: const Text(
+                            title: const Text(
                               'Logout',
                               style: TextStyle(
                                 fontFamily: 'SpotifyCircular',
-                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2E7D5A),
                               ),
                             ),
+                            content: const Text(
+                              'Are you sure you want to logout?',
+                              style: TextStyle(fontFamily: 'SpotifyCircular'),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  'Cancel',
+                                  style: TextStyle(
+                                    fontFamily: 'SpotifyCircular',
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // Navigate back to login screen and clear the navigation stack
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    '/',
+                                    (route) => false,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2E7D5A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Logout',
+                                  style: TextStyle(
+                                    fontFamily: 'SpotifyCircular',
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFF2E7D5A)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Color(0xFF2E7D5A)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      icon: const Icon(Icons.logout, color: Color(0xFF2E7D5A)),
+                      label: const Text(
+                        'Logout',
+                        style: TextStyle(
+                          color: Color(0xFF2E7D5A),
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
                   ),
-                  icon: const Icon(Icons.logout, color: Color(0xFF2E7D5A)),
-                  label: const Text(
-                    'Logout',
-                    style: TextStyle(
-                      color: Color(0xFF2E7D5A),
-                      fontFamily: 'SpotifyCircular',
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
+                ],
               ),
             ],
           ),

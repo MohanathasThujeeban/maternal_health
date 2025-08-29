@@ -1,4 +1,4 @@
-package com.bloomcare.maternalbackend.model;
+package com.example.maternalcare.model;
 
 import jakarta.persistence.*;
 import java.util.Date;

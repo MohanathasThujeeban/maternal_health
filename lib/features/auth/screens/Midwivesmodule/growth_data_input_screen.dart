@@ -84,12 +84,18 @@ class _GrowthDataInputScreenState extends State<GrowthDataInputScreen> {
   Future<void> _saveEntryToBackend(GrowthEntry entry) async {
     final url = Uri.parse("${ApiConfig.baseApiUrl}/growth/add");
 
+    print('Debug: Sending growth data to: $url');
+    print('Debug: Growth data payload: ${jsonEncode(entry.toJson())}');
+
     try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(entry.toJson()),
       );
+
+      print('Debug: Response status code: ${response.statusCode}');
+      print('Debug: Response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -100,9 +106,15 @@ class _GrowthDataInputScreenState extends State<GrowthDataInputScreen> {
           ),
         );
       } else {
-        throw Exception("Failed to save: ${response.body}");
+        print(
+          'Error: Failed to save growth data - ${response.statusCode}: ${response.body}',
+        );
+        throw Exception(
+          "Failed to save: ${response.statusCode} - ${response.body}",
+        );
       }
     } catch (e) {
+      print('Error: Exception when saving growth data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Error saving growth data: $e"),

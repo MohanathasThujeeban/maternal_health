@@ -6,11 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.LoginRequest;
-import com.example.maternalcare.dto.LoginResponse;
 import com.example.maternalcare.model.Registration;
 import com.example.maternalcare.repository.RegistrationRepository;
+import com.example.maternalcare.services.EmailService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,9 @@ public class LoginController {
     
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private EmailService emailService;
 
     public LoginController(RegistrationRepository registrationRepository) {
         this.registrationRepository = registrationRepository;
@@ -82,17 +86,6 @@ public class LoginController {
 
             System.out.println("Login successful for user: " + user.getEmail());
 
-            // Create success response
-            LoginResponse response = new LoginResponse(
-                true,
-                "Login successful",
-                user.getId(),
-                user.getFullName(),
-                user.getEmail(),
-                user.getNicNumber(),
-                user.getPhoneNumber3()
-            );
-            
             // Add user role information
             Map<String, Object> loginData = new HashMap<>();
             loginData.put("success", true);
@@ -114,6 +107,110 @@ public class LoginController {
             e.printStackTrace();
             
             return createErrorResponse("Login failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/auth/change-password/{nicNumber}")
+    public ResponseEntity<?> changePassword(@PathVariable String nicNumber, @RequestBody Map<String, String> passwordRequest) {
+        System.out.println("=== CHANGE PASSWORD ENDPOINT HIT ===");
+        System.out.println("NIC: " + nicNumber);
+        
+        try {
+            // Validate request
+            if (passwordRequest == null) {
+                return createErrorResponse("Invalid request body", HttpStatus.BAD_REQUEST);
+            }
+
+            String currentPassword = passwordRequest.get("currentPassword");
+            String newPassword = passwordRequest.get("newPassword");
+
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                return createErrorResponse("Current password is required", HttpStatus.BAD_REQUEST);
+            }
+
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                return createErrorResponse("New password is required", HttpStatus.BAD_REQUEST);
+            }
+
+            if (newPassword.length() < 6) {
+                return createErrorResponse("New password must be at least 6 characters long", HttpStatus.BAD_REQUEST);
+            }
+
+            // Find user by NIC number
+            Optional<Registration> userOptional = registrationRepository.findByNicNumber(nicNumber.trim());
+            
+            if (userOptional.isEmpty()) {
+                System.out.println("User not found with NIC: " + nicNumber);
+                return createErrorResponse("User not found", HttpStatus.NOT_FOUND);
+            }
+
+            Registration user = userOptional.get();
+            
+            // Verify current password
+            boolean currentPasswordMatches = false;
+            String storedPassword = user.getPassword();
+            
+            // First, try password encoder (for encrypted passwords)
+            try {
+                currentPasswordMatches = passwordEncoder.matches(currentPassword, storedPassword);
+            } catch (Exception e) {
+                // If password encoder fails, it might be a plain text password
+                currentPasswordMatches = false;
+            }
+            
+            // If encoder doesn't match, try direct comparison (for plain text passwords)
+            if (!currentPasswordMatches) {
+                currentPasswordMatches = storedPassword.equals(currentPassword);
+            }
+            
+            if (!currentPasswordMatches) {
+                System.out.println("Invalid current password for user: " + nicNumber);
+                return createErrorResponse("Current password is incorrect", HttpStatus.BAD_REQUEST);
+            }
+
+            // Check if new password is different from current password
+            if (currentPassword.equals(newPassword)) {
+                return createErrorResponse("New password must be different from current password", HttpStatus.BAD_REQUEST);
+            }
+
+            // Encrypt the new password
+            String encryptedNewPassword = passwordEncoder.encode(newPassword);
+            
+            // Update password
+            user.setPassword(encryptedNewPassword);
+            registrationRepository.save(user);
+
+            System.out.println("Password changed successfully for user: " + user.getEmail());
+
+            // Send email confirmation
+            try {
+                String changeDateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMM dd, yyyy 'at' HH:mm"));
+                String deviceInfo = "Mobile App"; // Can be enhanced to get actual device info
+                emailService.sendPasswordChangeConfirmationEmail(
+                    user.getEmail(), 
+                    user.getFullName(), 
+                    changeDateTime, 
+                    deviceInfo
+                );
+                System.out.println("Password change confirmation email sent to: " + user.getEmail());
+            } catch (Exception emailError) {
+                System.err.println("Failed to send password change confirmation email: " + emailError.getMessage());
+                // Don't fail the entire operation if email fails
+            }
+
+            // Create success response
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Password changed successfully. A confirmation email has been sent.");
+            response.put("timestamp", LocalDateTime.now());
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("Password change error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            e.printStackTrace();
+            
+            return createErrorResponse("Password change failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

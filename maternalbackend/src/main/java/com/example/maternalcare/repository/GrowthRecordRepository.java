@@ -1,6 +1,6 @@
-package com.bloomcare.maternalbackend.repository;
+package com.example.maternalcare.repository;
 
-import com.bloomcare.maternalbackend.model.GrowthRecord;
+import com.example.maternalcare.model.GrowthRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

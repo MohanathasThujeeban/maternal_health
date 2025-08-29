@@ -1,79 +1,64 @@
-package com.example.maternalcare.model;
+package com.example.maternalcare.dto;
 
-import jakarta.persistence.*;
 import java.time.LocalDate;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity
-@Table(name = "growth_records")
-public class GrowthEntry {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @Column(name = "mother_nic", nullable = false)
+public class GrowthEntryRequest {
     private String motherNic;
-    
-    @Column(nullable = false)
     private double height;
-    
-    @Column(nullable = false)
     private double weight;
-    
-    @Column(nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
-
+    private String midwifeLicense; // Optional: medical license of the midwife who recorded this
+    
     // Default constructor
-    public GrowthEntry() {}
-
-    // Constructor with fields
-    public GrowthEntry(String motherNic, double height, double weight, LocalDate date) {
+    public GrowthEntryRequest() {}
+    
+    // Constructor
+    public GrowthEntryRequest(String motherNic, double height, double weight, LocalDate date, String midwifeLicense) {
         this.motherNic = motherNic;
         this.height = height;
         this.weight = weight;
         this.date = date;
+        this.midwifeLicense = midwifeLicense;
     }
-
+    
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getMotherNic() {
         return motherNic;
     }
-
+    
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
     }
-
+    
     public double getHeight() {
         return height;
     }
-
+    
     public void setHeight(double height) {
         this.height = height;
     }
-
+    
     public double getWeight() {
         return weight;
     }
-
+    
     public void setWeight(double weight) {
         this.weight = weight;
     }
-
+    
     public LocalDate getDate() {
         return date;
     }
-
+    
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+    
+    public String getMidwifeLicense() {
+        return midwifeLicense;
+    }
+    
+    public void setMidwifeLicense(String midwifeLicense) {
+        this.midwifeLicense = midwifeLicense;
     }
 }

@@ -12,6 +12,7 @@ import 'package:maternal_health/features/auth/screens/Midwivesmodule/view_mother
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
 import 'package:maternal_health/services/user_service.dart';
 import 'package:maternal_health/config/api_config.dart';
+import '../shared/healthcare_provider_privacy_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -1871,7 +1872,7 @@ class _ProfileTabState extends State<ProfileTab> {
             const SizedBox(height: 20),
 
             // Contact Information
-            _buildSectionTitle('Contact Information'),
+            _buildSectionTitle('Professional Information'),
             const SizedBox(height: 12),
             _buildInfoRow(
               Icons.email,
@@ -1884,19 +1885,11 @@ class _ProfileTabState extends State<ProfileTab> {
               'Phone',
               userProfile!['phoneNumber'] ?? 'Not provided',
             ),
-            const SizedBox(height: 8),
-            _buildInfoRow(
-              Icons.credit_card,
-              'NIC Number',
-              userProfile!['nicNumber'] ?? 'Not provided',
-            ),
 
             // Professional Information (for healthcare providers)
             if (userProfile!['medicalLicenseNumber'] != null &&
                 userProfile!['medicalLicenseNumber'].toString().isNotEmpty) ...[
-              const SizedBox(height: 20),
-              _buildSectionTitle('Professional Information'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               _buildInfoRow(
                 Icons.badge,
                 'Medical License',
@@ -1931,14 +1924,16 @@ class _ProfileTabState extends State<ProfileTab> {
             const SizedBox(height: 16),
 
             _buildSettingsOption(
-              Icons.edit,
-              'Edit Profile',
-              'Update your personal information',
+              Icons.lock,
+              'Privacy & Security',
+              'Change password and security settings',
               () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Edit profile feature coming soon!'),
-                    backgroundColor: Color(0xFF4FC3A1),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HealthcareProviderPrivacyScreen(
+                      userRole: 'MIDWIFE',
+                    ),
                   ),
                 );
               },
@@ -1947,13 +1942,13 @@ class _ProfileTabState extends State<ProfileTab> {
             const Divider(height: 24),
 
             _buildSettingsOption(
-              Icons.lock,
-              'Change Password',
-              'Update your account password',
+              Icons.edit,
+              'Edit Profile',
+              'Update your professional information',
               () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Change password feature coming soon!'),
+                    content: Text('Edit profile feature coming soon!'),
                     backgroundColor: Color(0xFF4FC3A1),
                   ),
                 );

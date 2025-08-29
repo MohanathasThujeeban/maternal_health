@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
 import 'mother_growth_chart_screen.dart';
-=======
 import 'package:maternal_health/features/auth/screens/Mothermodule/baby_growth_records_screen.dart';
->>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
 
 class BabyRecordsScreen extends StatelessWidget {
   const BabyRecordsScreen({super.key});
@@ -36,40 +33,6 @@ class BabyRecordsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-<<<<<<< HEAD
-        children: [
-          _buildRecordCard(
-            context,
-            icon: Icons.child_care,
-            title: 'Growth Records',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MotherGrowthChartScreen(),
-                ),
-              );
-            },
-          ),
-          _buildRecordCard(
-            context,
-            icon: Icons.medical_services,
-            title: 'Health Check-ups',
-            onTap: () {
-              // Navigate to health check-ups
-            },
-          ),
-          _buildRecordCard(
-            context,
-            icon: Icons.notes,
-            title: 'Development Milestones',
-            onTap: () {
-              // Navigate to milestones
-            },
-          ),
-        ],
-=======
-
         child: GridView.count(
           crossAxisCount: 2,
           crossAxisSpacing: 12,
@@ -84,7 +47,7 @@ class BabyRecordsScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BabyGrowthRecordsScreen(),
+                    builder: (context) => const MotherGrowthChartScreen(),
                   ),
                 );
               },
@@ -107,7 +70,6 @@ class BabyRecordsScreen extends StatelessWidget {
             ),
           ],
         ),
->>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
       ),
     );
   }

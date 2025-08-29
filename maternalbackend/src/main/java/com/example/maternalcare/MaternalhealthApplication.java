@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 @SpringBootApplication
 @EntityScan(basePackages = {
-    "com.example.maternalhealth.model",   // GrowthEntry entity
-    "com.example.maternalcare.model"      // Appointment entity
+    "com.example.maternalcare.model"      // All entities
 })
 public class MaternalhealthApplication {
 

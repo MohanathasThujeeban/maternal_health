@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_chart_view.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../config/api_config.dart';
 
 class GrowthEntry {
   final DateTime date;
@@ -22,7 +23,8 @@ class GrowthEntry {
       "motherNic": motherNic,
       "height": height,
       "weight": weight,
-      "date": date.toIso8601String(), // backend expects ISO string
+      "date":
+          "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}", // backend expects yyyy-MM-dd format
     };
   }
 }
@@ -45,8 +47,10 @@ class _GrowthChartScreenState extends State<GrowthChartScreen> {
 
   // 🔹 Function to save entry to backend
   Future<void> _saveEntryToBackend(GrowthEntry entry) async {
-    final url = Uri.parse("http://10.0.2.2:8080/api/growth/add");
-    // ⚠️ If testing on a mobile device, replace localhost with your PC IP (e.g. http://192.168.1.5:8080)
+    final url = Uri.parse("${ApiConfig.baseApiUrl}/growth/add");
+
+    print('Debug: Sending growth data to: $url');
+    print('Debug: Growth data payload: ${jsonEncode(entry.toJson())}');
 
     try {
       final response = await http.post(
@@ -55,16 +59,27 @@ class _GrowthChartScreenState extends State<GrowthChartScreen> {
         body: jsonEncode(entry.toJson()),
       );
 
+      print('Debug: Response status code: ${response.statusCode}');
+      print('Debug: Response body: ${response.body}');
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Saved to backend successfully ✅")),
         );
       } else {
+        print(
+          'Error: Failed to save growth data - ${response.statusCode}: ${response.body}',
+        );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to save ❌: ${response.body}")),
+          SnackBar(
+            content: Text(
+              "Failed to save ❌: ${response.statusCode} - ${response.body}",
+            ),
+          ),
         );
       }
     } catch (e) {
+      print('Error: Exception when saving growth data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error connecting to backend: $e")),
       );
