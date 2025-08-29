@@ -103,6 +103,8 @@ public class LoginController {
             loginData.put("nicNumber", user.getNicNumber());
             loginData.put("phoneNumber", user.getPhoneNumber3());
             loginData.put("userRole", user.getUserRole().toString());
+            loginData.put("medicalLicenseNumber", user.getMedicalLicenseNumber());
+            loginData.put("institution", user.getInstitution());
             loginData.put("timestamp", LocalDateTime.now());
 
             return ResponseEntity.ok(loginData);

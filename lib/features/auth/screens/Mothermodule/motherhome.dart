@@ -11,8 +11,8 @@ import '../../../../widgets/custom_loading.dart';
 import 'vaccination_history_screen.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
 import './health_records_screen.dart';
-import './baby_records_screen.dart';
 import './vaccinations_screen.dart';
+import './mother_growth_chart_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -217,7 +217,7 @@ class MotherDashboardScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const BabyRecordsScreen(),
+                    builder: (context) => const MotherGrowthChartScreen(),
                   ),
                 ),
               ),

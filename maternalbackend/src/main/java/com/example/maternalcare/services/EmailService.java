@@ -1003,4 +1003,110 @@ public class EmailService {
             throw new RuntimeException("Failed to send password reset email", e);
         }
     }
+    
+    public void sendDoctorNoteConfirmationEmail(String to, String motherName, String doctorName, String notes, String diagnosis, String treatmentPlan, String visitDate) {
+        try {
+            String subject = "Maternal Health - Medical Notes Update from " + doctorName;
+            String htmlContent = buildDoctorNoteConfirmationEmailHtml(motherName, doctorName, notes, diagnosis, treatmentPlan, visitDate);
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Doctor note confirmation email sent successfully to: {}", to);
+        } catch (Exception e) {
+            logger.error("Failed to send doctor note confirmation email to: {}", to, e);
+            // Don't throw exception - let caller handle gracefully
+        }
+    }
+    
+    private String buildDoctorNoteConfirmationEmailHtml(String motherName, String doctorName, String notes, String diagnosis, String treatmentPlan, String visitDate) {
+        return """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; background-color: #f4f4f4; }
+                        .container { max-width: 600px; margin: 20px auto; background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+                        .header { text-align: center; padding: 20px; background: linear-gradient(135deg, #4FC3A1, #66D4B7); color: white; border-radius: 10px 10px 0 0; margin: -20px -20px 20px -20px; }
+                        .logo { font-size: 24px; margin-bottom: 10px; }
+                        .content { padding: 20px 0; }
+                        .note-section { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #4FC3A1; }
+                        .note-title { font-weight: bold; color: #2E7D5A; margin-bottom: 10px; font-size: 16px; }
+                        .note-content { color: #333; line-height: 1.6; }
+                        .visit-info { background-color: #e8f5f0; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                        .footer { margin-top: 30px; text-align: center; color: #666; font-size: 14px; border-top: 1px solid #eee; padding-top: 20px; }
+                        .doctor-info { background-color: #f0f8ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+                        .important-note { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 20px 0; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">🏥 Maternal Health</div>
+                            <h2>Medical Consultation Update</h2>
+                        </div>
+                        
+                        <div class="content">
+                            <p>Dear %s,</p>
+                            <p>We wanted to inform you that <strong>%s</strong> has updated your medical records with new consultation notes. Here are the details:</p>
+                            
+                            <div class="visit-info">
+                                <h3>📅 Consultation Date: %s</h3>
+                            </div>
+                            
+                            <div class="doctor-info">
+                                <h3>👨‍⚕️ Attending Physician: %s</h3>
+                            </div>
+                            
+                            %s
+                            
+                            %s
+                            
+                            %s
+                            
+                            <div class="important-note">
+                                <h3>📋 Important Information:</h3>
+                                <ul>
+                                    <li>Please keep this email for your medical records</li>
+                                    <li>Follow any treatment instructions provided by your doctor</li>
+                                    <li>Contact your healthcare provider if you have any questions</li>
+                                    <li>If you need clarification about your treatment plan, don't hesitate to reach out</li>
+                                </ul>
+                            </div>
+                            
+                            <p>If you have any questions about this consultation or need to schedule a follow-up appointment, please contact our clinic.</p>
+                            
+                            <p style="margin-top: 30px; color: #4a5568;">Take care of yourself and your health,<br><strong>Maternal Health Care Team</strong></p>
+                        </div>
+                        
+                        <div class="footer">
+                            <div style="font-weight: bold; color: #4FC3A1; margin-bottom: 10px;">Maternal Health Care System</div>
+                            <p>Providing comprehensive healthcare for mothers and children</p>
+                            <p>This is an automated notification. Please do not reply to this email.</p>
+                            <p style="font-size: 12px; color: #999;">© 2025 Maternal Health System. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(
+                    motherName, 
+                    doctorName, 
+                    visitDate != null ? visitDate : java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                    doctorName,
+                    notes != null && !notes.trim().isEmpty() ? 
+                        "<div class=\"note-section\"><div class=\"note-title\">📝 Clinical Notes:</div><div class=\"note-content\">" + notes + "</div></div>" : "",
+                    diagnosis != null && !diagnosis.trim().isEmpty() ? 
+                        "<div class=\"note-section\"><div class=\"note-title\">🩺 Diagnosis:</div><div class=\"note-content\">" + diagnosis + "</div></div>" : "",
+                    treatmentPlan != null && !treatmentPlan.trim().isEmpty() ? 
+                        "<div class=\"note-section\"><div class=\"note-title\">💊 Treatment Plan:</div><div class=\"note-content\">" + treatmentPlan + "</div></div>" : ""
+                );
+    }
 }

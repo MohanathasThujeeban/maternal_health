@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'mother_growth_chart_screen.dart';
 
 class BabyRecordsScreen extends StatelessWidget {
   const BabyRecordsScreen({super.key});
@@ -18,7 +19,12 @@ class BabyRecordsScreen extends StatelessWidget {
             icon: Icons.child_care,
             title: 'Growth Records',
             onTap: () {
-              // Navigate to growth records
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MotherGrowthChartScreen(),
+                ),
+              );
             },
           ),
           _buildRecordCard(

@@ -9,6 +9,8 @@ class UserService {
   static const String _userNicKey = 'user_nic';
   static const String _userNameKey = 'user_name';
   static const String _userEmailKey = 'user_email';
+  static const String _userMedicalLicenseKey = 'user_medical_license';
+  static const String _userInstitutionKey = 'user_institution';
 
   // Dynamic base URL based on platform
   static String get baseUrl {
@@ -29,12 +31,22 @@ class UserService {
     required String nic,
     required String name,
     required String email,
+    String? medicalLicense,
+    String? institution,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNicKey, nic);
     await prefs.setString(_userNameKey, name);
     await prefs.setString(_userEmailKey, email);
     await prefs.setBool(_isLoggedInKey, true);
+
+    // Save medical license and institution if provided
+    if (medicalLicense != null) {
+      await prefs.setString(_userMedicalLicenseKey, medicalLicense);
+    }
+    if (institution != null) {
+      await prefs.setString(_userInstitutionKey, institution);
+    }
   }
 
   // Get user NIC
@@ -55,6 +67,18 @@ class UserService {
     return prefs.getString(_userEmailKey);
   }
 
+  // Get user medical license
+  static Future<String?> getUserMedicalLicense() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userMedicalLicenseKey);
+  }
+
+  // Get user institution
+  static Future<String?> getUserInstitution() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userInstitutionKey);
+  }
+
   // Check if user is logged in
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
@@ -67,6 +91,8 @@ class UserService {
     await prefs.remove(_userNicKey);
     await prefs.remove(_userNameKey);
     await prefs.remove(_userEmailKey);
+    await prefs.remove(_userMedicalLicenseKey);
+    await prefs.remove(_userInstitutionKey);
     await prefs.setBool(_isLoggedInKey, false);
   }
 
@@ -76,6 +102,8 @@ class UserService {
       'nic': await getUserNic(),
       'name': await getUserName(),
       'email': await getUserEmail(),
+      'medicalLicense': await getUserMedicalLicense(),
+      'institution': await getUserInstitution(),
     };
   }
 
@@ -110,6 +138,8 @@ class UserService {
             nic: data['nicNumber'] ?? nic,
             name: data['fullName'] ?? '',
             email: data['email'] ?? '',
+            medicalLicense: data['medicalLicenseNumber'],
+            institution: data['institution'],
           );
           return true;
         }

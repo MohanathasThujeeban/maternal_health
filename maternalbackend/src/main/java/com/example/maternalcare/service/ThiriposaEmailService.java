@@ -53,8 +53,9 @@ public class ThiriposaEmailService {
             logger.info("Thiriposa confirmation email sent successfully to: " + mother.getEmail());
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to send Thiriposa confirmation email to: " + mother.getEmail(), e);
-            throw new RuntimeException("Email sending failed: " + e.getMessage(), e);
+            logger.log(Level.WARNING, "Failed to send Thiriposa confirmation email to: " + mother.getEmail() + ". Error: " + e.getMessage());
+            // Don't throw exception - log error and continue
+            // This prevents email failures from breaking the core functionality
         }
     }
 

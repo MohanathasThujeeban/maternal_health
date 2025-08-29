@@ -50,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
           nic: result['nicNumber'] ?? '',
           name: result['fullName'] ?? '',
           email: result['email'] ?? '',
+          medicalLicense: result['medicalLicenseNumber'],
+          institution: result['institution'],
         );
 
         ScaffoldMessenger.of(context).showSnackBar(

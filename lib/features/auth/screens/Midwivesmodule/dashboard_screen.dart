@@ -264,7 +264,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
   Future<void> _fetchStatistics() async {
     if (!mounted) return;
-    
+
     try {
       // Get current midwife's identifier
       final userData = await UserService.getUserData();
@@ -287,7 +287,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (!mounted) return;
-        
+
         setState(() {
           pendingReviewCount = (data['pendingReview'] ?? 0).toString();
           thisMonthCount = (data['thisMonth'] ?? 0).toString();
@@ -296,7 +296,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
         });
       } else {
         if (!mounted) return;
-        
+
         setState(() {
           pendingReviewCount = '0';
           thisMonthCount = '0';
@@ -307,7 +307,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
     } catch (e) {
       print('Error fetching statistics: $e');
       if (!mounted) return;
-      
+
       setState(() {
         pendingReviewCount = '0';
         thisMonthCount = '0';
@@ -319,7 +319,7 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
   Future<void> _fetchRecentActivities() async {
     if (!mounted) return;
-    
+
     try {
       // Get current midwife's identifier
       final userData = await UserService.getUserData();
