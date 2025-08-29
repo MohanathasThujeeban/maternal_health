@@ -68,9 +68,6 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
   Future<void> _loadUserData() async {
     print('Loading user data...');
 
-    // Force fix user data first
-    await UserService.forceFixUserData();
-
     final userData = await UserService.getUserData();
     print('User data from service: $userData');
 

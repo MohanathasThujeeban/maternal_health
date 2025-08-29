@@ -9,8 +9,14 @@ class UserService {
   static const String _userNicKey = 'user_nic';
   static const String _userNameKey = 'user_name';
   static const String _userEmailKey = 'user_email';
+<<<<<<< HEAD
   static const String _userMedicalLicenseKey = 'user_medical_license';
   static const String _userInstitutionKey = 'user_institution';
+=======
+  static const String _userRoleKey = 'user_role';
+  static const String _medicalLicenseKey = 'medical_license';
+  static const String _clinicKey = 'clinic';
+>>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
 
   // Dynamic base URL based on platform
   static String get baseUrl {
@@ -31,13 +37,23 @@ class UserService {
     required String nic,
     required String name,
     required String email,
+<<<<<<< HEAD
     String? medicalLicense,
     String? institution,
+=======
+    String? role,
+    String? medicalLicenseNumber,
+    String? clinic,
+>>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNicKey, nic);
     await prefs.setString(_userNameKey, name);
     await prefs.setString(_userEmailKey, email);
+    if (role != null) await prefs.setString(_userRoleKey, role);
+    if (medicalLicenseNumber != null)
+      await prefs.setString(_medicalLicenseKey, medicalLicenseNumber);
+    if (clinic != null) await prefs.setString(_clinicKey, clinic);
     await prefs.setBool(_isLoggedInKey, true);
 
     // Save medical license and institution if provided
@@ -98,16 +114,41 @@ class UserService {
 
   // Get all user data
   static Future<Map<String, String?>> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
     return {
       'nic': await getUserNic(),
       'name': await getUserName(),
       'email': await getUserEmail(),
+<<<<<<< HEAD
       'medicalLicense': await getUserMedicalLicense(),
       'institution': await getUserInstitution(),
+=======
+      'role': prefs.getString(_userRoleKey),
+      'medicalLicenseNumber': prefs.getString(_medicalLicenseKey),
+      'clinic': prefs.getString(_clinicKey),
+>>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
     };
   }
 
   // Force fix for specific user (TEMPORARY)
+  // Save healthcare provider specific data
+  static Future<void> saveHealthcareProviderData({
+    required String licenseNumber,
+    required String name,
+    required String email,
+    required String role,
+    String? clinic,
+  }) async {
+    await saveUserData(
+      nic: licenseNumber, // Use license number as NIC for healthcare providers
+      name: name,
+      email: email,
+      role: role,
+      medicalLicenseNumber: licenseNumber,
+      clinic: clinic,
+    );
+  }
+
   static Future<void> forceFixUserData() async {
     final currentNic = await getUserNic();
     if (currentNic == '200201901851') {

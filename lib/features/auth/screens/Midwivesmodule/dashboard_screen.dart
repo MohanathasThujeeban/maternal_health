@@ -323,7 +323,8 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
     try {
       // Get current midwife's identifier
       final userData = await UserService.getUserData();
-      final currentIdentifier = userData['nic'];
+      final currentIdentifier =
+          userData['medicalLicenseNumber'] ?? userData['nic'];
 
       if (currentIdentifier == null || currentIdentifier.isEmpty) {
         return;
@@ -1582,7 +1583,7 @@ class _ProfileTabState extends State<ProfileTab> {
       return false;
     } catch (e) {
       print('Debug: Profile load attempt failed: $e');
-      throw e; // Re-throw the exception to be handled by the calling method
+      rethrow; // Re-throw the exception to be handled by the calling method
     }
   }
 

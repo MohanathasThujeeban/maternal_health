@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'mother_growth_chart_screen.dart';
+=======
+import 'package:maternal_health/features/auth/screens/Mothermodule/baby_growth_records_screen.dart';
+>>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
 
 class BabyRecordsScreen extends StatelessWidget {
   const BabyRecordsScreen({super.key});
@@ -7,12 +11,32 @@ class BabyRecordsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Baby Records'),
-        backgroundColor: const Color(0xFF4FC3A1),
+      backgroundColor: const Color(0xFFF5F9F6),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120),
+        child: AppBar(
+          automaticallyImplyLeading: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          centerTitle: true,
+          title: const Text(
+            'Baby Records',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 26,
+              color: Colors.white,
+              letterSpacing: 1.2,
+            ),
+          ),
+          flexibleSpace: ClipPath(
+            clipper: AppBarClipper(),
+            child: Container(color: const Color(0xFF4FC3A1)),
+          ),
+        ),
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
+<<<<<<< HEAD
         children: [
           _buildRecordCard(
             context,
@@ -44,29 +68,142 @@ class BabyRecordsScreen extends StatelessWidget {
             },
           ),
         ],
+=======
+
+        child: GridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.1,
+          children: [
+            _buildRecordCard(
+              context,
+              icon: Icons.child_care,
+              title: 'Growth Records',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BabyGrowthRecordsScreen(),
+                  ),
+                );
+              },
+            ),
+            _buildRecordCard(
+              context,
+              icon: Icons.medical_services,
+              title: 'Health Check-ups',
+              onTap: () {
+                // Navigate to health check-ups
+              },
+            ),
+            _buildRecordCard(
+              context,
+              icon: Icons.notes,
+              title: 'Development Milestones',
+              onTap: () {
+                // Navigate to milestones
+              },
+            ),
+          ],
+        ),
+>>>>>>> 08691a4c837f02bf3c5f1494dda36e95f9aac753
       ),
     );
   }
 
+  // Box type card widget for each record type
   Widget _buildRecordCard(
     BuildContext context, {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
   }) {
+    final Color baseColor;
+    switch (title) {
+      case 'Growth Records':
+        baseColor = const Color(0xFFFF9800);
+        break;
+      case 'Health Check-ups':
+        baseColor = const Color(0xFF2196F3);
+        break;
+      case 'Development Milestones':
+        baseColor = const Color(0xFF9C27B0);
+        break;
+      default:
+        baseColor = const Color(0xFF4FC3A1);
+    }
+
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.only(bottom: 16),
-      child: ListTile(
-        leading: Icon(icon, color: const Color(0xFF4FC3A1), size: 32),
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            // PatientsTab-like soft gradient fill
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                baseColor.withOpacity(0.10),
+                baseColor.withOpacity(0.05),
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Colored icon chip (like PatientsTab)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: baseColor.withOpacity(0.20),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, size: 32, color: baseColor),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
+
+// Unique curved AppBar shape
+class AppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 30);
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height,
+      size.width,
+      size.height - 30,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
