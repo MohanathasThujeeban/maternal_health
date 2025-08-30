@@ -13,6 +13,7 @@ public class ProblemRecordDTO {
     @NotBlank(message = "Patient name is required")
     private String patientName;
     
+    private String motherNic;
     private String eyeProblem;
     private String earProblem;
     private String symptomsDuration;
@@ -27,9 +28,10 @@ public class ProblemRecordDTO {
     // Constructors
     public ProblemRecordDTO() {}
     
-    public ProblemRecordDTO(String patientName, String eyeProblem, String earProblem, 
+    public ProblemRecordDTO(String patientName, String motherNic, String eyeProblem, String earProblem, 
                            String symptomsDuration, String remarks, LocalDate dateOfDiagnosis) {
         this.patientName = patientName;
+        this.motherNic = motherNic;
         this.eyeProblem = eyeProblem;
         this.earProblem = earProblem;
         this.symptomsDuration = symptomsDuration;
@@ -43,6 +45,9 @@ public class ProblemRecordDTO {
     
     public String getPatientName() { return patientName; }
     public void setPatientName(String patientName) { this.patientName = patientName; }
+    
+    public String getMotherNic() { return motherNic; }
+    public void setMotherNic(String motherNic) { this.motherNic = motherNic; }
     
     public String getEyeProblem() { return eyeProblem; }
     public void setEyeProblem(String eyeProblem) { this.eyeProblem = eyeProblem; }

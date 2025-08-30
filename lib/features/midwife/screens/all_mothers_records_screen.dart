@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../services/mothers_service.dart';
-import '../../auth/screens/Babymodule/EarProblemTracker.dart';
+import '../../auth/screens/Midwivesmodule/eye_ear_management_screen.dart';
 
 class AllMothersRecordsScreen extends StatefulWidget {
   const AllMothersRecordsScreen({Key? key}) : super(key: key);

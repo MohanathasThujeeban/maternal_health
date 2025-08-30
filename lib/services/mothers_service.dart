@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class MothersService {
-  static const String _endpoint = '/user/mothers';
+  static const String _endpoint = '/registration/all';
 
   /// Fetch all registered mothers
   static Future<List<Map<String, dynamic>>> getAllMothers() async {
@@ -19,15 +19,14 @@ class MothersService {
           .timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          return List<Map<String, dynamic>>.from(data['mothers']);
-        }
-        throw Exception(data['error'] ?? 'Failed to load mothers data');
+        final List<dynamic> allUsers = json.decode(response.body);
+        // Convert to List<Map<String, dynamic>> and return all users
+        // (we can filter for mothers on frontend if needed)
+        return List<Map<String, dynamic>>.from(allUsers);
       }
 
       if (response.statusCode == 404) {
-        throw Exception('Mothers endpoint not found');
+        throw Exception('Registration endpoint not found');
       }
 
       throw Exception('Server error: ${response.statusCode}');

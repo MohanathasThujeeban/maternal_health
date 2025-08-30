@@ -986,7 +986,7 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
     try {
       final response = await http
           .get(
-            Uri.parse('${ApiConfig.baseApiUrl}/user/mothers'),
+            Uri.parse('${ApiConfig.baseApiUrl}/registration/all'),
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
@@ -998,15 +998,11 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       print('Debug: Mothers API response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data['success'] == true) {
-          setState(() {
-            mothers = List<Map<String, dynamic>>.from(data['mothers']);
-            isLoading = false;
-          });
-        } else {
-          throw Exception(data['error'] ?? 'Failed to load mothers');
-        }
+        final List<dynamic> allUsers = json.decode(response.body);
+        setState(() {
+          mothers = List<Map<String, dynamic>>.from(allUsers);
+          isLoading = false;
+        });
       } else {
         throw Exception('Server error: ${response.statusCode}');
       }

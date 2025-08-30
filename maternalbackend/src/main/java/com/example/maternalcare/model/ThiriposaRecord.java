@@ -14,13 +14,13 @@ public class ThiriposaRecord {
     @Column(name = "mother_nic", nullable = false)
     private String motherNic;
     
-    @Column(name = "supply_date", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "supply_date", nullable = false)
     private LocalDateTime date;
     
     @Column(nullable = false)
     private Integer quantity;
     
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @PrePersist

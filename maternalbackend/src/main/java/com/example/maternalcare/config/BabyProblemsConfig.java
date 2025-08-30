@@ -3,7 +3,6 @@ package com.example.maternalcare.config;
 
 import com.example.maternalcare.model.ProblemRecord;
 import com.example.maternalcare.repository.ProblemRecordRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +19,7 @@ public class BabyProblemsConfig {
             if (repository.count() == 0) {
                 ProblemRecord record1 = new ProblemRecord(
                     "Baby Perera",
+                    "123456789V", // motherNic
                     "Blocked Tear Duct",
                     "None",
                     "1-2 weeks",
@@ -29,6 +29,7 @@ public class BabyProblemsConfig {
                 
                 ProblemRecord record2 = new ProblemRecord(
                     "Baby Silva",
+                    "987654321V", // motherNic
                     "None",
                     "Ear Infection",
                     "3-7 days",
@@ -38,6 +39,7 @@ public class BabyProblemsConfig {
                 
                 ProblemRecord record3 = new ProblemRecord(
                     "Baby Fernando",
+                    "456789123V", // motherNic
                     "Conjunctivitis (Pink Eye)",
                     "Ear Pain/Fussiness",
                     "Less than 1 day",

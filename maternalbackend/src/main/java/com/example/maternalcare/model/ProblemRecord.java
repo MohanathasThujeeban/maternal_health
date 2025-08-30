@@ -19,6 +19,9 @@ public class ProblemRecord {
     @Column(name = "patient_name", nullable = false)
     private String patientName;
     
+    @Column(name = "mother_nic")
+    private String motherNic;
+    
     @Column(name = "eye_problem")
     private String eyeProblem;
     
@@ -44,9 +47,10 @@ public class ProblemRecord {
     // Constructors
     public ProblemRecord() {}
     
-    public ProblemRecord(String patientName, String eyeProblem, String earProblem, 
+    public ProblemRecord(String patientName, String motherNic, String eyeProblem, String earProblem, 
                         String symptomsDuration, String remarks, LocalDate dateOfDiagnosis) {
         this.patientName = patientName;
+        this.motherNic = motherNic;
         this.eyeProblem = eyeProblem;
         this.earProblem = earProblem;
         this.symptomsDuration = symptomsDuration;
@@ -71,6 +75,9 @@ public class ProblemRecord {
     
     public String getPatientName() { return patientName; }
     public void setPatientName(String patientName) { this.patientName = patientName; }
+    
+    public String getMotherNic() { return motherNic; }
+    public void setMotherNic(String motherNic) { this.motherNic = motherNic; }
     
     public String getEyeProblem() { return eyeProblem; }
     public void setEyeProblem(String eyeProblem) { this.eyeProblem = eyeProblem; }

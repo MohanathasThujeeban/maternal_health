@@ -11,10 +11,12 @@ import '../../../../widgets/custom_loading.dart';
 import 'vaccination_history_screen.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
 import './health_records_screen.dart';
+import './baby_records_screen.dart';
 import './vaccinations_screen.dart';
 import './mother_growth_chart_screen.dart';
 import './comprehensive_profile_screen.dart';
 import './privacy_security_screen.dart';
+import './eye_ear_records_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -235,6 +237,19 @@ class MotherDashboardScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              _CategoryCard(
+                icon: Icons.remove_red_eye,
+                title: 'Eye & Ear Records',
+                description:
+                    'View your baby\'s eye and ear examination records',
+                color: const Color(0xFF9C27B0),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const EyeEarRecordsScreen(),
+                  ),
+                ),
+              ),
             ],
           ),
 
@@ -255,6 +270,18 @@ class MotherDashboardScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => const HealthRecordsScreen(),
+                  ),
+                ),
+              ),
+              _CategoryCard(
+                icon: Icons.baby_changing_station,
+                title: 'Baby Records',
+                description: 'Complete baby records with PDF export',
+                color: const Color(0xFF4FC3A1),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BabyRecordsScreen(),
                   ),
                 ),
               ),
@@ -377,15 +404,38 @@ class MotherDashboardScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 0.85,
-          children: cards,
-        ),
+        cards.length == 3
+            ? Column(
+                children: [
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.85,
+                    children: cards.take(2).toList(),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(child: cards[2]),
+                      const Expanded(
+                        child: SizedBox(),
+                      ), // Empty space to center the third card
+                    ],
+                  ),
+                ],
+              )
+            : GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.85,
+                children: cards,
+              ),
       ],
     );
   }

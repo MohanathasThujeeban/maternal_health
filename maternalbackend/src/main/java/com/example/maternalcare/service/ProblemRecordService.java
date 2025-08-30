@@ -46,6 +46,14 @@ public class ProblemRecordService {
                 .collect(Collectors.toList());
     }
     
+    // Get records by mother NIC
+    public List<ProblemRecordDTO> getRecordsByMotherNic(String motherNic) {
+        List<ProblemRecord> records = problemRecordRepository.findByMotherNicOrderByDateOfDiagnosisDesc(motherNic);
+        return records.stream()
+                .map(problemRecordMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
     // Get record by ID
     public ProblemRecordDTO getRecordById(Long id) {
         ProblemRecord record = problemRecordRepository.findById(id)

@@ -16,6 +16,9 @@ public interface ProblemRecordRepository extends JpaRepository<ProblemRecord, Lo
     // Find records by patient name (case insensitive)
     List<ProblemRecord> findByPatientNameContainingIgnoreCase(String patientName);
     
+    // Find records by mother NIC
+    List<ProblemRecord> findByMotherNicOrderByDateOfDiagnosisDesc(String motherNic);
+    
     // Find records by date range
     List<ProblemRecord> findByDateOfDiagnosisBetween(LocalDate startDate, LocalDate endDate);
     

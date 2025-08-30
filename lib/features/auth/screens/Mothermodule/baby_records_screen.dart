@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'mother_growth_chart_screen.dart';
-import 'package:maternal_health/features/auth/screens/Mothermodule/baby_growth_records_screen.dart';
+import 'package:maternal_health/features/auth/screens/Mothermodule/vaccination_history_screen.dart';
+import 'package:maternal_health/features/thiriposa/thiriposa_records_screen.dart';
+import 'package:maternal_health/features/auth/screens/Mothermodule/comprehensive_records_screen.dart';
 
 class BabyRecordsScreen extends StatelessWidget {
   const BabyRecordsScreen({super.key});
@@ -33,40 +34,149 @@ class BabyRecordsScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.1,
+        child: Column(
           children: [
-            _buildRecordCard(
-              context,
-              icon: Icons.child_care,
-              title: 'Growth Records',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const MotherGrowthChartScreen(),
+            // Comprehensive Records Button - Featured
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 24),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ComprehensiveRecordsScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.description, size: 28),
+                label: const Text(
+                  'View All Records & Generate PDF',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF4FC3A1),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              },
+                  elevation: 8,
+                ),
+              ),
             ),
-            _buildRecordCard(
-              context,
-              icon: Icons.medical_services,
-              title: 'Health Check-ups',
-              onTap: () {
-                // Navigate to health check-ups
-              },
+
+            // Section Title
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Individual Record Categories',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+              ),
             ),
-            _buildRecordCard(
-              context,
-              icon: Icons.notes,
-              title: 'Development Milestones',
-              onTap: () {
-                // Navigate to milestones
-              },
+            const SizedBox(height: 16),
+
+            // Grid for individual record types
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.1,
+                children: [
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.vaccines,
+                    title: 'Vaccination Records',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const VaccinationHistoryScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.child_care,
+                    title: 'Growth Records',
+                    onTap: () {
+                      // Navigate to growth records (individual view)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Use "View All Records" for complete data',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.visibility,
+                    title: 'Eye & Ear Records',
+                    onTap: () {
+                      // Navigate to eye/ear records (individual view)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Use "View All Records" for complete data',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.inventory_2,
+                    title: 'Thiriposa Records',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ThiriposaRecordsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.note_alt,
+                    title: 'Doctor Notes',
+                    onTap: () {
+                      // Navigate to doctor notes (individual view)
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Use "View All Records" for complete data',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildRecordCard(
+                    context,
+                    icon: Icons.medical_services,
+                    title: 'Health Check-ups',
+                    onTap: () {
+                      // Navigate to health check-ups
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Use "View All Records" for complete data',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
