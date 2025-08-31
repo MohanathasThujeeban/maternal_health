@@ -27,11 +27,13 @@ public class ThiriposaEmailService {
     private JavaMailSender mailSender;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("hh:mm a");
 
     public void sendThiriposaConfirmationEmail(Registration mother, ThiriposaRecord record, String midwifeName) {
         try {
             logger.info("Preparing to send Thiriposa confirmation email to: " + mother.getEmail());
+            
+            // Debug image availability
+            debugImageAvailability();
             
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
@@ -46,6 +48,7 @@ public class ThiriposaEmailService {
             helper.setText(htmlContent, true);
 
             // Attach images as inline resources
+            logger.info("Attaching inline images for email to: " + mother.getEmail());
             attachInlineImages(helper);
 
             // Send the email
@@ -53,7 +56,7 @@ public class ThiriposaEmailService {
             logger.info("Thiriposa confirmation email sent successfully to: " + mother.getEmail());
 
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Failed to send Thiriposa confirmation email to: " + mother.getEmail() + ". Error: " + e.getMessage());
+            logger.log(Level.SEVERE, "Failed to send Thiriposa confirmation email to: " + mother.getEmail() + ". Error: " + e.getMessage(), e);
             // Don't throw exception - log error and continue
             // This prevents email failures from breaking the core functionality
         }
@@ -114,23 +117,39 @@ public class ThiriposaEmailService {
             // Attach logo image
             ClassPathResource logoResource = new ClassPathResource("static/images/logo.png");
             if (logoResource.exists()) {
-                helper.addInline("logo", logoResource);
-                logger.info("Logo image attached successfully");
+                helper.addInline("logo", logoResource, "image/png");
+                logger.info("Logo image attached successfully (size: " + logoResource.contentLength() + " bytes)");
             } else {
                 logger.warning("Logo image not found at: static/images/logo.png");
+                // Try fallback path
+                ClassPathResource fallbackLogo = new ClassPathResource("images/logo.png");
+                if (fallbackLogo.exists()) {
+                    helper.addInline("logo", fallbackLogo, "image/png");
+                    logger.info("Logo image attached from fallback path: images/logo.png (size: " + fallbackLogo.contentLength() + " bytes)");
+                } else {
+                    logger.warning("Logo image not found in fallback path either");
+                }
             }
 
             // Attach thiriposa image
             ClassPathResource thiriposaResource = new ClassPathResource("static/images/thiriposha.png");
             if (thiriposaResource.exists()) {
-                helper.addInline("thiriposa", thiriposaResource);
-                logger.info("Thiriposa image attached successfully");
+                helper.addInline("thiriposa", thiriposaResource, "image/png");
+                logger.info("Thiriposa image attached successfully (size: " + thiriposaResource.contentLength() + " bytes)");
             } else {
                 logger.warning("Thiriposa image not found at: static/images/thiriposha.png");
+                // Try fallback path
+                ClassPathResource fallbackThiriposa = new ClassPathResource("images/thiriposha.png");
+                if (fallbackThiriposa.exists()) {
+                    helper.addInline("thiriposa", fallbackThiriposa, "image/png");
+                    logger.info("Thiriposa image attached from fallback path: images/thiriposha.png (size: " + fallbackThiriposa.contentLength() + " bytes)");
+                } else {
+                    logger.warning("Thiriposa image not found in fallback path either");
+                }
             }
 
         } catch (Exception e) {
-            logger.log(Level.WARNING, "Failed to attach one or more inline images", e);
+            logger.log(Level.WARNING, "Failed to attach one or more inline images: " + e.getMessage(), e);
             // Continue without images rather than failing completely
         }
     }
@@ -138,7 +157,7 @@ public class ThiriposaEmailService {
     // Method to validate email configuration
     public boolean isEmailConfigurationValid() {
         try {
-            MimeMessage testMessage = mailSender.createMimeMessage();
+            mailSender.createMimeMessage();
             logger.info("Email configuration appears to be valid");
             return true;
         } catch (Exception e) {
@@ -165,5 +184,59 @@ public class ThiriposaEmailService {
             logger.log(Level.SEVERE, "Failed to send test email to: " + toEmail, e);
             throw new RuntimeException("Test email failed: " + e.getMessage(), e);
         }
+    }
+
+    // Method to debug image availability
+    public void debugImageAvailability() {
+        logger.info("=== IMAGE AVAILABILITY DEBUG ===");
+        
+        // Check logo
+        ClassPathResource logoResource = new ClassPathResource("static/images/logo.png");
+        try {
+            if (logoResource.exists()) {
+                logger.info("✅ Logo found at: static/images/logo.png (size: " + logoResource.contentLength() + " bytes)");
+            } else {
+                logger.warning("❌ Logo NOT found at: static/images/logo.png");
+            }
+        } catch (Exception e) {
+            logger.warning("❌ Error checking logo: " + e.getMessage());
+        }
+        
+        // Check thiriposa
+        ClassPathResource thiriposaResource = new ClassPathResource("static/images/thiriposha.png");
+        try {
+            if (thiriposaResource.exists()) {
+                logger.info("✅ Thiriposa found at: static/images/thiriposha.png (size: " + thiriposaResource.contentLength() + " bytes)");
+            } else {
+                logger.warning("❌ Thiriposa NOT found at: static/images/thiriposha.png");
+            }
+        } catch (Exception e) {
+            logger.warning("❌ Error checking thiriposa: " + e.getMessage());
+        }
+        
+        // Check fallback paths
+        ClassPathResource fallbackLogo = new ClassPathResource("images/logo.png");
+        try {
+            if (fallbackLogo.exists()) {
+                logger.info("✅ Logo fallback found at: images/logo.png (size: " + fallbackLogo.contentLength() + " bytes)");
+            } else {
+                logger.info("ℹ️ Logo fallback NOT found at: images/logo.png");
+            }
+        } catch (Exception e) {
+            logger.warning("❌ Error checking logo fallback: " + e.getMessage());
+        }
+        
+        ClassPathResource fallbackThiriposa = new ClassPathResource("images/thiriposha.png");
+        try {
+            if (fallbackThiriposa.exists()) {
+                logger.info("✅ Thiriposa fallback found at: images/thiriposha.png (size: " + fallbackThiriposa.contentLength() + " bytes)");
+            } else {
+                logger.info("ℹ️ Thiriposa fallback NOT found at: images/thiriposha.png");
+            }
+        } catch (Exception e) {
+            logger.warning("❌ Error checking thiriposa fallback: " + e.getMessage());
+        }
+        
+        logger.info("=== END IMAGE DEBUG ===");
     }
 }

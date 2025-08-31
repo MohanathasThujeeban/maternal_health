@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
+import '../../../../services/mothers_service.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
+import '../Midwivesmodule/comprehensive_records_screen.dart';
 
 class DoctorDashboard extends StatefulWidget {
   final Map<String, dynamic>? providerData;
@@ -35,6 +37,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
@@ -593,33 +596,13 @@ class _PatientsTabState extends State<PatientsTab> {
     });
 
     try {
-      final response = await http
-          .get(
-            Uri.parse('${ApiConfig.baseApiUrl}/user/mothers'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 15));
+      final mothersData = await MothersService.getAllMothers();
 
-      print('Debug: Mothers API response status: ${response.statusCode}');
-      print('Debug: Mothers API response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['success'] == true) {
-          setState(() {
-            mothers = List<Map<String, dynamic>>.from(data['mothers'] ?? []);
-            filteredMothers = List.from(mothers);
-            isLoading = false;
-          });
-        } else {
-          throw Exception(data['error'] ?? 'Failed to load mothers');
-        }
-      } else {
-        throw Exception('Failed to load mothers: ${response.statusCode}');
-      }
+      setState(() {
+        mothers = mothersData;
+        filteredMothers = List.from(mothers);
+        isLoading = false;
+      });
     } catch (e) {
       print('Error loading mothers: $e');
       setState(() {
@@ -997,19 +980,20 @@ class _PatientsTabState extends State<PatientsTab> {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: mother['isActive'] == true
+                                    color: (mother['isActive'] ?? true) == true
                                         ? Colors.green.shade100
                                         : Colors.red.shade100,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
-                                    mother['isActive'] == true
+                                    (mother['isActive'] ?? true) == true
                                         ? 'Active'
                                         : 'Inactive',
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
-                                      color: mother['isActive'] == true
+                                      color:
+                                          (mother['isActive'] ?? true) == true
                                           ? Colors.green.shade700
                                           : Colors.red.shade700,
                                       fontFamily: 'CircularStd',
@@ -2609,7 +2593,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _loadDoctorData();
     _loadPatientNotes();
   }
@@ -2775,8 +2759,10 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           indicatorColor: Colors.white,
+          isScrollable: true,
           tabs: const [
             Tab(icon: Icon(Icons.person), text: 'Profile'),
+            Tab(icon: Icon(Icons.folder_open), text: 'View Records'),
             Tab(icon: Icon(Icons.note_add), text: 'Add Note'),
             Tab(icon: Icon(Icons.history), text: 'Notes History'),
           ],
@@ -2786,6 +2772,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
         controller: _tabController,
         children: [
           _buildProfileTab(),
+          _buildViewRecordsTab(),
           _buildAddNoteTab(),
           _buildNotesHistoryTab(),
         ],
@@ -2855,19 +2842,23 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: widget.motherData['isActive'] == true
+                              color:
+                                  (widget.motherData['isActive'] ?? true) ==
+                                      true
                                   ? Colors.green.shade100
                                   : Colors.red.shade100,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              widget.motherData['isActive'] == true
+                              (widget.motherData['isActive'] ?? true) == true
                                   ? 'Active Patient'
                                   : 'Inactive',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: widget.motherData['isActive'] == true
+                                color:
+                                    (widget.motherData['isActive'] ?? true) ==
+                                        true
                                     ? Colors.green.shade700
                                     : Colors.red.shade700,
                                 fontFamily: 'CircularStd',
@@ -2989,6 +2980,19 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildViewRecordsTab() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
+        ),
+      ),
+      child: ComprehensiveRecordsScreen(mother: widget.motherData),
     );
   }
 

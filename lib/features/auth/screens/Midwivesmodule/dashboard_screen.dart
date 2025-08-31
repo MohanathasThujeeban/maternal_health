@@ -3,14 +3,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'package:maternal_health/features/auth/screens/Babymodule/ProblemUpdate.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/reportConfirmaion.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_data_input_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
+import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_data_input_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/view_mothers_records_screen.dart';
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
 import 'package:maternal_health/services/user_service.dart';
+import 'package:maternal_health/services/activity_service.dart';
 import 'package:maternal_health/config/api_config.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
 
@@ -38,6 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Row(
           children: [
             Container(
@@ -322,37 +322,28 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
     if (!mounted) return;
 
     try {
-      // Get current midwife's identifier
-      final userData = await UserService.getUserData();
-      final currentIdentifier =
-          userData['medicalLicenseNumber'] ?? userData['nic'];
+      // Use the new ActivityService to get recent activities
+      final activities = await ActivityService.getRecentActivities(limit: 15);
 
-      if (currentIdentifier == null || currentIdentifier.isEmpty) {
-        return;
-      }
-
-      // Get today's appointments as recent activities
-      final response = await http
-          .get(
-            Uri.parse(
-              '${ApiConfig.baseApiUrl}/appointments/provider/$currentIdentifier/recent',
-            ),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(const Duration(seconds: 10));
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data is List) {
-          setState(() {
-            recentActivities = List<Map<String, dynamic>>.from(data);
-          });
-        }
+      if (mounted) {
+        setState(() {
+          recentActivities = activities;
+        });
       }
     } catch (e) {
       print('Error fetching recent activities: $e');
       // Keep empty list if API fails
+      if (mounted) {
+        setState(() {
+          recentActivities = [];
+        });
+      }
     }
+  }
+
+  // Method to refresh activities - can be called from other screens
+  void refreshActivities() {
+    _fetchRecentActivities();
   }
 
   @override
@@ -570,8 +561,10 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
         return _ActivityCard(
           title: activity['title'] ?? 'Activity',
           subtitle: activity['description'] ?? 'No description',
-          time: activity['time'] ?? '',
-          icon: _getActivityIcon(activity['type']),
+          time: ActivityService.formatActivityTime(
+            activity['timestamp'] ?? activity['time'] ?? '',
+          ),
+          icon: _getActivityIcon(activity['activityType'] ?? activity['type']),
         );
       },
     );
@@ -580,11 +573,19 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
   // Get appropriate icon for activity type
   IconData _getActivityIcon(String? type) {
     switch (type?.toLowerCase()) {
+      case 'vaccination':
+        return Icons.vaccines;
+      case 'thiriposa':
+        return Icons.local_dining;
+      case 'growth':
+        return Icons.trending_up;
+      case 'appointment':
+        return Icons.event_note;
+      case 'eye_ear':
+        return Icons.visibility;
       case 'checkup':
       case 'consultation':
         return Icons.medical_services;
-      case 'appointment':
-        return Icons.event_note;
       case 'patient':
       case 'registration':
         return Icons.person_add;
@@ -822,21 +823,6 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Problem Updates',
-                    subtitle: 'Update health issues',
-                    icon: Icons.medical_services,
-                    color: const Color(0xFFFF9800),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ProblemsManagementScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildActionCard(
-                    context,
                     title: 'View Records',
                     subtitle: 'Browse all mothers records',
                     icon: Icons.folder_open,
@@ -846,21 +832,6 @@ class PatientsTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const ViewMothersRecordsScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildActionCard(
-                    context,
-                    title: 'Reports',
-                    subtitle: 'Generate reports',
-                    icon: Icons.assessment,
-                    color: const Color(0xFF9C27B0),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const ReportConfirmationScreen(),
                         ),
                       );
                     },
