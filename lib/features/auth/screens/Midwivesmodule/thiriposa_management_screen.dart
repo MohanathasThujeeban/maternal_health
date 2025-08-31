@@ -74,14 +74,49 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
         ),
         backgroundColor: const Color(0xFF4FC3A1),
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A), Color(0xFF2E7D5A)],
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.food_bank, color: Colors.white, size: 16),
+                const SizedBox(width: 6),
+                Text(
+                  '${_filteredUsers.length} Users',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
-          // Header Section
+          // Enhanced Header Section
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -98,35 +133,71 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Select a Mother to Update Thiriposa Records',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontFamily: 'SpotifyCircular',
-                    fontWeight: FontWeight.w500,
-                  ),
-                  textAlign: TextAlign.center,
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.restaurant_menu,
+                        color: Colors.white,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Thiriposa Records',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontFamily: 'SpotifyCircular',
+                            ),
+                          ),
+                          Text(
+                            'Manage nutritional supplement records',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontFamily: 'SpotifyCircular',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
-                // Search Bar
+                // Enhanced Search Bar
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        spreadRadius: 1,
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: TextField(
                     controller: _searchController,
                     onChanged: _filterUsers,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontSize: 16,
+                    ),
                     decoration: InputDecoration(
-                      hintText: 'Search by NIC or Name...',
+                      hintText: 'Search by name or NIC...',
                       hintStyle: TextStyle(
                         color: Colors.grey[400],
                         fontFamily: 'SpotifyCircular',
@@ -134,11 +205,29 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
                       prefixIcon: const Icon(
                         Icons.search,
                         color: Color(0xFF4FC3A1),
+                        size: 24,
                       ),
-                      border: InputBorder.none,
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear, color: Colors.grey),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterUsers('');
+                              },
+                            )
+                          : const Icon(
+                              Icons.filter_list,
+                              color: Color(0xFF4FC3A1),
+                            ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 20,
-                        vertical: 15,
+                        vertical: 16,
                       ),
                     ),
                   ),
@@ -146,20 +235,76 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
               ],
             ),
           ),
-
-          // Content Section
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: _buildContent(),
+          // Enhanced Status Bar
+          if (!_isLoading) ...[
+            Container(
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF4FC3A1).withOpacity(0.1),
+                    const Color(0xFF4FC3A1).withOpacity(0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: const Color(0xFF4FC3A1).withOpacity(0.3),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.people,
+                        color: Color(0xFF4FC3A1),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${_filteredUsers.length} ${_filteredUsers.length == 1 ? 'User' : 'Users'} Found',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF4FC3A1),
+                          fontFamily: 'SpotifyCircular',
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4FC3A1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Active',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        fontFamily: 'SpotifyCircular',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
+          // Users List
+          Expanded(child: _buildUsersList()),
         ],
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildUsersList() {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -229,6 +374,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
     }
 
     return ListView.builder(
+      padding: const EdgeInsets.all(16),
       itemCount: _filteredUsers.length,
       itemBuilder: (context, index) {
         final user = _filteredUsers[index];

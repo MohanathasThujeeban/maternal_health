@@ -4,13 +4,10 @@ import '../../../../widgets/language_selector.dart';
 import '../../../../models/appointment.dart';
 import '../../../../services/appointment_service.dart';
 import '../../../../services/user_service.dart';
-import '../../../../services/vaccination_service.dart';
 import '../../../appointments/schedule_appointment_screen.dart';
 import '../../../appointments/appointments_list_screen.dart';
 import '../../../../widgets/custom_loading.dart';
-import 'vaccination_history_screen.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
-import './health_records_screen.dart';
 import './baby_records_screen.dart';
 import './vaccinations_screen.dart';
 import './mother_growth_chart_screen.dart';
@@ -35,37 +32,43 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.favorite, color: Colors.white, size: 24),
+              child: const Icon(Icons.favorite, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  localizations.maternalCare,
-                  style: const TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    fontSize: 18,
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    localizations.maternalCare,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  localizations.motherPortal,
-                  style: const TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontWeight: FontWeight.w400,
-                    color: Colors.white,
-                    fontSize: 12,
+                  Text(
+                    localizations.motherPortal,
+                    style: const TextStyle(
+                      fontFamily: 'SpotifyCircular',
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -187,19 +190,23 @@ class MotherDashboardScreen extends StatelessWidget {
                   localizations.welcomeBack,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 22,
                     fontFamily: 'SpotifyCircular',
                     fontWeight: FontWeight.w600,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   localizations.howAreYouFeeling,
                   style: TextStyle(
                     color: Colors.white.withOpacity(0.9),
-                    fontSize: 16,
+                    fontSize: 14,
                     fontFamily: 'SpotifyCircular',
                   ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -262,21 +269,9 @@ class MotherDashboardScreen extends StatelessWidget {
             subtitle: localizations.manageHealthRecords,
             cards: [
               _CategoryCard(
-                icon: Icons.medical_services,
-                title: localizations.healthRecords,
-                description: localizations.viewMedicalHistory,
-                color: const Color(0xFFE91E63),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HealthRecordsScreen(),
-                  ),
-                ),
-              ),
-              _CategoryCard(
                 icon: Icons.baby_changing_station,
-                title: 'Baby Records',
-                description: 'Complete baby records with PDF export',
+                title: localizations.babyRecords,
+                description: localizations.babyRecordsDescription,
                 color: const Color(0xFF4FC3A1),
                 onTap: () => Navigator.push(
                   context,
@@ -388,20 +383,24 @@ class MotherDashboardScreen extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'SpotifyCircular',
             color: Color(0xFF2E7D5A),
           ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 4),
         Text(
           subtitle,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: 13,
             color: Colors.grey[600],
             fontFamily: 'SpotifyCircular',
           ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 16),
         cards.length == 3
@@ -532,6 +531,7 @@ class _CategoryCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
@@ -542,25 +542,31 @@ class _CategoryCard extends StatelessWidget {
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'SpotifyCircular',
-                  color: Color(0xFF2E2E2E),
+              Flexible(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'SpotifyCircular',
+                    color: Color(0xFF2E2E2E),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 4),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                  fontFamily: 'SpotifyCircular',
+              Flexible(
+                child: Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[600],
+                    fontFamily: 'SpotifyCircular',
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -833,338 +839,6 @@ class BabyGrowthTab extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class HealthRecordsTab extends StatefulWidget {
-  const HealthRecordsTab({super.key});
-
-  @override
-  State<HealthRecordsTab> createState() => _HealthRecordsTabState();
-}
-
-class _HealthRecordsTabState extends State<HealthRecordsTab> {
-  List<Map<String, dynamic>> _vaccinations = [];
-  bool _isLoading = true;
-  String? _motherNic;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadVaccinationData();
-  }
-
-  Future<void> _loadVaccinationData() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Get current user's NIC
-      _motherNic = await UserService.getUserNic();
-
-      if (_motherNic != null && _motherNic!.isNotEmpty) {
-        // Fetch real vaccinations from backend
-        final vaccinations =
-            await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
-        setState(() {
-          _vaccinations = vaccinations;
-          _isLoading = false;
-        });
-      } else {
-        // No user NIC found - show empty state
-        setState(() {
-          _vaccinations = [];
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error loading vaccination data: $e');
-      setState(() {
-        _vaccinations = [];
-        _isLoading = false;
-      });
-
-      // Show error message to user
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to load vaccination records. Please check your internet connection.',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
-    // Calculate vaccination statistics
-    final completedVaccinations = _vaccinations
-        .where((v) => v['status'] == 'COMPLETED')
-        .toList();
-    final pendingVaccinations = _vaccinations
-        .where((v) => v['status'] == 'PENDING')
-        .toList();
-    final totalVaccinations = _vaccinations.length;
-    final completionPercentage = totalVaccinations > 0
-        ? completedVaccinations.length / totalVaccinations
-        : 0.0;
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                localizations.healthRecordsVaccinations,
-                style: const TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D5A),
-                ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: _loadVaccinationData,
-                    icon: const Icon(Icons.refresh, color: Color(0xFF4FC3A1)),
-                    tooltip: 'Refresh',
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const VaccinationsScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.vaccines,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                    label: Text(
-                      localizations.viewAll,
-                      style: const TextStyle(
-                        fontFamily: 'SpotifyCircular',
-                        color: Colors.white,
-                        fontSize: 12,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4FC3A1),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-
-          // Vaccination Progress Card
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF4FC3A1), Color(0xFF2E7D5A)],
-              ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      localizations.vaccinationProgress,
-                      style: const TextStyle(
-                        fontFamily: 'SpotifyCircular',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const VaccinationHistoryScreen(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        localizations.viewDetails,
-                        style: const TextStyle(
-                          fontFamily: 'SpotifyCircular',
-                          fontSize: 12,
-                          color: Colors.white,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (_isLoading)
-                  const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
-                else ...[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${(completionPercentage * 100).round()}% Complete',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontFamily: 'SpotifyCircular',
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        '${completedVaccinations.length} of $totalVaccinations',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontFamily: 'SpotifyCircular',
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  LinearProgressIndicator(
-                    value: completionPercentage,
-                    backgroundColor: Colors.white.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.white,
-                    ),
-                    minHeight: 6,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${pendingVaccinations.length} pending vaccinations',
-                    style: const TextStyle(
-                      fontFamily: 'SpotifyCircular',
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Recent Vaccinations Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                localizations.recentVaccinations,
-                style: const TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D5A),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const VaccinationHistoryScreen(),
-                    ),
-                  );
-                },
-                child: Text(
-                  localizations.seeAll,
-                  style: const TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    color: Color(0xFF4FC3A1),
-                    fontSize: 12,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          // Vaccination List
-          Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF4FC3A1)),
-                  )
-                : _vaccinations.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.vaccines_outlined,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No vaccination records found',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                            fontFamily: 'SpotifyCircular',
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                : ListView.builder(
-                    itemCount: _vaccinations.length,
-                    itemBuilder: (context, index) {
-                      final vaccination = _vaccinations[index];
-                      return _VaccinationCard(
-                        vaccination: vaccination,
-                        localizations: localizations,
-                      );
-                    },
-                  ),
           ),
         ],
       ),
@@ -1837,179 +1511,6 @@ class _MeasurementCard extends StatelessWidget {
             ),
           ),
           const Icon(Icons.trending_up, color: Colors.green),
-        ],
-      ),
-    );
-  }
-}
-
-class _VaccinationCard extends StatelessWidget {
-  final Map<String, dynamic>? vaccination;
-  final AppLocalizations? localizations;
-
-  const _VaccinationCard({required this.vaccination, this.localizations});
-
-  @override
-  Widget build(BuildContext context) {
-    final vaccinationName = vaccination?['vaccinationType'] ?? '';
-    final vaccinationDate = vaccination?['vaccinationDate'] != null
-        ? vaccination!['vaccinationDate'].toString().split(' ')[0]
-        : '';
-    final vaccinationStatus = vaccination?['status'] ?? '';
-    final completed = vaccination?['status'] == 'COMPLETED';
-
-    // Get status display text
-    String getStatusText(String status) {
-      switch (status) {
-        case 'COMPLETED':
-          return localizations?.completed ?? 'Completed';
-        case 'PENDING':
-          return localizations?.pending ?? 'Pending';
-        case 'MISSED':
-          return 'Missed';
-        default:
-          return status;
-      }
-    }
-
-    // Get status color
-    Color getStatusColor(String status) {
-      switch (status) {
-        case 'COMPLETED':
-          return Colors.green;
-        case 'PENDING':
-          return Colors.orange;
-        case 'MISSED':
-          return Colors.red;
-        default:
-          return Colors.grey;
-      }
-    }
-
-    final statusColor = getStatusColor(vaccinationStatus);
-    final displayStatus = getStatusText(vaccinationStatus);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: statusColor.withOpacity(0.3)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: statusColor,
-                radius: 16,
-                child: Icon(
-                  completed
-                      ? Icons.check
-                      : vaccinationStatus == 'PENDING'
-                      ? Icons.schedule
-                      : Icons.close,
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vaccinationName,
-                      style: const TextStyle(
-                        fontFamily: 'SpotifyCircular',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF2E7D5A),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    if (vaccinationDate.isNotEmpty)
-                      Text(
-                        vaccinationDate,
-                        style: const TextStyle(
-                          fontFamily: 'SpotifyCircular',
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  displayStatus,
-                  style: TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontSize: 12,
-                    color: statusColor,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (vaccination != null && vaccination!['ageToGive'] != null) ...[
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(
-                  Icons.child_care,
-                  size: 16,
-                  color: Color(0xFF4FC3A1),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Age: ${vaccination!['ageToGive']}',
-                  style: const TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (vaccination != null &&
-              vaccination!['batchNumber'] != null &&
-              vaccination!['batchNumber'].toString().isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                const Icon(Icons.inventory, size: 16, color: Color(0xFF4FC3A1)),
-                const SizedBox(width: 8),
-                Text(
-                  'Batch: ${vaccination!['batchNumber']}',
-                  style: const TextStyle(
-                    fontFamily: 'SpotifyCircular',
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );

@@ -123,5 +123,12 @@
   "doctorNotes": "Doctor's Notes:",
   "cancelAppointmentButton": "Cancel Appointment",
   "askAnythingBaby": "Ask me anything about your baby's health!",
-  "helpWithFeeding": "I can help with feeding, sleep, development, and general health questions."
+  "helpWithFeeding": "I can help with feeding, sleep, development, and general health questions.",
+  "babyRecords": "Baby Records",
+  "babyRecordsDescription": "Complete baby records with PDF export",
+  "logout": "Logout",
+  "logoutConfirm": "Are you sure you want to logout?",
+  "cancel": "Cancel",
+  "noVaccinationRecords": "No vaccination records found",
+  "vaccinationRecordsDescription": "Vaccination records will appear here once they are added by your healthcare provider"
 }

@@ -387,4 +387,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get helpWithFeeding =>
       'I can help with feeding, sleep, development, and general health questions.';
+
+  @override
+  String get babyRecords => 'Baby Records';
+
+  @override
+  String get babyRecordsDescription => 'Complete baby records with PDF export';
+
+  @override
+  String get noVaccinationRecords => 'No vaccination records found';
+
+  @override
+  String get vaccinationRecordsDescription =>
+      'Vaccination records will appear here once they are added by your healthcare provider';
 }

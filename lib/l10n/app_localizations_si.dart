@@ -177,7 +177,7 @@ class AppLocalizationsSi extends AppLocalizations {
   String get language => 'භාෂාව';
 
   @override
-  String get logoutConfirm => 'ඔබට නිසැකවම ඉවත් වීමට අවශ්‍යද?';
+  String get logoutConfirm => 'ඔබට නිශ්චිතව ඉවත් වීමට අවශ්‍යද?';
 
   @override
   String get cancel => 'අවලංගු කරන්න';
@@ -389,4 +389,18 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get helpWithFeeding =>
       'මට ආහාර දීම, නිදාගැනීම, සංවර්ධනය සහ සාමාන්‍ය සෞඛ්‍ය ප්‍රශ්න සම්බන්ධයෙන් උදව් කළ හැක.';
+
+  @override
+  String get babyRecords => 'දරු වාර්තා';
+
+  @override
+  String get babyRecordsDescription =>
+      'PDF නිකුත් කිරීම සහිත සම්පූර්ණ දරු වාර්තා';
+
+  @override
+  String get noVaccinationRecords => 'එන්නත් වාර්තා සොයාගත නොහැක';
+
+  @override
+  String get vaccinationRecordsDescription =>
+      'ඔබේ සෞඛ්‍ය සේවා සපයන්නා විසින් එකතු කළ පසු එන්නත් වාර්තා මෙහි දිස්වේ';
 }

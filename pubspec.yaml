@@ -47,6 +47,7 @@ flutter_launcher_icons:
   min_sdk_android: 21
   adaptive_icon_background: "#4FC3A1"
   adaptive_icon_foreground: "assets/logo.png"
+  remove_alpha_ios: true
 
 # Flutter Native Splash Configuration
 flutter_native_splash:

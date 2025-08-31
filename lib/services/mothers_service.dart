@@ -75,7 +75,7 @@ class MothersService {
   static Future<int> getActiveMothersCount() async {
     try {
       final mothers = await getAllMothers();
-      return mothers.where((mother) => mother['isActive'] == true).length;
+      return mothers.where((mother) => mother['isActive'] != false).length;
     } catch (e) {
       return 0;
     }

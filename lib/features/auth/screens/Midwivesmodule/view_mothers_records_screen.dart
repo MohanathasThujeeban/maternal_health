@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../services/mothers_service.dart';
+import 'comprehensive_records_screen.dart';
 
 class ViewMothersRecordsScreen extends StatefulWidget {
   const ViewMothersRecordsScreen({super.key});
@@ -106,7 +107,8 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
   }
 
   Widget _buildMotherCard(Map<String, dynamic> mother) {
-    final isActive = mother['isActive'] == true;
+    // Treat null or missing isActive as true (active) by default
+    final isActive = mother['isActive'] != false;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -462,7 +464,7 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                                 ),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
-                                    colors: (mother['isActive'] == true)
+                                    colors: (mother['isActive'] != false)
                                         ? [
                                             Colors.green.shade400,
                                             Colors.green.shade600,
@@ -478,7 +480,7 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      (mother['isActive'] == true)
+                                      (mother['isActive'] != false)
                                           ? Icons.check_circle
                                           : Icons.warning,
                                       color: Colors.white,
@@ -486,7 +488,7 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      (mother['isActive'] == true)
+                                      (mother['isActive'] != false)
                                           ? 'Active'
                                           : 'Inactive',
                                       style: const TextStyle(
@@ -552,7 +554,7 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                             _buildDetailItem(
                               Icons.info,
                               'Account Status',
-                              (mother['isActive'] == true)
+                              (mother['isActive'] != false)
                                   ? 'Active Account'
                                   : 'Inactive Account',
                             ),
@@ -587,7 +589,14 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                                 child: ElevatedButton.icon(
                                   onPressed: () {
                                     Navigator.of(context).pop();
-                                    _showComingSoonDialog();
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            ComprehensiveRecordsScreen(
+                                              mother: mother,
+                                            ),
+                                      ),
+                                    );
                                   },
                                   icon: const Icon(Icons.folder_open),
                                   label: const Text('Full Records'),
@@ -799,7 +808,7 @@ class _ViewMothersRecordsScreenState extends State<ViewMothersRecordsScreen>
                         child: _buildStatCard(
                           'Active',
                           _allMothers
-                              .where((m) => m['isActive'] == true)
+                              .where((m) => m['isActive'] != false)
                               .length
                               .toString(),
                           Icons.check_circle,

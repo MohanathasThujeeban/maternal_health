@@ -396,4 +396,18 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get helpWithFeeding =>
       'உணவு, தூக்கம், வளர்ச்சி மற்றும் பொது சுகாதார கேள்விகளில் என்னால் உதவ முடியும்.';
+
+  @override
+  String get babyRecords => 'குழந்தை பதிவுகள்';
+
+  @override
+  String get babyRecordsDescription =>
+      'PDF ஏற்றுமதியுடன் முழுமையான குழந்தை பதிவுகள்';
+
+  @override
+  String get noVaccinationRecords => 'தடுப்பூசி பதிவுகள் எதுவும் காணப்படவில்லை';
+
+  @override
+  String get vaccinationRecordsDescription =>
+      'உங்கள் சுகாதார வழங்குநரால் சேர்க்கப்பட்டதும் தடுப்பூசி பதிவுகள் இங்கே தோன்றும்';
 }

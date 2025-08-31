@@ -144,6 +144,15 @@ class _VaccinationManagementScreenState
         ),
         backgroundColor: const Color(0xFF4FC3A1),
         elevation: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A), Color(0xFF2E7D5A)],
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
@@ -155,6 +164,7 @@ class _VaccinationManagementScreenState
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.3)),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -346,21 +356,22 @@ class _VaccinationManagementScreenState
                       fontSize: 16,
                     ),
                     decoration: InputDecoration(
-                      hintText: 'Type name or NIC number...',
+                      hintText: 'Search mothers...',
                       hintStyle: TextStyle(
-                        color: Colors.grey.shade400,
+                        color: Colors.grey[400],
                         fontFamily: 'SpotifyCircular',
                       ),
                       prefixIcon: const Icon(
                         Icons.search,
                         color: Color(0xFF4FC3A1),
-                        size: 22,
+                        size: 20,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: Icon(
+                              icon: const Icon(
                                 Icons.clear,
-                                color: Colors.grey.shade400,
+                                color: Colors.grey,
+                                size: 20,
                               ),
                               onPressed: () {
                                 _searchController.clear();
@@ -370,17 +381,12 @@ class _VaccinationManagementScreenState
                           : null,
                       filled: true,
                       fillColor: Colors.white,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: Colors.grey.shade200),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade200,
+                          width: 1.5,
+                        ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -389,9 +395,53 @@ class _VaccinationManagementScreenState
                           width: 2,
                         ),
                       ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade200,
+                          width: 1.5,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
                     ),
                   ),
                 ),
+                if (_filteredMothers.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.people,
+                          color: Color(0xFF4FC3A1),
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          '${_filteredMothers.length} mothers found',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF4FC3A1),
+                            fontFamily: 'SpotifyCircular',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -407,8 +457,9 @@ class _VaccinationManagementScreenState
                         Text(
                           'Loading mothers...',
                           style: TextStyle(
-                            color: Color(0xFF6B7280),
                             fontFamily: 'SpotifyCircular',
+                            color: Color(0xFF4FC3A1),
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -418,8 +469,8 @@ class _VaccinationManagementScreenState
                 ? _buildEmptyMothersList()
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(
-                      vertical: 8,
                       horizontal: 16,
+                      vertical: 8,
                     ),
                     itemCount: _filteredMothers.length,
                     itemBuilder: (context, index) {

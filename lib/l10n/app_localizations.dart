@@ -849,6 +849,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I can help with feeding, sleep, development, and general health questions.'**
   String get helpWithFeeding;
+
+  /// No description provided for @babyRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby Records'**
+  String get babyRecords;
+
+  /// No description provided for @babyRecordsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete baby records with PDF export'**
+  String get babyRecordsDescription;
+
+  /// No description provided for @noVaccinationRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No vaccination records found'**
+  String get noVaccinationRecords;
+
+  /// No description provided for @vaccinationRecordsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Vaccination records will appear here once they are added by your healthcare provider'**
+  String get vaccinationRecordsDescription;
 }
 
 class _AppLocalizationsDelegate
