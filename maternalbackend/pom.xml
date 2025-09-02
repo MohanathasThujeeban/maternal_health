@@ -105,6 +105,13 @@
             <version>${springdoc.version}</version>
         </dependency>
         
+        <!-- Firebase Admin SDK -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
+        
         <!-- Password Encoding -->
         <dependency>
             <groupId>org.springframework.security</groupId>

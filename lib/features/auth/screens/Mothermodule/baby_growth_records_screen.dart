@@ -40,7 +40,7 @@ class _BabyGrowthRecordsScreenState extends State<BabyGrowthRecordsScreen> {
 
       final response = await http
           .get(
-            Uri.parse('http://localhost:8080/api/growth/get/$motherNic'),
+            Uri.parse('http://10.11.8.134:8080/api/growth/get/$motherNic'),
             headers: {'Accept': 'application/json'},
           )
           .timeout(const Duration(seconds: 10));

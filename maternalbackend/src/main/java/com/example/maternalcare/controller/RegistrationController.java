@@ -8,19 +8,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import com.example.maternalcare.dto.RegistrationRequest;
 import com.example.maternalcare.model.Registration;
-import com.example.maternalcare.model.EmailVerificationToken;
 import com.example.maternalcare.repository.RegistrationRepository;
 import com.example.maternalcare.repository.EmailVerificationTokenRepository;
 import com.example.maternalcare.services.EmailService;
 import com.example.maternalcare.services.EmailVerificationService;
 
-import jakarta.validation.Valid;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller

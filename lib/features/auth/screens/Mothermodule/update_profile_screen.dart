@@ -4,7 +4,6 @@ import 'dart:convert';
 import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
 import '../../../../widgets/custom_loading.dart';
-import '../../../../l10n/app_localizations.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   const UpdateProfileScreen({super.key});
@@ -58,8 +57,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print('Debug: Profile response status: ${response.statusCode}');
-      print('Debug: Profile response body: ${response.body}');
+      debugPrint('Debug: Profile response status: ${response.statusCode}');
+      debugPrint('Debug: Profile response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final profileData = jsonDecode(response.body);
@@ -73,7 +72,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         throw Exception('Failed to load profile: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error loading profile: $e');
+      debugPrint('Error loading profile: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading profile: $e'),
@@ -116,7 +115,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         updateData['newPassword'] = _newPasswordController.text;
       }
 
-      print('Debug: Updating profile with data: $updateData');
+      debugPrint('Debug: Updating profile with data: $updateData');
 
       final response = await http.put(
         Uri.parse('${ApiConfig.baseApiUrl}/profile/$_currentNic'),
@@ -124,12 +123,11 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         body: jsonEncode(updateData),
       );
 
-      print('Debug: Update response status: ${response.statusCode}');
-      print('Debug: Update response body: ${response.body}');
+      debugPrint('Debug: Update response status: ${response.statusCode}');
+      debugPrint('Debug: Update response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-
+        // Profile updated successfully
         // Update local user data if needed
         await UserService.saveUserData(
           nic: _currentNic!,
@@ -156,7 +154,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         throw Exception(errorData['message'] ?? 'Failed to update profile');
       }
     } catch (e) {
-      print('Error updating profile: $e');
+      debugPrint('Error updating profile: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error updating profile: $e'),
@@ -171,8 +169,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
     return Scaffold(
       backgroundColor: Colors.green.shade50,
       appBar: AppBar(
@@ -315,7 +311,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             spreadRadius: 2,
                             blurRadius: 8,
                             offset: const Offset(0, 4),

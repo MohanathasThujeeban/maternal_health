@@ -25,10 +25,13 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
     
+    @Autowired
+    private FirebaseMessagingService firebaseMessagingService;
+    
     @Value("${spring.mail.username}")
     private String fromEmail;
     
-    @Value("${app.server.url:http://localhost:8080}")
+    @Value("${app.server.url:http://10.11.8.134:8080}")
     private String serverUrl;
 
     public void sendVerificationEmail(String to, String token) {
@@ -101,9 +104,74 @@ public class EmailService {
             
             mailSender.send(message);
             logger.info("HTML email sent successfully to: {}", to);
+            
+            // Send push notification after successful email sending
+            sendEmailPushNotification(to, subject);
+            
         } catch (Exception e) {
             logger.error("Failed to send HTML email to: {}", to, e);
             // Don't throw exception - let the calling service handle the failure gracefully
+        }
+    }
+    
+    /**
+     * Send email with push notification using user NIC
+     */
+    public void sendEmailWithNotification(String to, String subject, String htmlBody, String recipientNic) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true); // true indicates HTML content
+            
+            mailSender.send(message);
+            logger.info("HTML email sent successfully to: {}", to);
+            
+            // Send push notification with known user NIC
+            if (recipientNic != null && !recipientNic.isEmpty()) {
+                String shortSubject = subject.length() > 50 ? 
+                    subject.substring(0, 47) + "..." : subject;
+                
+                firebaseMessagingService.sendEmailNotification(recipientNic, shortSubject, "Maternal Health System");
+                logger.info("📱 Push notification sent for email to user: {}", recipientNic);
+            }
+            
+        } catch (Exception e) {
+            logger.error("Failed to send HTML email to: {}", to, e);
+            // Don't throw exception - let the calling service handle the failure gracefully
+        }
+    }
+    
+    /**
+     * Send push notification for email sent
+     */
+    private void sendEmailPushNotification(String recipientEmail, String emailSubject) {
+        try {
+            // Try to find user NIC by email for notification
+            // For now, we'll use the email as identifier since we don't have direct email-to-NIC mapping
+            // In a real implementation, you'd query your user repository to get NIC by email
+            
+            // Extract a shorter subject for notification
+            String shortSubject = emailSubject.length() > 50 ? 
+                emailSubject.substring(0, 47) + "..." : emailSubject;
+            
+            // Since we don't have email-to-NIC mapping, we'll log this for now
+            // In practice, you would need to add a method to find user NIC by email
+            logger.info("📧 Would send push notification for email sent to: {} with subject: {}", 
+                       recipientEmail, shortSubject);
+            
+            // TODO: Implement email-to-NIC lookup
+            // String userNic = userRepository.findNicByEmail(recipientEmail);
+            // if (userNic != null) {
+            //     firebaseMessagingService.sendEmailNotification(userNic, shortSubject, "System");
+            // }
+            
+        } catch (Exception e) {
+            logger.error("Failed to send push notification for email to: {}", recipientEmail, e);
+            // Don't fail the whole email sending process if push notification fails
         }
     }
     

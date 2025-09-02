@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/baby-problems")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8080"})
+@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000", "http://10.11.8.134:8080"})
 public class ProblemRecordController {
     
     @Autowired

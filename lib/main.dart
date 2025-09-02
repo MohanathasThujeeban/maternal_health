@@ -5,8 +5,14 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/health_chatbox/health_chatbox_screen.dart';
 import 'providers/language_provider.dart';
 import 'l10n/app_localizations.dart';
+import 'services/firebase_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase service
+  await FirebaseService.initialize();
+
   runApp(
     ChangeNotifierProvider(
       create: (context) => LanguageProvider(),

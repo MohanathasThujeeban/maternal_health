@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../services/user_service.dart';
 
 class EyeEarRecordService {
-  static const String baseUrl = 'http://10.0.2.2:8080/api/baby-problems';
+  static const String baseUrl = 'http://10.11.8.134:8080/api/baby-problems';
 
   // Get eye and ear records for the current mother
   static Future<List<Map<String, dynamic>>> getMyBabyRecords() async {

@@ -43,3 +43,28 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase & Sensitive Configuration Files
+**/*firebase*service*account*.json
+**/*google-services.json
+**/*GoogleService-Info.plist
+.env
+.env.local
+.env.production
+config/keys.dart
+lib/config/api_keys.dart
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Sensitive backend files
+**/firebase-service-account*.json*
+**/service-account*.json
+**/*credentials*.json
+**/*secrets*.json
+**/*private-key*.json
+application-local.properties
+application-dev.properties
+application-prod.properties
