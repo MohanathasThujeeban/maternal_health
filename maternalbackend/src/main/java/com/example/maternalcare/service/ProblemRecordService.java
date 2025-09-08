@@ -3,7 +3,10 @@ package com.example.maternalcare.service;
 
 import com.example.maternalcare.dto.ProblemRecordDTO;
 import com.example.maternalcare.model.ProblemRecord;
+import com.example.maternalcare.model.Registration;
 import com.example.maternalcare.repository.ProblemRecordRepository;
+import com.example.maternalcare.repository.RegistrationRepository;
+import com.example.maternalcare.services.EmailService;
 import com.example.maternalcare.util.ProblemRecordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +26,12 @@ public class ProblemRecordService {
     
     @Autowired
     private ProblemRecordMapper problemRecordMapper;
+    
+    @Autowired
+    private EmailService emailService;
+    
+    @Autowired
+    private RegistrationRepository registrationRepository;
     
     // Save a new problem record
     public ProblemRecordDTO saveRecord(ProblemRecordDTO problemRecordDTO) {
@@ -35,6 +45,10 @@ public class ProblemRecordService {
         
         ProblemRecord problemRecord = problemRecordMapper.toEntity(problemRecordDTO);
         ProblemRecord savedRecord = problemRecordRepository.save(problemRecord);
+        
+        // Send email notification to mother
+        sendEmailNotification(savedRecord);
+        
         return problemRecordMapper.toDTO(savedRecord);
     }
     
@@ -49,6 +63,14 @@ public class ProblemRecordService {
     // Get records by mother NIC
     public List<ProblemRecordDTO> getRecordsByMotherNic(String motherNic) {
         List<ProblemRecord> records = problemRecordRepository.findByMotherNicOrderByDateOfDiagnosisDesc(motherNic);
+        return records.stream()
+                .map(problemRecordMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+    
+    // Get records by baby ID
+    public List<ProblemRecordDTO> getRecordsByBabyId(Long babyId) {
+        List<ProblemRecord> records = problemRecordRepository.findByBabyIdOrderByDateOfDiagnosisDesc(babyId);
         return records.stream()
                 .map(problemRecordMapper::toDTO)
                 .collect(Collectors.toList());
@@ -74,6 +96,10 @@ public class ProblemRecordService {
         existingRecord.setDateOfDiagnosis(updatedRecordDTO.getDateOfDiagnosis());
         
         ProblemRecord savedRecord = problemRecordRepository.save(existingRecord);
+        
+        // Send email notification to mother about the update
+        sendEmailNotification(savedRecord);
+        
         return problemRecordMapper.toDTO(savedRecord);
     }
     
@@ -123,5 +149,40 @@ public class ProblemRecordService {
         return records.stream()
                 .map(problemRecordMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * Send email notification to mother when eye/ear records are updated
+     */
+    private void sendEmailNotification(ProblemRecord record) {
+        try {
+            // Find mother's email using mother NIC
+            Optional<Registration> motherRegistration = registrationRepository.findByNicNumber(record.getMotherNic());
+            
+            if (motherRegistration.isPresent()) {
+                String motherEmail = motherRegistration.get().getEmail();
+                String motherName = motherRegistration.get().getFullName();
+                String midwifeName = "Healthcare Provider"; // Default value since we don't have midwife info in the record
+                
+                // Send email notification
+                emailService.sendEyeEarRecordUpdateNotification(
+                    motherEmail,
+                    motherName,
+                    record.getPatientName(),
+                    record.getEyeProblem(),
+                    record.getEarProblem(),
+                    midwifeName
+                );
+                
+                System.out.println("Email notification sent to mother: " + motherEmail + 
+                                 " for baby: " + record.getPatientName());
+            } else {
+                System.err.println("Mother registration not found for NIC: " + record.getMotherNic());
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send email notification for baby: " + record.getPatientName() + 
+                             ", Error: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

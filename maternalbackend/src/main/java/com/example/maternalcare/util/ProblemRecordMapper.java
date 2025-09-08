@@ -16,6 +16,7 @@ public class ProblemRecordMapper {
         ProblemRecordDTO dto = new ProblemRecordDTO();
         dto.setId(problemRecord.getId());
         dto.setPatientName(problemRecord.getPatientName());
+        dto.setBabyId(problemRecord.getBabyId());
         dto.setMotherNic(problemRecord.getMotherNic());
         dto.setEyeProblem(problemRecord.getEyeProblem());
         dto.setEarProblem(problemRecord.getEarProblem());
@@ -36,6 +37,7 @@ public class ProblemRecordMapper {
         ProblemRecord entity = new ProblemRecord();
         entity.setId(problemRecordDTO.getId());
         entity.setPatientName(problemRecordDTO.getPatientName());
+        entity.setBabyId(problemRecordDTO.getBabyId());
         entity.setMotherNic(problemRecordDTO.getMotherNic());
         entity.setEyeProblem(problemRecordDTO.getEyeProblem());
         entity.setEarProblem(problemRecordDTO.getEarProblem());

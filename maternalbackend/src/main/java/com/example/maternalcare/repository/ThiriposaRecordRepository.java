@@ -8,4 +8,8 @@ import java.util.List;
 @Repository
 public interface ThiriposaRecordRepository extends JpaRepository<ThiriposaRecord, Long> {
     List<ThiriposaRecord> findByMotherNicOrderByDateDesc(String motherNic);
+    
+    // Baby-specific queries
+    List<ThiriposaRecord> findByBabyIdOrderByDateDesc(Long babyId);
+    List<ThiriposaRecord> findByMotherNicAndBabyIdOrderByDateDesc(String motherNic, Long babyId);
 }

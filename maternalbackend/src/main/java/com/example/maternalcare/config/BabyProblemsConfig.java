@@ -19,6 +19,7 @@ public class BabyProblemsConfig {
             if (repository.count() == 0) {
                 ProblemRecord record1 = new ProblemRecord(
                     "Baby Perera",
+                    1L, // babyId
                     "123456789V", // motherNic
                     "Blocked Tear Duct",
                     "None",
@@ -29,6 +30,7 @@ public class BabyProblemsConfig {
                 
                 ProblemRecord record2 = new ProblemRecord(
                     "Baby Silva",
+                    2L, // babyId
                     "987654321V", // motherNic
                     "None",
                     "Ear Infection",
@@ -39,6 +41,7 @@ public class BabyProblemsConfig {
                 
                 ProblemRecord record3 = new ProblemRecord(
                     "Baby Fernando",
+                    3L, // babyId
                     "456789123V", // motherNic
                     "Conjunctivitis (Pink Eye)",
                     "Ear Pain/Fussiness",

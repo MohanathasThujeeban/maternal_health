@@ -8,6 +8,7 @@ public class VaccinationResponse {
     private Long id;
     private String motherNic;
     private String motherName;
+    private Long babyId; // Add baby ID reference
     private String childName;
     private String vaccinationType;
     private String ageToGive;
@@ -29,13 +30,14 @@ public class VaccinationResponse {
     public VaccinationResponse() {}
 
     // Full constructor
-    public VaccinationResponse(Long id, String motherNic, String motherName, String childName, 
+    public VaccinationResponse(Long id, String motherNic, String motherName, Long babyId, String childName, 
                               String vaccinationType, String ageToGive, LocalDate vaccinationDate, 
                               String batchNumber, String effectsFollowingImmunization, String status,
                               LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.motherNic = motherNic;
         this.motherName = motherName;
+        this.babyId = babyId;
         this.childName = childName;
         this.vaccinationType = vaccinationType;
         this.ageToGive = ageToGive;
@@ -70,6 +72,14 @@ public class VaccinationResponse {
 
     public void setMotherName(String motherName) {
         this.motherName = motherName;
+    }
+
+    public Long getBabyId() {
+        return babyId;
+    }
+
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
 
     public String getChildName() {

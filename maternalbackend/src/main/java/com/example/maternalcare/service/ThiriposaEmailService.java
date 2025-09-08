@@ -7,6 +7,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import com.example.maternalcare.model.Registration;
 import com.example.maternalcare.model.ThiriposaRecord;
+import com.example.maternalcare.model.Baby;
+import com.example.maternalcare.repository.BabyRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -25,6 +27,9 @@ public class ThiriposaEmailService {
     
     @Autowired
     private JavaMailSender mailSender;
+
+    @Autowired
+    private BabyRepository babyRepository;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
@@ -94,9 +99,25 @@ public class ThiriposaEmailService {
         String supplyDate = record.getDate().format(DATE_FORMATTER);
         String recordTime = record.getCreatedAt().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
 
+        // Get baby information if babyId is provided
+        String babyName = "Your Baby";
+        if (record.getBabyId() != null) {
+            try {
+                Baby baby = babyRepository.findById(record.getBabyId()).orElse(null);
+                if (baby != null && baby.getBabyName() != null && !baby.getBabyName().trim().isEmpty()) {
+                    babyName = baby.getBabyName();
+                } else {
+                    logger.info("Baby found but name is empty for baby ID: " + record.getBabyId());
+                }
+            } catch (Exception e) {
+                logger.warning("Failed to fetch baby information for ID: " + record.getBabyId() + ". Error: " + e.getMessage());
+            }
+        }
+
         // Replace template placeholders with actual data
         String customizedContent = template
                 .replace("{{motherName}}", mother.getFullName())
+                .replace("{{babyName}}", babyName)
                 .replace("{{supplyDate}}", supplyDate)
                 .replace("{{quantity}}", String.valueOf(record.getQuantity()))
                 .replace("{{midwifeName}}", midwifeName != null ? midwifeName : "Healthcare Provider")

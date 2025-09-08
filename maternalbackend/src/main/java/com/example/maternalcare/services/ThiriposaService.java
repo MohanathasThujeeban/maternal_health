@@ -39,6 +39,7 @@ public class ThiriposaService {
 
         ThiriposaRecord record = new ThiriposaRecord();
         record.setMotherNic(recordDTO.getMotherNic());
+        record.setBabyId(recordDTO.getBabyId()); // Set baby ID if provided
         record.setDate(recordDTO.getDate());
         record.setQuantity(recordDTO.getQuantity());
 
@@ -48,6 +49,21 @@ public class ThiriposaService {
 
     public List<ThiriposaRecordDTO> getRecordsByNic(String motherNic) {
         return repository.findByMotherNicOrderByDateDesc(motherNic)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    // Baby-specific methods for midwife use
+    public List<ThiriposaRecordDTO> getRecordsByBaby(Long babyId) {
+        return repository.findByBabyIdOrderByDateDesc(babyId)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    public List<ThiriposaRecordDTO> getRecordsByMotherAndBaby(String motherNic, Long babyId) {
+        return repository.findByMotherNicAndBabyIdOrderByDateDesc(motherNic, babyId)
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -64,6 +80,7 @@ public class ThiriposaService {
         return new ThiriposaRecordDTO(
             record.getId(),
             record.getMotherNic(),
+            record.getBabyId(),
             record.getDate(),
             record.getQuantity(),
             record.getCreatedAt()

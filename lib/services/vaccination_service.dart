@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import '../models/vaccination.dart';
 
 class VaccinationService {
   static const String _endpoint = '/vaccinations';
@@ -408,6 +409,95 @@ class VaccinationService {
         throw Exception(
           error['message'] ??
               'Failed to update vaccination status with notification',
+        );
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  // Baby-specific methods for midwife use
+  static Future<List<Vaccination>> getVaccinationsByBaby(int babyId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint/baby/$babyId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Vaccination.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load baby vaccinations');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<List<Vaccination>> getVaccinationsByMotherAndBaby(
+    String motherNic,
+    int babyId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${ApiConfig.baseApiUrl}$_endpoint/mother/$motherNic/baby/$babyId',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Vaccination.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load mother-baby vaccinations');
+      }
+    } catch (e) {
+      throw Exception('Network error: $e');
+    }
+  }
+
+  static Future<Vaccination> createVaccinationForBaby({
+    required String motherNic,
+    required int babyId,
+    required String childName,
+    required String vaccinationType,
+    required String ageToGive,
+    required String vaccinationDate,
+    String? batchNumber,
+    String? effectsFollowingImmunization,
+    String status = 'PENDING',
+  }) async {
+    try {
+      final vaccinationData = {
+        'motherNic': motherNic,
+        'babyId': babyId,
+        'childName': childName,
+        'vaccinationType': vaccinationType,
+        'ageToGive': ageToGive,
+        'vaccinationDate': vaccinationDate,
+        'status': status.toUpperCase(),
+      };
+
+      if (batchNumber != null) {
+        vaccinationData['batchNumber'] = batchNumber;
+      }
+      if (effectsFollowingImmunization != null) {
+        vaccinationData['effectsFollowingImmunization'] =
+            effectsFollowingImmunization;
+      }
+
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseApiUrl}$_endpoint'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(vaccinationData),
+      );
+
+      if (response.statusCode == 201) {
+        return Vaccination.fromJson(json.decode(response.body));
+      } else {
+        final error = json.decode(response.body);
+        throw Exception(
+          error['message'] ?? 'Failed to create vaccination record',
         );
       }
     } catch (e) {

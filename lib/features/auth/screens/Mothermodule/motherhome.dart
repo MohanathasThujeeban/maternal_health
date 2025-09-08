@@ -14,6 +14,7 @@ import './mother_growth_chart_screen.dart';
 import './comprehensive_profile_screen.dart';
 import './privacy_security_screen.dart';
 import './eye_ear_records_screen.dart';
+import './add_baby_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -92,7 +93,35 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         ],
       ),
       body: const MotherDashboardScreen(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _addNewBabyFAB(context),
+        backgroundColor: const Color(0xFFE91E63),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.add),
+        label: const Text(
+          'Add Baby',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+        ),
+      ),
     );
+  }
+
+  void _addNewBabyFAB(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddBabyScreen()),
+    );
+
+    if (result == true) {
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Baby added successfully! 🍼'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _showLogoutDialog(BuildContext context) {
@@ -220,6 +249,13 @@ class MotherDashboardScreen extends StatelessWidget {
             title: localizations.babyCare,
             subtitle: localizations.trackBabyGrowth,
             cards: [
+              _CategoryCard(
+                icon: Icons.add_circle,
+                title: 'Add New Baby',
+                description: 'Register a new baby to your account',
+                color: const Color(0xFFE91E63),
+                onTap: () => _addNewBaby(context),
+              ),
               _CategoryCard(
                 icon: Icons.insights,
                 title: localizations.babyGrowthChart,
@@ -500,6 +536,24 @@ class MotherDashboardScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _addNewBaby(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddBabyScreen()),
+    );
+
+    if (result == true) {
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Baby added successfully!'),
+          backgroundColor: Colors.green,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 

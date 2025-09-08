@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../services/eye_ear_record_service.dart';
-import '../../../../services/mothers_service.dart';
+import '../../../../services/baby_service.dart';
 
 class BabyProblemsScreen extends StatefulWidget {
   final String? motherName;
@@ -19,16 +19,18 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
   final TextEditingController _remarksController = TextEditingController();
   final TextEditingController _diagnosisDateController =
       TextEditingController();
+  final TextEditingController _nicController = TextEditingController();
 
   List<Map<String, dynamic>> problemRecords = [];
-  List<Map<String, dynamic>> allMothers = [];
+  List<Map<String, dynamic>> _babies = [];
+  Map<String, dynamic>? _selectedBaby;
+  String? _motherName;
   String? selectedEyeProblem;
   String? selectedEarProblem;
   String? selectedDuration;
   bool showHistory = false;
   bool isLoading = false;
   bool isSaving = false;
-  bool isLoadingMothers = false;
 
   late TabController _tabController;
 
@@ -65,15 +67,22 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 1, vsync: this);
     selectedEyeProblem = eyeProblems.first;
     selectedEarProblem = earProblems.first;
     selectedDuration = durationOptions.first;
     _diagnosisDateController.text = DateFormat(
       'yyyy-MM-dd',
     ).format(DateTime.now());
+
+    // Initialize with mother data if provided
+    if (widget.motherNic != null) {
+      _nicController.text = widget.motherNic!;
+      _motherName = widget.motherName;
+      _searchBabies();
+    }
+
     _loadExistingRecords();
-    _loadAllMothers();
   }
 
   Future<void> _loadExistingRecords() async {
@@ -94,23 +103,62 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
     }
   }
 
-  Future<void> _loadAllMothers() async {
-    print('Loading all mothers...');
-    setState(() => isLoadingMothers = true);
+  Future<void> _searchBabies() async {
+    if (_nicController.text.trim().isEmpty) {
+      _showErrorSnackBar('Please enter mother\'s NIC number');
+      return;
+    }
+
+    setState(() => isLoading = true);
     try {
-      final mothers = await MothersService.getAllMothers();
-      print('Loaded ${mothers.length} mothers');
-      print(
-        'First mother data: ${mothers.isNotEmpty ? mothers.first : 'None'}',
+      final babies = await BabyService.getBabiesByMotherNic(
+        _nicController.text.trim(),
       );
+
       setState(() {
-        allMothers = mothers;
-        isLoadingMothers = false;
+        _babies = babies;
+        _selectedBaby = null;
+        isLoading = false;
+      });
+
+      if (babies.isNotEmpty) {
+        // Get mother name from the first baby
+        _motherName = babies.first['motherName'] ?? babies.first['fullName'];
+        _showSuccessSnackBar(
+          'Found ${babies.length} baby(ies) for this mother',
+        );
+      } else {
+        _showErrorSnackBar('No babies found for this mother');
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      _showErrorSnackBar('Error searching babies: $e');
+    }
+  }
+
+  void _selectBaby(Map<String, dynamic> baby) {
+    setState(() {
+      _selectedBaby = baby;
+      _patientNameController.text =
+          baby['name'] ??
+          baby['babyName'] ??
+          baby['fullName'] ??
+          'Baby ${baby['babyOrder'] ?? '1'}';
+    });
+    _loadRecordsForBaby(baby);
+  }
+
+  Future<void> _loadRecordsForBaby(Map<String, dynamic> baby) async {
+    setState(() => isLoading = true);
+    try {
+      final records = await EyeEarRecordService.getRecordsByBabyId(baby['id']);
+      setState(() {
+        problemRecords = records;
+        isLoading = false;
       });
     } catch (e) {
-      print('Error loading mothers: $e');
-      setState(() => isLoadingMothers = false);
-      _showErrorSnackBar('Failed to load mothers: $e');
+      setState(() => isLoading = false);
+      _showErrorSnackBar('Failed to load records for ${baby['name']}: $e');
     }
   }
 
@@ -121,7 +169,8 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
     try {
       await EyeEarRecordService.createRecord(
         patientName: _patientNameController.text.trim(),
-        motherNic: widget.motherNic ?? '',
+        babyId: _selectedBaby?['id'] ?? 0,
+        motherNic: _nicController.text.trim(),
         eyeProblem: selectedEyeProblem ?? 'None',
         earProblem: selectedEarProblem ?? 'None',
         symptomsDuration: selectedDuration ?? '',
@@ -132,7 +181,9 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
       setState(() => isSaving = false);
       _showSuccessSnackBar('Record saved successfully!');
       _clearForm();
-      _loadExistingRecords(); // Refresh the list
+      if (_selectedBaby != null) {
+        _loadRecordsForBaby(_selectedBaby!); // Refresh the list
+      }
     } catch (e) {
       setState(() => isSaving = false);
       _showErrorSnackBar('Failed to save record: $e');
@@ -140,6 +191,10 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
   }
 
   bool _validateForm() {
+    if (_selectedBaby == null) {
+      _showErrorSnackBar('Please select a baby first');
+      return false;
+    }
     if (_patientNameController.text.trim().isEmpty) {
       _showErrorSnackBar('Please enter patient name');
       return false;
@@ -191,42 +246,30 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Container(
-            color: const Color(0xFF6B73FF),
-            child: TabBar(
-              controller: _tabController,
-              tabs: const [
-                Tab(text: 'Add Record'),
-                Tab(text: 'All Mothers'),
-              ],
-              indicatorColor: Colors.white,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.white70,
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6B73FF), Color(0xFF8B5CF6), Color(0xFFA855F7)],
           ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [_buildRecordManagement(), _buildAllMothersView()],
-            ),
+        ),
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: _buildAppBar(),
+          body: _buildRecordManagement(),
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              setState(() {
+                showHistory = !showHistory;
+              });
+            },
+            backgroundColor: const Color(0xFF6B73FF),
+            icon: Icon(showHistory ? Icons.add : Icons.history),
+            label: Text(showHistory ? 'Add Record' : 'View History'),
           ),
-        ],
+        ),
       ),
-      floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton.extended(
-              onPressed: () {
-                setState(() {
-                  showHistory = !showHistory;
-                });
-              },
-              backgroundColor: const Color(0xFF6B73FF),
-              icon: Icon(showHistory ? Icons.add : Icons.history),
-              label: Text(showHistory ? 'Add Record' : 'View History'),
-            )
-          : null,
     );
   }
 
@@ -242,145 +285,10 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
     );
   }
 
-  Widget _buildAllMothersView() {
-    if (isLoadingMothers) {
-      return const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6B73FF)),
-        ),
-      );
-    }
-
-    if (allMothers.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.people_outline, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'No registered mothers found',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          color: Colors.grey[50],
-          child: Row(
-            children: [
-              const Icon(Icons.people, color: Color(0xFF6B73FF)),
-              const SizedBox(width: 8),
-              Text(
-                'All Registered Mothers (${allMothers.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF6B73FF),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: allMothers.length,
-            itemBuilder: (context, index) {
-              final mother = allMothers[index];
-              return _buildMotherCard(mother);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMotherCard(Map<String, dynamic> mother) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () => _navigateToMotherRecords(mother),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6B73FF).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                child: const Icon(
-                  Icons.person,
-                  color: Color(0xFF6B73FF),
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mother['fullName'] ?? 'Unknown',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'NIC: ${mother['nicNumber'] ?? 'N/A'}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    if (mother['phoneNumber'] != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        'Phone: ${mother['phoneNumber']}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Color(0xFF6B73FF),
-                size: 16,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _navigateToMotherRecords(Map<String, dynamic> mother) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BabyProblemsScreen(
-          motherName: mother['fullName'],
-          motherNic: mother['nicNumber'],
-        ),
-      ),
-    );
-  }
-
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       elevation: 0,
-      backgroundColor: const Color(0xFF6B73FF),
+      backgroundColor: Colors.transparent,
       foregroundColor: Colors.white,
       title: Row(
         children: [
@@ -435,16 +343,16 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF43A047), Color(0xFF66BB6A)],
+          colors: [Color(0xFF6B73FF), Color(0xFF9966CC)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF43A047).withOpacity(0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -512,17 +420,28 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D5A),
+              color: Color(0xFF6B73FF),
             ),
           ),
           const SizedBox(height: 24),
 
-          // Patient Name
+          // Mother NIC Search
+          _buildNicSearchSection(),
+          const SizedBox(height: 20),
+
+          // Baby Selection
+          if (_babies.isNotEmpty) ...[
+            _buildBabySelectionSection(),
+            const SizedBox(height: 20),
+          ],
+
+          // Patient Name (readonly when baby is selected)
           _buildTextField(
             controller: _patientNameController,
             label: 'Patient (Baby) Name',
             icon: Icons.child_care,
             required: true,
+            readOnly: _selectedBaby != null,
           ),
           const SizedBox(height: 20),
 
@@ -594,6 +513,7 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
     required IconData icon,
     int maxLines = 1,
     bool required = false,
+    bool readOnly = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -621,10 +541,13 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
         TextFormField(
           controller: controller,
           maxLines: maxLines,
+          readOnly: readOnly,
           decoration: InputDecoration(
-            hintText: 'Enter $label',
+            hintText: readOnly
+                ? 'Selected from baby information'
+                : 'Enter $label',
             filled: true,
-            fillColor: Colors.grey[50],
+            fillColor: readOnly ? Colors.grey[100] : Colors.grey[50],
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey[300]!),
@@ -1035,6 +958,128 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen>
     _patientNameController.dispose();
     _remarksController.dispose();
     _diagnosisDateController.dispose();
+    _nicController.dispose();
     super.dispose();
+  }
+
+  Widget _buildNicSearchSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (_motherName != null) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6B73FF).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: const Color(0xFF6B73FF).withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.person, color: Color(0xFF6B73FF)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Mother: $_motherName',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      if (widget.motherNic != null)
+                        Text(
+                          'NIC: ${widget.motherNic}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildBabySelectionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.child_care, size: 20, color: Color(0xFF43A047)),
+            const SizedBox(width: 8),
+            const Text(
+              'Select Baby',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: const Color(0xFF6B73FF), width: 2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            children: _babies.map((baby) {
+              final isSelected = _selectedBaby?['id'] == baby['id'];
+              return Container(
+                margin: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFF6B73FF).withOpacity(0.1)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: const Color(0xFF6B73FF),
+                    child: Text(
+                      baby['babyOrder']?.toString() ?? '1',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    baby['name'] ??
+                        baby['babyName'] ??
+                        baby['fullName'] ??
+                        'Baby ${baby['babyOrder'] ?? '1'}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    'Age: ${baby['ageInMonths'] ?? 0} months | Born: ${baby['dateOfBirth'] ?? baby['birthDate'] ?? 'Unknown'}',
+                  ),
+                  trailing: isSelected
+                      ? const Icon(Icons.check_circle, color: Color(0xFF6B73FF))
+                      : const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(0xFF6B73FF),
+                        ),
+                  onTap: () => _selectBaby(baby),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
   }
 }

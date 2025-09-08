@@ -45,6 +45,7 @@ public class VaccinationService {
     public VaccinationResponse createVaccination(VaccinationRequest request) {
         Vaccination vaccination = new Vaccination();
         vaccination.setMotherNic(request.getMotherNic());
+        vaccination.setBabyId(request.getBabyId()); // Set baby ID
         vaccination.setChildName(request.getChildName());
         vaccination.setVaccinationType(request.getVaccinationType());
         vaccination.setAgeToGive(request.getAgeToGive());
@@ -94,6 +95,13 @@ public class VaccinationService {
 
     public List<VaccinationResponse> getVaccinationsByMotherNic(String motherNic) {
         return vaccinationRepository.findByMotherNicOrderByCreatedAtDesc(motherNic)
+                .stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<VaccinationResponse> getVaccinationsByBabyId(Long babyId) {
+        return vaccinationRepository.findByBabyIdOrderByCreatedAtDesc(babyId)
                 .stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
@@ -185,6 +193,7 @@ public class VaccinationService {
                 vaccination.getId(),
                 vaccination.getMotherNic(),
                 null, // motherName not available in entity
+                vaccination.getBabyId(), // Include baby ID
                 vaccination.getChildName(),
                 vaccination.getVaccinationType(),
                 vaccination.getAgeToGive(),

@@ -1,7 +1,7 @@
 class ApiConfig {
   // Base URL for all API endpoints
   static const String serverIp =
-      '10.0.2.2'; // Use 10.0.2.2 for Android emulator to access host machine
+      '10.11.8.134'; // Updated to ITUM WiFi IP address
   static const int serverPort = 8080;
 
   // Base URLs for different services

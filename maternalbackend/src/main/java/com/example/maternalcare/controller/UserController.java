@@ -68,23 +68,29 @@ public class UserController {
         }
     }
 
-    // Get all registered mothers
+    // Get all registered users (for midwives to select mothers for Thiriposha records)
     @GetMapping("/mothers")
     public ResponseEntity<?> getAllMothers() {
         try {
-            List<Registration> mothers = registrationRepository.findByUserRole(UserRole.MOTHER);
+            // Get all active users regardless of role (any woman can be a mother for Thiriposha)
+            List<Registration> allUsers = registrationRepository.findAll();
             
-            List<Map<String, Object>> mothersList = mothers.stream().map(mother -> {
+            // Filter only active users (exclude inactive accounts)
+            List<Registration> activeUsers = allUsers.stream()
+                .filter(user -> user.getIsActive() != null && user.getIsActive())
+                .collect(Collectors.toList());
+            
+            List<Map<String, Object>> mothersList = activeUsers.stream().map(user -> {
                 Map<String, Object> motherData = new HashMap<>();
-                motherData.put("id", mother.getId());
-                motherData.put("fullName", mother.getFullName());
-                motherData.put("nicNumber", mother.getNicNumber());
-                motherData.put("email", mother.getEmail());
-                motherData.put("phoneNumber", mother.getPhoneNumber3());
-                motherData.put("registrationDate", mother.getCreatedAt());
-                motherData.put("lastUpdated", mother.getUpdatedAt());
-                motherData.put("isActive", mother.getIsActive());
-                motherData.put("userRole", mother.getUserRole().toString());
+                motherData.put("id", user.getId());
+                motherData.put("fullName", user.getFullName());
+                motherData.put("nicNumber", user.getNicNumber());
+                motherData.put("email", user.getEmail());
+                motherData.put("phoneNumber", user.getPhoneNumber3());
+                motherData.put("registrationDate", user.getCreatedAt());
+                motherData.put("lastUpdated", user.getUpdatedAt());
+                motherData.put("isActive", user.getIsActive());
+                motherData.put("userRole", user.getUserRole().toString());
                 // Add address and dateOfBirth as null for now - can be added to model later if needed
                 motherData.put("address", null);
                 motherData.put("dateOfBirth", null);

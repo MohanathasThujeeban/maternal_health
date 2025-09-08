@@ -23,6 +23,7 @@ public class GrowthEntryController {
     @PostMapping("/add")
     public ResponseEntity<GrowthEntry> addEntry(@RequestBody GrowthEntryRequest request) {
         System.out.println("Received growth entry request: " + request.getMotherNic() + 
+                         ", Baby ID: " + request.getBabyId() +
                          ", Height: " + request.getHeight() + 
                          ", Weight: " + request.getWeight() + 
                          ", Date: " + request.getDate() +
@@ -36,6 +37,11 @@ public class GrowthEntryController {
                 request.getWeight(),
                 request.getDate()
             );
+            
+            // Set baby ID if provided
+            if (request.getBabyId() != null) {
+                entry.setBabyId(request.getBabyId());
+            }
             
             GrowthEntry savedEntry = service.saveEntryWithMidwife(entry, request.getMidwifeLicense());
             System.out.println("Successfully saved growth entry with ID: " + savedEntry.getId());
@@ -70,6 +76,22 @@ public class GrowthEntryController {
     @GetMapping("/get/{nic}")
     public ResponseEntity<List<GrowthEntry>> getEntriesByNic(@PathVariable String nic) {
         List<GrowthEntry> entries = service.getEntriesByNic(nic);
+        return ResponseEntity.ok(entries);
+    }
+    
+    // Get growth entries by baby ID (for midwife use)
+    @GetMapping("/baby/{babyId}")
+    public ResponseEntity<List<GrowthEntry>> getEntriesByBaby(@PathVariable Long babyId) {
+        List<GrowthEntry> entries = service.getEntriesByBaby(babyId);
+        return ResponseEntity.ok(entries);
+    }
+    
+    // Get growth entries by mother NIC and baby ID (for specific baby under mother)
+    @GetMapping("/mother/{motherNic}/baby/{babyId}")
+    public ResponseEntity<List<GrowthEntry>> getEntriesByMotherAndBaby(
+            @PathVariable String motherNic, 
+            @PathVariable Long babyId) {
+        List<GrowthEntry> entries = service.getEntriesByMotherAndBaby(motherNic, babyId);
         return ResponseEntity.ok(entries);
     }
 }

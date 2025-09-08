@@ -167,4 +167,36 @@ class UserService {
       return false;
     }
   }
+
+  // Get all registered mothers
+  static Future<List<Map<String, dynamic>>> getAllMothers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/user/mothers'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('Get all mothers response: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+
+        if (responseData['success'] == true &&
+            responseData['mothers'] != null) {
+          final List<dynamic> mothersData = responseData['mothers'];
+          return mothersData.cast<Map<String, dynamic>>();
+        } else {
+          print('API returned success=false or no mothers data');
+          return [];
+        }
+      } else {
+        print('Failed to get mothers: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Error getting mothers: $e');
+      return [];
+    }
+  }
 }

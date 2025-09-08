@@ -3,9 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/thiriposa_management_screen.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/vaccination_management_screen.dart';
-import 'package:maternal_health/features/auth/screens/Midwivesmodule/growth_data_input_screen.dart';
+import 'package:maternal_health/features/midwife/screens/midwife_thiriposa_records_screen.dart';
+import 'package:maternal_health/features/midwife/screens/midwife_vaccinations_screen.dart';
 import 'package:maternal_health/features/auth/screens/Midwivesmodule/view_mothers_records_screen.dart';
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
 import 'package:maternal_health/services/user_service.dart';
@@ -801,7 +800,7 @@ class PatientsTab extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ThiriposaManagementScreen(),
+                          builder: (_) => const MidwifeThiriposaRecordsScreen(),
                         ),
                       );
                     },
@@ -838,15 +837,15 @@ class PatientsTab extends StatelessWidget {
                   ),
                   _buildActionCard(
                     context,
-                    title: 'Vaccination Management',
-                    subtitle: 'Manage baby vaccinations',
+                    title: 'Vaccination Records',
+                    subtitle: 'View baby vaccination records',
                     icon: Icons.vaccines,
                     color: const Color(0xFF9C27B0),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const VaccinationManagementScreen(),
+                          builder: (_) => const MidwifeVaccinationsScreen(),
                         ),
                       );
                     },
@@ -994,18 +993,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
       final query = searchQuery.toLowerCase();
       return name.contains(query) || nic.contains(query);
     }).toList();
-  }
-
-  void _openGrowthDataInput(Map<String, dynamic> mother) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => GrowthDataInputScreen(
-          motherName: mother['fullName'],
-          motherNic: mother['nicNumber'],
-        ),
-      ),
-    );
   }
 
   @override
@@ -1372,25 +1359,6 @@ class _AnalyticsTabState extends State<AnalyticsTab> {
                                     ),
                                   ],
                                 ],
-                              ),
-                              trailing: ElevatedButton.icon(
-                                onPressed: () => _openGrowthDataInput(mother),
-                                icon: const Icon(Icons.add_chart, size: 18),
-                                label: const Text(
-                                  'Add Growth',
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4FC3A1),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
                               ),
                             ),
                           );

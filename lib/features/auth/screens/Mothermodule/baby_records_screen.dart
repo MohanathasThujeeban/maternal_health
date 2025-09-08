@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:maternal_health/features/auth/screens/Mothermodule/vaccination_history_screen.dart';
 import 'package:maternal_health/features/thiriposa/thiriposa_records_screen.dart';
 import 'package:maternal_health/features/auth/screens/Mothermodule/comprehensive_records_screen.dart';
+import 'package:maternal_health/features/auth/screens/Mothermodule/baby_selection_screen.dart';
 
 class BabyRecordsScreen extends StatelessWidget {
   const BabyRecordsScreen({super.key});
@@ -36,6 +37,42 @@ class BabyRecordsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            // Manage Babies Section - New Addition
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 20),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BabySelectionScreen(
+                        onBabySelected: (baby) {
+                          // Handle baby selection if needed
+                        },
+                        showSelectionOnly:
+                            false, // Show full management interface
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.baby_changing_station, size: 28),
+                label: const Text(
+                  'Manage My Babies',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade400,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 8,
+                ),
+              ),
+            ),
+
             // Comprehensive Records Button - Featured
             Container(
               width: double.infinity,

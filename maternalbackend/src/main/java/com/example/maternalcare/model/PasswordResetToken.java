@@ -25,13 +25,13 @@ public class PasswordResetToken {
     @Column(name = "provider_type")
     private String providerType; // "REGULAR_USER" or "HEALTHCARE_PROVIDER"
     
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime expiryDate;
     
     @Column(nullable = false)
     private Boolean used = false;
     
-    @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at", nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime createdAt = LocalDateTime.now();
     
     // Constructors

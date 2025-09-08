@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class ThiriposaRecordDTO {
     private Long id;
     private String motherNic;
+    private Long babyId; // References Baby.id for specific baby
     private LocalDateTime date;
     private Integer quantity;
     private LocalDateTime createdAt;
@@ -12,9 +13,10 @@ public class ThiriposaRecordDTO {
     // Constructors
     public ThiriposaRecordDTO() {}
 
-    public ThiriposaRecordDTO(Long id, String motherNic, LocalDateTime date, Integer quantity, LocalDateTime createdAt) {
+    public ThiriposaRecordDTO(Long id, String motherNic, Long babyId, LocalDateTime date, Integer quantity, LocalDateTime createdAt) {
         this.id = id;
         this.motherNic = motherNic;
+        this.babyId = babyId;
         this.date = date;
         this.quantity = quantity;
         this.createdAt = createdAt;
@@ -35,6 +37,14 @@ public class ThiriposaRecordDTO {
 
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
+    }
+
+    public Long getBabyId() {
+        return babyId;
+    }
+
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
 
     public LocalDateTime getDate() {

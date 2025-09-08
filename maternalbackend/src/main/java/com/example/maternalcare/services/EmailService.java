@@ -1684,4 +1684,138 @@ public class EmailService {
                 </html>
                 """, motherName, changeDateTime, deviceInfo);
     }
+
+    // Send email notification for eye and ear record updates
+    public void sendEyeEarRecordUpdateNotification(String motherEmail, String motherName, String babyName, 
+                                                  String eyeProblem, String earProblem, String midwifeName) {
+        try {
+            String subject = "👁️👂 Eye & Ear Record Updated - " + babyName;
+            String htmlContent = buildEyeEarRecordEmailHtml(motherName, babyName, eyeProblem, earProblem, midwifeName);
+            
+            sendEmail(motherEmail, subject, htmlContent);
+            
+            logger.info("Eye and ear record update notification sent to: {}", motherEmail);
+        } catch (Exception e) {
+            logger.error("Failed to send eye and ear record notification to {}: {}", motherEmail, e.getMessage());
+        }
+    }
+
+    private String buildEyeEarRecordEmailHtml(String motherName, String babyName, String eyeProblem, String earProblem, String midwifeName) {
+        String currentDate = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("MMMM dd, yyyy 'at' hh:mm a"));
+        
+        // Determine the status and icon
+        boolean hasEyeIssue = eyeProblem != null && !eyeProblem.equals("None") && !eyeProblem.trim().isEmpty();
+        boolean hasEarIssue = earProblem != null && !earProblem.equals("None") && !earProblem.trim().isEmpty();
+        
+        String statusIcon;
+        String statusText;
+        String statusColor;
+        
+        if (hasEyeIssue || hasEarIssue) {
+            statusIcon = "⚠️";
+            statusText = "Attention Required";
+            statusColor = "#ff9800";
+        } else {
+            statusIcon = "✅";
+            statusText = "All Clear";
+            statusColor = "#4caf50";
+        }
+
+        return String.format("""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Eye & Ear Record Update</title>
+                </head>
+                <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa;">
+                    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                        
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #4FC3A1 0%%, #66D4B8 100%%); color: white; padding: 30px; text-align: center;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 600;">
+                                👁️👂 Eye & Ear Record Update
+                            </h1>
+                            <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">
+                                Examination Record for %s
+                            </p>
+                        </div>
+                        
+                        <!-- Main Content -->
+                        <div style="padding: 40px 30px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <div style="font-size: 60px; margin-bottom: 10px;">%s</div>
+                                <h2 style="color: %s; margin: 0; font-size: 24px;">%s</h2>
+                                <p style="color: #666; margin: 5px 0;">Updated on %s</p>
+                            </div>
+                            
+                            <div style="background-color: #f8f9fa; border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+                                <h3 style="color: #333; margin-top: 0;">👋 Hello %s,</h3>
+                                <p style="color: #555; line-height: 1.6; margin: 15px 0;">
+                                    Your midwife <strong>%s</strong> has updated the eye and ear examination record for <strong>%s</strong>. 
+                                    Here are the current findings:
+                                </p>
+                            </div>
+                            
+                            <!-- Eye Status -->
+                            <div style="border-left: 4px solid #2196f3; background-color: #e3f2fd; padding: 20px; margin-bottom: 15px; border-radius: 0 8px 8px 0;">
+                                <h4 style="color: #1976d2; margin: 0 0 10px 0; display: flex; align-items: center;">
+                                    👁️ Eye Examination
+                                </h4>
+                                <p style="margin: 0; font-size: 16px; color: #333;">
+                                    <strong>Status:</strong> %s
+                                </p>
+                            </div>
+                            
+                            <!-- Ear Status -->
+                            <div style="border-left: 4px solid #ff9800; background-color: #fff3e0; padding: 20px; margin-bottom: 25px; border-radius: 0 8px 8px 0;">
+                                <h4 style="color: #f57c00; margin: 0 0 10px 0; display: flex; align-items: center;">
+                                    👂 Ear Examination
+                                </h4>
+                                <p style="margin: 0; font-size: 16px; color: #333;">
+                                    <strong>Status:</strong> %s
+                                </p>
+                            </div>
+                            
+                            <!-- Next Steps -->
+                            <div style="background-color: #e8f5e8; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                                <h4 style="color: #2e7d32; margin: 0 0 15px 0;">📋 What's Next?</h4>
+                                <ul style="color: #555; line-height: 1.6; margin: 0; padding-left: 20px;">
+                                    <li>Review the complete record in your Maternal Health app</li>
+                                    <li>Follow any specific instructions from your midwife</li>
+                                    <li>Contact your midwife if you have any questions or concerns</li>
+                                    <li>Keep track of your appointments and follow-up visits</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- App Access -->
+                            <div style="text-align: center; background-color: #f0f4f8; border-radius: 8px; padding: 20px;">
+                                <h4 style="color: #333; margin: 0 0 10px 0;">📱 Access Your Records</h4>
+                                <p style="color: #666; margin: 0 0 15px 0;">
+                                    Open your Maternal Health app to view the complete examination details and track your baby's health progress.
+                                </p>
+                                <div style="background-color: #4FC3A1; color: white; padding: 10px 20px; border-radius: 6px; display: inline-block; font-weight: 600;">
+                                    Mother Module → Eye & Ear Records
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div style="background-color: #2c3e50; color: white; padding: 25px; text-align: center;">
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">
+                                Maternal Health Care System
+                            </div>
+                            <div style="font-size: 14px; opacity: 0.8;">
+                                Caring for mothers and babies with love 💝
+                            </div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """, 
+                babyName, statusIcon, statusColor, statusText, currentDate, motherName, midwifeName, babyName,
+                hasEyeIssue ? eyeProblem : "No problems detected", 
+                hasEarIssue ? earProblem : "No problems detected");
+    }
 }

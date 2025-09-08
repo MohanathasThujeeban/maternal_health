@@ -9,7 +9,7 @@ class ThiriposaService {
   static Future<List<ThiriposaRecord>> getMyRecords() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/my-records'));
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => ThiriposaRecord.fromJson(json)).toList();
@@ -23,10 +23,8 @@ class ThiriposaService {
 
   static Future<List<ThiriposaRecord>> getRecordsByNic(String nic) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/records/$nic'),
-      );
-      
+      final response = await http.get(Uri.parse('$baseUrl/records/$nic'));
+
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         return data.map((json) => ThiriposaRecord.fromJson(json)).toList();
@@ -40,25 +38,69 @@ class ThiriposaService {
 
   static Future<void> addRecord({
     required String motherNic,
+    int? babyId, // Optional baby ID for specific baby
     required DateTime date,
     required int quantity,
   }) async {
     try {
+      final requestBody = {
+        'motherNic': motherNic,
+        'date': date.toIso8601String(),
+        'quantity': quantity,
+      };
+
+      // Add babyId if provided
+      if (babyId != null) {
+        requestBody['babyId'] = babyId;
+      }
+
       final response = await http.post(
         Uri.parse('$baseUrl/add'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'motherNic': motherNic,
-          'date': date.toIso8601String(),
-          'quantity': quantity,
-        }),
+        body: json.encode(requestBody),
       );
-      
+
       if (response.statusCode != 201) {
         throw Exception('Failed to add record');
       }
     } catch (e) {
       throw Exception('Failed to add record: $e');
+    }
+  }
+
+  // Baby-specific methods for midwife use
+  static Future<List<ThiriposaRecord>> getRecordsByBaby(int babyId) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/baby/$babyId'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => ThiriposaRecord.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load baby records');
+      }
+    } catch (e) {
+      throw Exception('Failed to load baby records: $e');
+    }
+  }
+
+  static Future<List<ThiriposaRecord>> getRecordsByMotherAndBaby(
+    String motherNic,
+    int babyId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/mother/$motherNic/baby/$babyId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => ThiriposaRecord.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load mother-baby records');
+      }
+    } catch (e) {
+      throw Exception('Failed to load mother-baby records: $e');
     }
   }
 }

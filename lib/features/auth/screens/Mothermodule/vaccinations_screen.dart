@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../models/baby.dart';
+import '../../../../services/baby_service.dart';
 import '../../../../services/vaccination_service.dart';
 import '../../../../services/user_service.dart';
 
@@ -11,7 +13,10 @@ class VaccinationsScreen extends StatefulWidget {
 
 class _VaccinationsScreenState extends State<VaccinationsScreen> {
   List<Map<String, dynamic>> _vaccinations = [];
+  List<Baby> _babies = [];
+  Baby? _selectedBaby;
   bool _isLoading = true;
+  bool _isLoadingBabies = false;
   String? _motherNic;
 
   @override
@@ -31,30 +36,24 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
       print('DEBUG: Mother NIC from UserService: $_motherNic');
 
       if (_motherNic != null) {
-        print('DEBUG: Attempting to fetch vaccinations for NIC: $_motherNic');
-        // Fetch vaccinations from backend using mother's NIC
-        final vaccinations =
-            await VaccinationService.getVaccinationsByMotherNic(_motherNic!);
-        print('DEBUG: Fetched ${vaccinations.length} vaccination records');
-        print('DEBUG: Vaccination data: $vaccinations');
+        // First load babies for this mother
+        await _loadBabies();
 
-        // Check if we got real data or empty array
-        if (vaccinations.isNotEmpty) {
-          print('DEBUG: Using real vaccination data from backend');
+        // If babies are found, load vaccination for first baby by default
+        if (_babies.isNotEmpty) {
           setState(() {
-            _vaccinations = vaccinations;
-            _isLoading = false;
+            _selectedBaby = _babies.first;
           });
+          await _loadVaccinationsForBaby(_selectedBaby!);
         } else {
-          print('DEBUG: No vaccination records found for this mother');
+          print('DEBUG: No babies found for this mother');
           setState(() {
-            _vaccinations = []; // Show empty state instead of mock data
+            _vaccinations = [];
             _isLoading = false;
           });
         }
       } else {
         print('DEBUG: No user NIC found');
-        // Show empty state instead of mock data
         setState(() {
           _vaccinations = [];
           _isLoading = false;
@@ -62,7 +61,98 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
       }
     } catch (e) {
       print('DEBUG: Error loading vaccinations: $e');
-      // Show empty state instead of mock data on error
+      setState(() {
+        _vaccinations = [];
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadBabies() async {
+    try {
+      setState(() {
+        _isLoadingBabies = true;
+      });
+
+      final babiesData = await BabyService.getBabiesByMotherNic(_motherNic!);
+
+      List<Baby> babies = babiesData.map((babyData) {
+        return Baby(
+          id: babyData['id'],
+          motherNic: babyData['motherNic'],
+          motherName: babyData['motherName'] ?? 'Unknown',
+          name: babyData['babyName'] ?? 'Unnamed Baby',
+          dateOfBirth: babyData['dateOfBirth'] ?? '',
+          gender: babyData['gender'] ?? 'Not specified',
+          birthWeight: babyData['birthWeight']?.toDouble(),
+          birthHeight: babyData['birthHeight']?.toDouble(),
+          babyOrder: babyData['babyOrder'] ?? 1,
+          isActive: babyData['isActive'] ?? true,
+          createdAt: babyData['createdAt'] != null
+              ? DateTime.parse(babyData['createdAt'])
+              : DateTime.now(),
+          updatedAt: babyData['updatedAt'] != null
+              ? DateTime.parse(babyData['updatedAt'])
+              : DateTime.now(),
+        );
+      }).toList();
+
+      setState(() {
+        _babies = babies;
+        _isLoadingBabies = false;
+      });
+    } catch (e) {
+      print('DEBUG: Error loading babies: $e');
+      setState(() {
+        _babies = [];
+        _isLoadingBabies = false;
+      });
+    }
+  }
+
+  Future<void> _loadVaccinationsForBaby(Baby baby) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      print('DEBUG: Attempting to fetch vaccinations for baby ID: ${baby.id}');
+
+      // Fetch vaccinations from backend using baby ID
+      final vaccinations = await VaccinationService.getVaccinationsByBaby(
+        baby.id,
+      );
+      print(
+        'DEBUG: Fetched ${vaccinations.length} vaccination records for ${baby.name}',
+      );
+
+      // Convert Vaccination objects to Map for compatibility with existing UI
+      final vaccinationMaps = vaccinations
+          .map(
+            (vaccination) => {
+              'id': vaccination.id,
+              'vaccinationType': vaccination.vaccinationType,
+              'childName': baby.name,
+              'ageToGive': vaccination.ageToGive,
+              'vaccinationDate': vaccination.vaccinationDate,
+              'batchNumber': vaccination.batchNumber,
+              'effectsFollowingImmunization':
+                  vaccination.effectsFollowingImmunization,
+              'status': vaccination.status,
+            },
+          )
+          .toList();
+
+      setState(() {
+        _vaccinations = vaccinationMaps;
+        _isLoading = false;
+      });
+
+      if (vaccinations.isEmpty) {
+        print('DEBUG: No vaccination records found for ${baby.name}');
+      }
+    } catch (e) {
+      print('DEBUG: Error loading vaccinations for baby: $e');
       setState(() {
         _vaccinations = [];
         _isLoading = false;
@@ -130,28 +220,103 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child: Column(
                             children: [
-                              const Icon(
-                                Icons.vaccines,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                              const SizedBox(width: 10),
-                              Flexible(
-                                child: Text(
-                                  '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} Recorded',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontFamily: 'SpotifyCircular',
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                              // Baby selection dropdown if multiple babies
+                              if (_babies.length > 1) ...[
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.child_care,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    const Text(
+                                      'Select Baby: ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontFamily: 'SpotifyCircular',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.2),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<Baby>(
+                                          value: _selectedBaby,
+                                          dropdownColor: const Color(
+                                            0xFF4FC3A1,
+                                          ),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontFamily: 'SpotifyCircular',
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          items: _babies.map((baby) {
+                                            return DropdownMenuItem<Baby>(
+                                              value: baby,
+                                              child: Text(
+                                                baby.name,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          onChanged: (Baby? newBaby) {
+                                            if (newBaby != null) {
+                                              setState(() {
+                                                _selectedBaby = newBaby;
+                                              });
+                                              _loadVaccinationsForBaby(newBaby);
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                                const SizedBox(height: 16),
+                              ],
+                              // Vaccination count display
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.vaccines,
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: Text(
+                                      _selectedBaby != null
+                                          ? '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} for ${_selectedBaby!.name}'
+                                          : '${_vaccinations.length} Vaccination${_vaccinations.length != 1 ? 's' : ''} Recorded',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontFamily: 'SpotifyCircular',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -176,12 +341,13 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                                   ),
                                   SizedBox(height: 16),
                                   Text(
-                                    'No vaccination records found',
+                                    'No vaccination records found for this baby',
                                     style: TextStyle(
                                       fontSize: 16,
                                       color: Colors.grey,
                                       fontFamily: 'SpotifyCircular',
                                     ),
+                                    textAlign: TextAlign.center,
                                   ),
                                 ],
                               ),

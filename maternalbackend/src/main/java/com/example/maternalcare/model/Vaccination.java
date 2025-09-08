@@ -16,6 +16,9 @@ public class Vaccination {
     @Column(name = "mother_nic", nullable = false, length = 15)
     private String motherNic;
     
+    @Column(name = "baby_id")
+    private Long babyId; // References Baby.id - Optional for backward compatibility
+    
     @Column(name = "child_name", nullable = false, length = 100)
     private String childName;
     
@@ -87,6 +90,14 @@ public class Vaccination {
     
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
+    }
+    
+    public Long getBabyId() {
+        return babyId;
+    }
+    
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
     
     public String getChildName() {

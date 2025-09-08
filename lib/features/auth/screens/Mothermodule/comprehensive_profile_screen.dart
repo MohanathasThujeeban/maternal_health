@@ -307,7 +307,19 @@ class _ComprehensiveProfileScreenState
 
     // Medical History
     _bloodType = profile['bloodType'];
-    _rhesusFactor = profile['rhesusFactor'];
+    // Map backend rhesus factor values to dropdown values
+    String? backendRhesusFactor = profile['rhesusFactor'];
+    if (backendRhesusFactor != null) {
+      if (backendRhesusFactor.toUpperCase() == 'POSITIVE') {
+        _rhesusFactor = 'Positive';
+      } else if (backendRhesusFactor.toUpperCase() == 'NEGATIVE') {
+        _rhesusFactor = 'Negative';
+      } else {
+        _rhesusFactor = backendRhesusFactor; // fallback
+      }
+    } else {
+      _rhesusFactor = null;
+    }
     _chronicDiseasesController.text = profile['chronicDiseases'] ?? '';
     _allergiesController.text = profile['allergies'] ?? '';
     _medicationsController.text = profile['currentMedications'] ?? '';
@@ -394,7 +406,11 @@ class _ComprehensiveProfileScreenState
 
         // Medical History
         'bloodType': _bloodType,
-        'rhesusFactor': _rhesusFactor,
+        'rhesusFactor': _rhesusFactor == 'Positive'
+            ? 'POSITIVE'
+            : _rhesusFactor == 'Negative'
+            ? 'NEGATIVE'
+            : _rhesusFactor,
         'chronicDiseases': _chronicDiseasesController.text.trim(),
         'allergies': _allergiesController.text.trim(),
         'currentMedications': _medicationsController.text.trim(),

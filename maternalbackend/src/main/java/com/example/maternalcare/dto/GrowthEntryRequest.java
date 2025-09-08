@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public class GrowthEntryRequest {
     private String motherNic;
+    private Long babyId; // References Baby.id for specific baby
     private double height;
     private double weight;
     private LocalDate date;
@@ -13,8 +14,9 @@ public class GrowthEntryRequest {
     public GrowthEntryRequest() {}
     
     // Constructor
-    public GrowthEntryRequest(String motherNic, double height, double weight, LocalDate date, String midwifeLicense) {
+    public GrowthEntryRequest(String motherNic, Long babyId, double height, double weight, LocalDate date, String midwifeLicense) {
         this.motherNic = motherNic;
+        this.babyId = babyId;
         this.height = height;
         this.weight = weight;
         this.date = date;
@@ -28,6 +30,14 @@ public class GrowthEntryRequest {
     
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
+    }
+    
+    public Long getBabyId() {
+        return babyId;
+    }
+    
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
     
     public double getHeight() {

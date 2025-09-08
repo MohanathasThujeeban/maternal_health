@@ -94,6 +94,21 @@ public class ProblemRecordController {
         }
     }
     
+    // Get records by baby ID
+    @GetMapping("/baby/{babyId}")
+    public ResponseEntity<Map<String, Object>> getRecordsByBabyId(@PathVariable Long babyId) {
+        try {
+            List<ProblemRecordDTO> records = problemRecordService.getRecordsByBabyId(babyId);
+            Map<String, Object> response = createSuccessResponse(
+                "Records retrieved successfully", records, records.size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> response = createErrorResponse(
+                "Failed to retrieve records: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
     // Get record by ID
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getRecordById(@PathVariable Long id) {

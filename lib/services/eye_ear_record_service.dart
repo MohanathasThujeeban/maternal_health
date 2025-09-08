@@ -89,9 +89,36 @@ class EyeEarRecordService {
     }
   }
 
+  // Get records by specific baby ID (for midwives)
+  static Future<List<Map<String, dynamic>>> getRecordsByBabyId(
+    int babyId,
+  ) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/baby/$babyId'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        if (responseData['success'] == true && responseData['data'] != null) {
+          return List<Map<String, dynamic>>.from(responseData['data']);
+        } else {
+          return [];
+        }
+      } else {
+        throw Exception('Failed to load records: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching records for baby $babyId: $e');
+      throw Exception('Failed to load eye and ear records: $e');
+    }
+  }
+
   // Create a new eye and ear record (for midwives)
   static Future<Map<String, dynamic>> createRecord({
     required String patientName,
+    required int babyId,
     required String motherNic,
     String? eyeProblem,
     String? earProblem,
@@ -102,6 +129,7 @@ class EyeEarRecordService {
     try {
       final recordData = {
         'patientName': patientName,
+        'babyId': babyId,
         'motherNic': motherNic,
         'eyeProblem': eyeProblem ?? 'None',
         'earProblem': earProblem ?? 'None',

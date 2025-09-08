@@ -19,6 +19,9 @@ public interface ProblemRecordRepository extends JpaRepository<ProblemRecord, Lo
     // Find records by mother NIC
     List<ProblemRecord> findByMotherNicOrderByDateOfDiagnosisDesc(String motherNic);
     
+    // Find records by baby ID
+    List<ProblemRecord> findByBabyIdOrderByDateOfDiagnosisDesc(Long babyId);
+    
     // Find records by date range
     List<ProblemRecord> findByDateOfDiagnosisBetween(LocalDate startDate, LocalDate endDate);
     

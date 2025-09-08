@@ -85,6 +85,29 @@ public class ThiriposaController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    // Baby-specific endpoints for midwife use
+    @GetMapping("/baby/{babyId}")
+    public ResponseEntity<List<ThiriposaRecordDTO>> getRecordsByBaby(@PathVariable Long babyId) {
+        try {
+            List<ThiriposaRecordDTO> records = thiriposaService.getRecordsByBaby(babyId);
+            return new ResponseEntity<>(records, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/mother/{motherNic}/baby/{babyId}")
+    public ResponseEntity<List<ThiriposaRecordDTO>> getRecordsByMotherAndBaby(
+            @PathVariable String motherNic, 
+            @PathVariable Long babyId) {
+        try {
+            List<ThiriposaRecordDTO> records = thiriposaService.getRecordsByMotherAndBaby(motherNic, babyId);
+            return new ResponseEntity<>(records, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/health")
     public ResponseEntity<String> healthCheck() {

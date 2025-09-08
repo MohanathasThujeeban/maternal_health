@@ -48,6 +48,15 @@ public class GrowthEntryService {
     public List<GrowthEntry> getEntriesByNic(String nic) {
         return repository.findByMotherNicOrderByDateAsc(nic);
     }
+    
+    // Baby-specific methods for midwife use
+    public List<GrowthEntry> getEntriesByBaby(Long babyId) {
+        return repository.findByBabyIdOrderByDateAsc(babyId);
+    }
+    
+    public List<GrowthEntry> getEntriesByMotherAndBaby(String motherNic, Long babyId) {
+        return repository.findByMotherNicAndBabyIdOrderByDateAsc(motherNic, babyId);
+    }
 
     /**
      * Save growth entry with midwife information for better email notification

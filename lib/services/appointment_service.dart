@@ -10,11 +10,11 @@ class AppointmentService {
   // Dynamic base URL based on platform - enhanced with centralized config
   static String get baseUrl {
     if (kIsWeb) {
-      // For web (Chrome, Firefox, etc.) - use localhost
-      return 'http://localhost:${ApiConfig.serverPort}/api/appointments';
+      // For web (Chrome, Firefox, etc.) - use current IP
+      return 'http://${ApiConfig.serverIp}:${ApiConfig.serverPort}/api/appointments';
     } else if (Platform.isAndroid) {
-      // For Android emulator (10.0.2.2 maps to host localhost)
-      return 'http://10.0.2.2:${ApiConfig.serverPort}/api/appointments';
+      // For Android - use current WiFi IP for real device testing
+      return 'http://${ApiConfig.serverIp}:${ApiConfig.serverPort}/api/appointments';
     } else {
       // For iOS simulator and other platforms - use WiFi IP from config
       return ApiConfig.appointmentsUrl;

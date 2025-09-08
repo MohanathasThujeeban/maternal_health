@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
 import '../firebase_options.dart';
+import '../config/api_config.dart';
 
 class FirebaseService {
   static FirebaseMessaging? _messaging;
@@ -113,7 +114,7 @@ class FirebaseService {
       }
 
       final response = await http.post(
-        Uri.parse('http://10.11.8.134:8080/api/notifications/register-token'),
+        Uri.parse('${ApiConfig.baseApiUrl}/notifications/register-token'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userId': userId, 'fcmToken': token}),
       );
@@ -166,7 +167,7 @@ class FirebaseService {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.11.8.134:8080/api/notifications/send'),
+        Uri.parse('${ApiConfig.baseApiUrl}/notifications/send'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'fcmToken': _fcmToken,

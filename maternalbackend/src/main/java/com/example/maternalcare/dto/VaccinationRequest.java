@@ -10,6 +10,8 @@ public class VaccinationRequest {
     
     private String motherName;
     
+    private Long babyId; // Optional for backward compatibility
+    
     @NotBlank(message = "Child name is required")
     private String childName;
     
@@ -50,6 +52,14 @@ public class VaccinationRequest {
     
     public void setMotherName(String motherName) {
         this.motherName = motherName;
+    }
+    
+    public Long getBabyId() {
+        return babyId;
+    }
+    
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
     
     public String getChildName() {

@@ -58,6 +58,16 @@ public class VaccinationController {
         }
     }
 
+    @GetMapping("/baby/{babyId}")
+    public ResponseEntity<List<VaccinationResponse>> getVaccinationsByBabyId(@PathVariable Long babyId) {
+        try {
+            List<VaccinationResponse> vaccinations = vaccinationService.getVaccinationsByBabyId(babyId);
+            return ResponseEntity.ok(vaccinations);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<VaccinationResponse> updateVaccination(
             @PathVariable Long id, 

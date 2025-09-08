@@ -19,6 +19,11 @@ public interface VaccinationRepository extends JpaRepository<Vaccination, Long> 
     List<Vaccination> findByMotherNicOrderByCreatedAtDesc(String motherNic);
     
     /**
+     * Find all vaccinations for a specific baby by baby ID
+     */
+    List<Vaccination> findByBabyIdOrderByCreatedAtDesc(Long babyId);
+    
+    /**
      * Find vaccinations by mother NIC and status
      */
     List<Vaccination> findByMotherNicAndStatusOrderByCreatedAtDesc(String motherNic, VaccinationStatus status);
