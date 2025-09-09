@@ -93,14 +93,37 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
         ],
       ),
       body: const MotherDashboardScreen(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addNewBabyFAB(context),
-        backgroundColor: const Color(0xFFE91E63),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text(
-          'Add Baby',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF4FC3A1), Color(0xFF3A9B7A)],
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+          ),
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF4FC3A1).withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: () => _addNewBabyFAB(context),
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          icon: const Icon(Icons.add),
+          label: const Text(
+            'Add Baby',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+              fontFamily: 'SpotifyCircular',
+            ),
+          ),
         ),
       ),
     );

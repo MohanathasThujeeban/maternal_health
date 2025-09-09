@@ -5,9 +5,16 @@ import '../../../../services/thiriposa_service.dart';
 import '../../../../services/user_service.dart';
 import '../../../../models/baby.dart';
 import '../../../../widgets/custom_loading.dart';
+import '../../../../config/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 
 class BabySpecificRecordsScreen extends StatefulWidget {
   const BabySpecificRecordsScreen({super.key});
@@ -24,7 +31,9 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
   Baby? _selectedBaby;
   bool _isLoadingBabies = true;
   bool _isLoadingRecords = false;
+  bool _isDownloading = false;
   String? _motherNic;
+  String? _motherName;
 
   // Records data
   List<Map<String, dynamic>> _vaccinationRecords = [];
@@ -49,9 +58,11 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
     try {
       setState(() => _isLoadingBabies = true);
 
-      // Get current user's NIC
+      // Get current user's NIC and name
       final userData = await UserService.getUserData();
       _motherNic = userData['nic'];
+      _motherName =
+          userData['name'] ?? userData['fullName'] ?? 'Unknown Mother';
 
       if (_motherNic == null) {
         throw Exception('User not logged in');
@@ -169,7 +180,7 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
     try {
       final response = await http.get(
         Uri.parse(
-          'http://10.11.8.134:8080/api/baby-problems/baby/${_selectedBaby!.id}',
+          '${ApiConfig.baseApiUrl}/baby-problems/baby/${_selectedBaby!.id}',
         ),
         headers: {'Content-Type': 'application/json'},
       );
@@ -200,18 +211,63 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
 
   Future<void> _loadGrowthRecords() async {
     try {
-      final response = await http.get(
+      print('Loading growth records for baby ID: ${_selectedBaby!.id}');
+      print('Mother NIC: $_motherNic');
+
+      // Try the baby-specific endpoint first
+      var response = await http.get(
         Uri.parse(
-          'http://10.11.8.134:8080/api/growth-records/baby/${_selectedBaby!.id}',
+          '${ApiConfig.baseApiUrl}/growth-records/baby/${_selectedBaby!.id}',
         ),
         headers: {'Content-Type': 'application/json'},
       );
 
+      print(
+        'Baby-specific growth records response status: ${response.statusCode}',
+      );
+      print('Baby-specific growth records response body: ${response.body}');
+
+      // If baby-specific endpoint fails, try mother-based endpoint
+      if (response.statusCode != 200 || response.body == '[]') {
+        print('Trying mother-based endpoint...');
+        response = await http.get(
+          Uri.parse('${ApiConfig.baseApiUrl}/growth/get/$_motherNic'),
+          headers: {'Content-Type': 'application/json'},
+        );
+
+        print(
+          'Mother-based growth records response status: ${response.statusCode}',
+        );
+        print('Mother-based growth records response body: ${response.body}');
+      }
+
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _growthRecords = List<Map<String, dynamic>>.from(data);
-        });
+        final responseBody = response.body;
+        if (responseBody.isNotEmpty && responseBody != '[]') {
+          final List<dynamic> data = json.decode(responseBody);
+          print('Growth records count: ${data.length}');
+
+          // Filter records for the selected baby if using mother-based endpoint
+          List<Map<String, dynamic>> filteredRecords = [];
+          for (var record in data) {
+            if (record['babyId'] == _selectedBaby!.id ||
+                record['baby_id'] == _selectedBaby!.id ||
+                record['childId'] == _selectedBaby!.id) {
+              filteredRecords.add(Map<String, dynamic>.from(record));
+            }
+          }
+
+          setState(() {
+            _growthRecords = filteredRecords.isNotEmpty
+                ? filteredRecords
+                : List<Map<String, dynamic>>.from(data);
+          });
+          print('Growth records loaded: $_growthRecords');
+        } else {
+          setState(() {
+            _growthRecords = [];
+          });
+        }
       } else {
         throw Exception('Failed to load growth records');
       }
@@ -227,6 +283,482 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
+  }
+
+  Future<void> _generateAndDownloadPDF() async {
+    if (_selectedBaby == null || _isDownloading) return;
+
+    setState(() => _isDownloading = true);
+
+    try {
+      print('=== PDF Generation Debug ===');
+      print('Selected baby: ${_selectedBaby?.name}');
+      print('Mother name: $_motherName');
+      print('Vaccination records count: ${_vaccinationRecords.length}');
+      print('Thiriposa records count: ${_thiriposaRecords.length}');
+      print('Growth records count: ${_growthRecords.length}');
+      print('Eye/Ear records count: ${_eyeEarRecords.length}');
+
+      if (_growthRecords.isNotEmpty) {
+        print('Growth records data: $_growthRecords');
+      }
+
+      final pdf = pw.Document();
+
+      // Add pages to PDF
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          margin: const pw.EdgeInsets.all(32),
+          build: (pw.Context context) => [
+            // Header
+            _buildPDFHeader(),
+            pw.SizedBox(height: 20),
+
+            // Baby and Mother Information
+            _buildBabyInfo(),
+            pw.SizedBox(height: 20),
+
+            // Vaccination Records
+            if (_vaccinationRecords.isNotEmpty) ...[
+              _buildVaccinationSection(),
+              pw.SizedBox(height: 20),
+            ],
+
+            // Thiriposa Records
+            if (_thiriposaRecords.isNotEmpty) ...[
+              _buildThiriposaSection(),
+              pw.SizedBox(height: 20),
+            ],
+
+            // Growth Records
+            _buildGrowthSection(),
+            pw.SizedBox(height: 20),
+
+            // Eye & Ear Records
+            if (_eyeEarRecords.isNotEmpty) ...[
+              _buildEyeEarSection(),
+              pw.SizedBox(height: 20),
+            ],
+
+            // Footer
+            pw.Spacer(),
+            _buildPDFFooter(),
+          ],
+        ),
+      );
+
+      // Save and share PDF
+      final bytes = await pdf.save();
+      final directory = await getTemporaryDirectory();
+      final babyName = _selectedBaby!.name.replaceAll(' ', '_');
+      final fileName =
+          '${babyName}_complete_records_${DateFormat('yyyyMMdd_HHmmss').format(DateTime.now())}.pdf';
+      final file = File('${directory.path}/$fileName');
+      await file.writeAsBytes(bytes);
+
+      // Share the PDF
+      await Share.shareXFiles(
+        [XFile(file.path)],
+        text: '${_selectedBaby!.name}\'s Complete Health Records',
+        subject: 'Baby Health Records - ${_selectedBaby!.name}',
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('PDF generated and shared successfully! 📄'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      print('PDF generation error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating PDF: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isDownloading = false);
+      }
+    }
+  }
+
+  // PDF Building Helper Methods
+  pw.Widget _buildPDFHeader() {
+    return pw.Header(
+      level: 0,
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'Complete Health Records',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.teal,
+                ),
+              ),
+              pw.Text(
+                'Maternal Health Monitoring System',
+                style: pw.TextStyle(fontSize: 12, color: PdfColors.grey600),
+              ),
+            ],
+          ),
+          pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.end,
+            children: [
+              pw.Text(
+                'Generated on',
+                style: pw.TextStyle(fontSize: 10, color: PdfColors.grey600),
+              ),
+              pw.Text(
+                DateFormat('MMM dd, yyyy - HH:mm').format(DateTime.now()),
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildBabyInfo() {
+    final baby = _selectedBaby!;
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(16),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.teal50,
+        borderRadius: pw.BorderRadius.circular(8),
+        border: pw.Border.all(color: PdfColors.teal200),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'Baby & Mother Information',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.teal800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Row(
+            children: [
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow('Mother\'s Name:', _motherName ?? 'Unknown'),
+                    _buildInfoRow('Baby\'s Name:', baby.name),
+                    _buildInfoRow('Gender:', baby.gender),
+                  ],
+                ),
+              ),
+              pw.Expanded(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _buildInfoRow('Date of Birth:', baby.dateOfBirth),
+                    _buildInfoRow(
+                      'Birth Weight:',
+                      baby.birthWeight != null
+                          ? '${baby.birthWeight} kg'
+                          : 'Not recorded',
+                    ),
+                    _buildInfoRow(
+                      'Birth Height:',
+                      baby.birthHeight != null
+                          ? '${baby.birthHeight} cm'
+                          : 'Not recorded',
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildInfoRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 4),
+      child: pw.Row(
+        children: [
+          pw.SizedBox(
+            width: 80,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
+            ),
+          ),
+          pw.Expanded(
+            child: pw.Text(value, style: const pw.TextStyle(fontSize: 10)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildVaccinationSection() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Vaccination Records (${_vaccinationRecords.length})',
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.blue800,
+          ),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Table(
+          border: pw.TableBorder.all(color: PdfColors.grey300),
+          children: [
+            // Header
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: PdfColors.blue50),
+              children: [
+                _buildTableCell('Vaccine', isHeader: true),
+                _buildTableCell('Age to Give', isHeader: true),
+                _buildTableCell('Date Given', isHeader: true),
+                _buildTableCell('Status', isHeader: true),
+              ],
+            ),
+            // Data rows
+            ..._vaccinationRecords.map(
+              (record) => pw.TableRow(
+                children: [
+                  _buildTableCell(record['vaccinationType'] ?? 'Unknown'),
+                  _buildTableCell(record['ageToGive']?.toString() ?? 'N/A'),
+                  _buildTableCell(_formatDateForPDF(record['vaccinationDate'])),
+                  _buildTableCell(record['status'] ?? 'Unknown'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _buildThiriposaSection() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Thiriposa Records (${_thiriposaRecords.length})',
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.green800,
+          ),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Table(
+          border: pw.TableBorder.all(color: PdfColors.grey300),
+          children: [
+            // Header
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: PdfColors.green50),
+              children: [
+                _buildTableCell('Date', isHeader: true),
+                _buildTableCell('Quantity (packets)', isHeader: true),
+                _buildTableCell('Notes', isHeader: true),
+              ],
+            ),
+            // Data rows
+            ..._thiriposaRecords.map(
+              (record) => pw.TableRow(
+                children: [
+                  _buildTableCell(_formatDateForPDF(record['date'])),
+                  _buildTableCell(record['quantity']?.toString() ?? 'N/A'),
+                  _buildTableCell(record['notes'] ?? 'No notes'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _buildGrowthSection() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Growth Records (${_growthRecords.length})',
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.purple800,
+          ),
+        ),
+        pw.SizedBox(height: 10),
+        if (_growthRecords.isEmpty)
+          pw.Container(
+            padding: const pw.EdgeInsets.all(16),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.grey100,
+              borderRadius: pw.BorderRadius.circular(8),
+            ),
+            child: pw.Text(
+              'No growth records found for this baby.',
+              style: pw.TextStyle(
+                color: PdfColors.grey600,
+                fontSize: 12,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ),
+          )
+        else
+          pw.Table(
+            border: pw.TableBorder.all(color: PdfColors.grey300),
+            children: [
+              // Header
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.purple50),
+                children: [
+                  _buildTableCell('Date', isHeader: true),
+                  _buildTableCell('Weight (kg)', isHeader: true),
+                  _buildTableCell('Height (cm)', isHeader: true),
+                ],
+              ),
+              // Data rows
+              ..._growthRecords.map(
+                (record) => pw.TableRow(
+                  children: [
+                    _buildTableCell(_formatDateForPDF(record['date'])),
+                    _buildTableCell(record['weight']?.toString() ?? 'N/A'),
+                    _buildTableCell(record['height']?.toString() ?? 'N/A'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+
+  pw.Widget _buildEyeEarSection() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'Eye & Ear Records (${_eyeEarRecords.length})',
+          style: pw.TextStyle(
+            fontSize: 16,
+            fontWeight: pw.FontWeight.bold,
+            color: PdfColors.orange800,
+          ),
+        ),
+        pw.SizedBox(height: 10),
+        pw.Table(
+          border: pw.TableBorder.all(color: PdfColors.grey300),
+          children: [
+            // Header
+            pw.TableRow(
+              decoration: const pw.BoxDecoration(color: PdfColors.orange50),
+              children: [
+                _buildTableCell('Date', isHeader: true),
+                _buildTableCell('Eye Problem', isHeader: true),
+                _buildTableCell('Ear Problem', isHeader: true),
+                _buildTableCell('Remarks', isHeader: true),
+              ],
+            ),
+            // Data rows
+            ..._eyeEarRecords.map(
+              (record) => pw.TableRow(
+                children: [
+                  _buildTableCell(_formatDateForPDF(record['dateOfDiagnosis'])),
+                  _buildTableCell(record['eyeProblem'] ?? 'None'),
+                  _buildTableCell(record['earProblem'] ?? 'None'),
+                  _buildTableCell(record['remarks'] ?? 'No remarks'),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  pw.Widget _buildTableCell(String text, {bool isHeader = false}) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.all(8),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontSize: 9,
+          fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  pw.Widget _buildPDFFooter() {
+    return pw.Column(
+      children: [
+        pw.Divider(color: PdfColors.grey400),
+        pw.SizedBox(height: 10),
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              'Maternal Health Monitoring System',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey600,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ),
+            pw.Text(
+              'This report contains confidential medical information',
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: PdfColors.grey600,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatDateForPDF(dynamic date) {
+    if (date == null) return 'Not recorded';
+    try {
+      DateTime parsedDate;
+      if (date is String) {
+        parsedDate = DateTime.parse(date);
+      } else if (date is DateTime) {
+        parsedDate = date;
+      } else {
+        return 'Invalid date';
+      }
+      return DateFormat('MMM dd, yyyy').format(parsedDate);
+    } catch (e) {
+      return 'Invalid date';
+    }
   }
 
   @override
@@ -249,6 +781,26 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          if (_selectedBaby != null)
+            IconButton(
+              icon: _isDownloading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.download, color: Colors.white),
+              onPressed: _isDownloading ? null : _generateAndDownloadPDF,
+              tooltip: _isDownloading
+                  ? 'Generating PDF...'
+                  : 'Download Complete Records',
+            ),
+          const SizedBox(width: 8),
+        ],
         bottom: _babies.length > 1
             ? PreferredSize(
                 preferredSize: const Size.fromHeight(60),
