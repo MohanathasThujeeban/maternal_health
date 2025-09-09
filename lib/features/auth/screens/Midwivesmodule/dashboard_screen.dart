@@ -5364,6 +5364,45 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
         : babyNames.join(', ');
   }
 
+  Future<String> _findMotherNameByNic(String motherNic) async {
+    try {
+      // Check mother registration records using the correct endpoint
+      final motherResponse = await http.get(
+        Uri.parse('${ApiConfig.baseApiUrl}/registration/all'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (motherResponse.statusCode == 200) {
+        final List<dynamic> motherData = json.decode(motherResponse.body);
+        for (var mother in motherData) {
+          // Use the correct field name 'nicNumber' instead of 'nic'
+          if (mother['nicNumber'] == motherNic && mother['fullName'] != null) {
+            return mother['fullName'];
+          }
+        }
+      }
+
+      // If not found in mothers, check vaccination records as fallback
+      final vaccResponse = await http.get(
+        Uri.parse('${ApiConfig.baseApiUrl}/vaccinations'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (vaccResponse.statusCode == 200) {
+        final List<dynamic> vaccData = json.decode(vaccResponse.body);
+        for (var vacc in vaccData) {
+          if (vacc['motherNic'] == motherNic && vacc['motherName'] != null) {
+            return vacc['motherName'];
+          }
+        }
+      }
+    } catch (e) {
+      print('Error finding mother name for NIC $motherNic: $e');
+    }
+
+    return 'Unknown Mother';
+  }
+
   void _showMotherRecordOptions(Map<String, dynamic> motherRecord) {
     showModalBottomSheet(
       context: context,
@@ -5493,25 +5532,34 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
         print('Growth data sample: $data');
 
         for (var record in data) {
+          // Get actual mother name using helper method
+          String motherName = 'Unknown Mother';
+          if (record['motherNic'] != null) {
+            motherName = await _findMotherNameByNic(record['motherNic']);
+          }
+
+          // Get baby name from vaccination records
+          String babyName = 'Unknown Baby';
+          if (record['motherNic'] != null) {
+            String babies = await _findBabiesForMother(record['motherNic']);
+            if (babies != 'No babies registered yet') {
+              babyName = babies.split(', ').first; // Get first baby name
+            }
+          }
+
           allRecords.add({
             'id': record['id'],
             'recordType': 'Growth',
-            'motherName':
-                record['motherName'] ??
-                record['baby']?['mother']?['name'] ??
-                'Unknown Mother',
-            'babyName':
-                record['babyName'] ?? record['baby']?['name'] ?? 'Unknown Baby',
+            'motherName': motherName,
+            'babyName': babyName,
             'date':
                 record['date'] ??
                 record['measurementDate'] ??
                 record['createdAt'],
             'weight': record['weight'],
             'height': record['height'],
-            'nic': record['motherNic'] ?? record['baby']?['mother']?['nic'],
-            'phone':
-                record['motherPhone'] ??
-                record['baby']?['mother']?['phoneNumber'],
+            'nic': record['motherNic'],
+            'phone': record['motherPhone'],
             'details':
                 'Weight: ${record['weight']}kg, Height: ${record['height']}cm',
             'icon': Icons.trending_up,
@@ -5544,23 +5592,32 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
         print('Thiriposa data sample: $data');
 
         for (var record in data) {
+          // Get actual mother and baby names using helper methods
+          String motherName = 'Unknown Mother';
+          String babyName = 'Unknown Baby';
+
+          if (record['motherNic'] != null) {
+            motherName = await _findMotherNameByNic(record['motherNic']);
+          }
+
+          if (record['motherNic'] != null) {
+            String babies = await _findBabiesForMother(record['motherNic']);
+            if (babies != 'No babies registered yet') {
+              babyName = babies.split(', ').first; // Get first baby name
+            }
+          }
+
           allRecords.add({
             'id': record['id'],
             'recordType': 'Thiriposa',
-            'motherName':
-                record['baby']?['mother']?['name'] ??
-                record['motherName'] ??
-                'Unknown Mother',
-            'babyName':
-                record['baby']?['name'] ?? record['babyName'] ?? 'Unknown Baby',
+            'motherName': motherName,
+            'babyName': babyName,
             'date':
                 record['distributionDate'] ??
                 record['date'] ??
                 record['createdAt'],
-            'nic': record['baby']?['mother']?['nic'] ?? record['motherNic'],
-            'phone':
-                record['baby']?['mother']?['phoneNumber'] ??
-                record['motherPhone'],
+            'nic': record['motherNic'],
+            'phone': record['motherPhone'],
             'details': 'Thiriposa nutrition supplement distributed',
             'icon': Icons.local_dining,
             'color': const Color(0xFF2E7D5A),
@@ -5592,27 +5649,25 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
         print('Vaccination data sample: $data');
 
         for (var record in data) {
+          // Get actual mother name using helper method
+          String motherName = 'Unknown Mother';
+          if (record['motherNic'] != null) {
+            motherName = await _findMotherNameByNic(record['motherNic']);
+          }
+
           allRecords.add({
             'id': record['id'],
             'recordType': 'Vaccination',
-            'motherName':
-                record['baby']?['mother']?['name'] ??
-                record['motherName'] ??
-                'Unknown Mother',
+            'motherName': motherName,
             'babyName':
-                record['childName'] ??
-                record['baby']?['name'] ??
-                record['babyName'] ??
-                'Unknown Baby',
+                record['childName'] ?? record['babyName'] ?? 'Unknown Baby',
             'date':
                 record['vaccinationDate'] ??
                 record['date'] ??
                 record['createdAt'],
             'vaccine': record['vaccineName'] ?? record['vaccine'],
-            'nic': record['baby']?['mother']?['nic'] ?? record['motherNic'],
-            'phone':
-                record['baby']?['mother']?['phoneNumber'] ??
-                record['motherPhone'],
+            'nic': record['motherNic'],
+            'phone': record['motherPhone'],
             'details':
                 'Vaccine: ${record['vaccineName'] ?? record['vaccine'] ?? 'N/A'}',
             'icon': Icons.vaccines,
@@ -5648,10 +5703,16 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
           String problemType = record['problemType'] ?? '';
           if (problemType.toLowerCase().contains('eye') ||
               problemType.toLowerCase().contains('ear')) {
+            // Get actual mother name using helper method
+            String motherName = 'Unknown Mother';
+            if (record['motherNic'] != null) {
+              motherName = await _findMotherNameByNic(record['motherNic']);
+            }
+
             allRecords.add({
               'id': record['id'],
               'recordType': 'Eye & Ear',
-              'motherName': record['motherName'] ?? 'Unknown Mother',
+              'motherName': motherName,
               'babyName':
                   record['patientName'] ?? record['babyName'] ?? 'Unknown Baby',
               'date':
@@ -5691,11 +5752,26 @@ class _ViewAllRecordsScreenState extends State<ViewAllRecordsScreen>
         print('Appointments data sample: $data');
 
         for (var record in data) {
+          // Get actual mother name using helper method
+          String motherName = 'Unknown Mother';
+          if (record['motherNic'] != null) {
+            motherName = await _findMotherNameByNic(record['motherNic']);
+          }
+
+          // Get baby name from vaccination records if available
+          String babyName = 'General appointment';
+          if (record['motherNic'] != null) {
+            String babies = await _findBabiesForMother(record['motherNic']);
+            if (babies != 'No babies registered yet') {
+              babyName = babies.split(', ').first; // Get first baby name
+            }
+          }
+
           allRecords.add({
             'id': record['id'],
             'recordType': 'Appointment',
-            'motherName': record['motherName'] ?? 'Unknown Mother',
-            'babyName': record['babyName'] ?? 'General appointment',
+            'motherName': motherName,
+            'babyName': babyName,
             'date':
                 record['appointmentDate'] ??
                 record['date'] ??

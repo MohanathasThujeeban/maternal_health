@@ -3,11 +3,15 @@ package com.example.maternalcare.services;
 import com.example.maternalcare.dto.AppointmentDTO;
 import com.example.maternalcare.model.Appointment;
 import com.example.maternalcare.model.Appointment.AppointmentStatus;
+import com.example.maternalcare.model.Registration;
+import com.example.maternalcare.model.UserRole;
 import com.example.maternalcare.repository.AppointmentRepository;
+import com.example.maternalcare.repository.RegistrationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +26,9 @@ public class AppointmentService {
     
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private RegistrationRepository registrationRepository;
     
     // Create a new appointment
     public AppointmentDTO createAppointment(AppointmentDTO appointmentDTO) {
@@ -193,7 +200,33 @@ public class AppointmentService {
     
     // Cancel appointment
     public AppointmentDTO cancelAppointment(Long id) {
-        return updateAppointmentStatus(id, AppointmentStatus.CANCELLED);
+        // First get the appointment details before cancelling
+        Optional<Appointment> appointmentOpt = appointmentRepository.findById(id);
+        if (appointmentOpt.isEmpty()) {
+            throw new RuntimeException("Appointment not found");
+        }
+        
+        Appointment appointment = appointmentOpt.get();
+        
+        // Store appointment details for notification
+        String providerName = appointment.getProviderName();
+        String appointmentType = appointment.getAppointmentType().toString();
+        LocalDateTime appointmentDate = appointment.getAppointmentDate();
+        String timeSlot = appointment.getTimeSlot();
+        String cancellingMotherNic = appointment.getMotherNic();
+        
+        // Cancel the appointment using the existing method
+        AppointmentDTO cancelledAppointment = updateAppointmentStatus(id, AppointmentStatus.CANCELLED);
+        
+        // Send slot availability notifications to all other mothers
+        try {
+            notifyMothersOfAvailableSlot(providerName, appointmentType, appointmentDate, timeSlot, cancellingMotherNic);
+        } catch (Exception e) {
+            System.err.println("Failed to send slot availability notifications: " + e.getMessage());
+            // Don't fail the cancellation if notification fails
+        }
+        
+        return cancelledAppointment;
     }
     
     // Complete appointment
@@ -473,5 +506,71 @@ public class AppointmentService {
                 ? "Provider Notes: " + appointment.getNotes() + "\n\n" 
                 : ""
         );
+    }
+    
+    /**
+     * Notify all mothers (except the one who cancelled) about an available appointment slot
+     */
+    private void notifyMothersOfAvailableSlot(String providerName, String appointmentType, 
+                                            LocalDateTime appointmentDate, String timeSlot, 
+                                            String excludeMotherNic) {
+        try {
+            // Get all active mothers from registration
+            List<Registration> allMothers = registrationRepository.findByUserRole(UserRole.MOTHER);
+            
+            // Filter active mothers (excluding the one who cancelled)
+            List<Registration> activeMothers = allMothers.stream()
+                .filter(mother -> mother.getIsActive() != null && mother.getIsActive())
+                .filter(mother -> !mother.getNicNumber().equals(excludeMotherNic))
+                .collect(Collectors.toList());
+            
+            if (activeMothers.isEmpty()) {
+                System.out.println("No active mothers found to notify about available slot");
+                return;
+            }
+            
+            // Format the appointment date for display
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
+            String formattedDate = appointmentDate.format(dateFormatter);
+            
+            System.out.printf("Notifying %d mothers about available slot: %s with %s on %s at %s%n", 
+                            activeMothers.size(), appointmentType, providerName, formattedDate, timeSlot);
+            
+            // Send notifications to all mothers (in a separate thread to avoid blocking)
+            new Thread(() -> {
+                int successCount = 0;
+                int failureCount = 0;
+                
+                for (Registration mother : activeMothers) {
+                    try {
+                        if (mother.getEmail() != null && !mother.getEmail().isEmpty()) {
+                            emailService.sendSlotAvailabilityNotification(
+                                mother.getEmail(),
+                                mother.getFullName(),
+                                providerName,
+                                appointmentType,
+                                formattedDate,
+                                timeSlot
+                            );
+                            successCount++;
+                            
+                            // Small delay to avoid overwhelming the email server
+                            Thread.sleep(100);
+                        }
+                    } catch (Exception e) {
+                        failureCount++;
+                        System.err.printf("Failed to send notification to %s (%s): %s%n", 
+                                        mother.getFullName(), mother.getEmail(), e.getMessage());
+                    }
+                }
+                
+                System.out.printf("Slot availability notifications sent: %d successful, %d failed%n", 
+                                successCount, failureCount);
+            }).start();
+            
+        } catch (Exception e) {
+            System.err.println("Error in notifyMothersOfAvailableSlot: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

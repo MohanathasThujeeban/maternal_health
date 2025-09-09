@@ -248,6 +248,156 @@ public class EmailService {
         }
     }
 
+    /**
+     * Send appointment slot availability notification to mothers
+     */
+    public void sendSlotAvailabilityNotification(String to, String motherName, String providerName, 
+                                                String appointmentType, String appointmentDate, String timeSlot) {
+        try {
+            String subject = "📅 Appointment Slot Available - " + providerName + " on " + appointmentDate;
+            String htmlContent = buildSlotAvailabilityEmailBody(motherName, providerName, appointmentType, appointmentDate, timeSlot);
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            
+            mailSender.send(message);
+            logger.info("Slot availability notification email sent successfully to: {}", to);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send slot availability notification email to: {}", to, e);
+            // Don't throw exception - let the calling service handle the failure gracefully
+        }
+    }
+
+    private String buildSlotAvailabilityEmailBody(String motherName, String providerName, 
+                                                 String appointmentType, String appointmentDate, String timeSlot) {
+        return String.format("""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Appointment Slot Available</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <div style="background: linear-gradient(135deg, #4FC3A1 0%%, #2E7D5A 100%%); color: white; padding: 30px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">
+                            🎯 Appointment Slot Available!
+                        </div>
+                        <div style="font-size: 16px; opacity: 0.9;">
+                            A slot has opened up for your preferred provider
+                        </div>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 30px;">
+                        <h2 style="color: #2E7D5A; margin-bottom: 20px; font-size: 20px;">
+                            Dear %s,
+                        </h2>
+                        
+                        <p style="color: #555; font-size: 16px; line-height: 1.6; margin-bottom: 25px;">
+                            Great news! An appointment slot has become available with <strong>%s</strong>. 
+                            This is a perfect opportunity to schedule your appointment.
+                        </p>
+                        
+                        <!-- Appointment Details Card -->
+                        <div style="background-color: #f8fffe; border: 2px solid #4FC3A1; border-radius: 8px; padding: 25px; margin: 25px 0;">
+                            <h3 style="color: #2E7D5A; margin-top: 0; margin-bottom: 20px; font-size: 18px;">
+                                📋 Available Slot Details
+                            </h3>
+                            
+                            <table style="width: 100%%; border-collapse: collapse;">
+                                <tr style="margin-bottom: 12px;">
+                                    <td style="color: #666; font-weight: bold; padding: 8px 0; width: 140px; vertical-align: top;">
+                                        👩‍⚕️ Provider:
+                                    </td>
+                                    <td style="color: #2E7D5A; font-weight: bold; padding: 8px 0; vertical-align: top;">
+                                        %s
+                                    </td>
+                                </tr>
+                                <tr style="margin-bottom: 12px;">
+                                    <td style="color: #666; font-weight: bold; padding: 8px 0; width: 140px; vertical-align: top;">
+                                        🩺 Type:
+                                    </td>
+                                    <td style="color: #2E7D5A; padding: 8px 0; vertical-align: top;">
+                                        %s Consultation
+                                    </td>
+                                </tr>
+                                <tr style="margin-bottom: 12px;">
+                                    <td style="color: #666; font-weight: bold; padding: 8px 0; width: 140px; vertical-align: top;">
+                                        📅 Date:
+                                    </td>
+                                    <td style="color: #2E7D5A; font-weight: bold; padding: 8px 0; vertical-align: top; font-size: 16px;">
+                                        %s
+                                    </td>
+                                </tr>
+                                <tr style="margin-bottom: 12px;">
+                                    <td style="color: #666; font-weight: bold; padding: 8px 0; width: 140px; vertical-align: top;">
+                                        ⏰ Time:
+                                    </td>
+                                    <td style="color: #2E7D5A; font-weight: bold; padding: 8px 0; vertical-align: top; font-size: 16px;">
+                                        %s
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- Call to Action -->
+                        <div style="text-align: center; margin: 35px 0;">
+                            <div style="background-color: #fff8e1; border-radius: 8px; padding: 20px; margin-bottom: 25px;">
+                                <p style="color: #f57c00; font-size: 16px; margin: 0; font-weight: bold;">
+                                    ⚡ This slot may fill up quickly! Book now to secure your appointment.
+                                </p>
+                            </div>
+                            
+                            <p style="color: #555; font-size: 16px; line-height: 1.6;">
+                                To book this appointment, please open your Maternal Health app and schedule your appointment as usual.
+                            </p>
+                        </div>
+                        
+                        <!-- Important Note -->
+                        <div style="background-color: #f0f9ff; border-left: 4px solid #4FC3A1; padding: 20px; margin: 25px 0;">
+                            <h4 style="color: #2E7D5A; margin-top: 0; margin-bottom: 10px;">
+                                📱 How to Book:
+                            </h4>
+                            <ol style="color: #555; margin: 0; padding-left: 20px;">
+                                <li style="margin-bottom: 8px;">Open your Maternal Health mobile app</li>
+                                <li style="margin-bottom: 8px;">Go to the Appointments section</li>
+                                <li style="margin-bottom: 8px;">Select "Schedule New Appointment"</li>
+                                <li style="margin-bottom: 8px;">Choose the provider and available slot</li>
+                                <li>Confirm your booking</li>
+                            </ol>
+                        </div>
+                        
+                        <p style="color: #777; font-size: 14px; text-align: center; margin-top: 30px;">
+                            This is an automated notification. Please do not reply to this email.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #2c3e50; color: white; padding: 25px; text-align: center;">
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 5px;">
+                            Maternal Health Care System
+                        </div>
+                        <div style="font-size: 14px; opacity: 0.8;">
+                            Caring for mothers and babies with love 💝
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+            """, 
+            motherName, providerName, providerName, appointmentType, appointmentDate, timeSlot);
+    }
+
     private String buildVerificationEmailHtml(String verificationUrl) {
         return """
                 <!DOCTYPE html>
