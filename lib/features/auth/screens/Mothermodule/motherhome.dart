@@ -9,7 +9,7 @@ import '../../../appointments/appointments_list_screen.dart';
 import '../../../../widgets/custom_loading.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
 import './vaccinations_screen.dart';
-import './mother_growth_chart_screen.dart';
+import './baby_specific_growth_chart_screen.dart';
 import './comprehensive_profile_screen.dart';
 import './privacy_security_screen.dart';
 import './eye_ear_records_screen.dart';
@@ -264,7 +264,7 @@ class MotherDashboardScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const MotherGrowthChartScreen(),
+                    builder: (context) => const BabySpecificGrowthChartScreen(),
                   ),
                 ),
               ),

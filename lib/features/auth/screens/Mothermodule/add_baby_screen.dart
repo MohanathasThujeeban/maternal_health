@@ -38,7 +38,7 @@ class _AddBabyScreenState extends State<AddBabyScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.pink.shade300,
+              primary: const Color.fromARGB(255, 52, 210, 225),
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: Colors.black,
@@ -108,7 +108,7 @@ class _AddBabyScreenState extends State<AddBabyScreen> {
           'Add New Baby',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
-        backgroundColor: Colors.pink.shade300,
+        backgroundColor: const Color.fromARGB(255, 52, 210, 225),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
