@@ -102,6 +102,17 @@ public class AppointmentService {
         return convertToDTO(savedAppointment);
     }
     
+    // Get all appointments
+    public List<AppointmentDTO> getAllAppointments() {
+        try {
+            List<Appointment> appointments = appointmentRepository.findAll();
+            return appointments.stream().map(this::convertToDTO).collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error getting all appointments: " + e.getMessage());
+            throw new RuntimeException("Failed to get all appointments", e);
+        }
+    }
+    
     // Get appointments by mother NIC
     public List<AppointmentDTO> getAppointmentsByMotherNic(String motherNic) {
         try {

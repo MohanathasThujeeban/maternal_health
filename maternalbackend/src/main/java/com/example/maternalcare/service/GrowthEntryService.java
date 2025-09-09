@@ -1,7 +1,9 @@
 package com.example.maternalcare.service;
 
+import com.example.maternalcare.model.Baby;
 import com.example.maternalcare.model.GrowthEntry;
 import com.example.maternalcare.model.Registration;
+import com.example.maternalcare.repository.BabyRepository;
 import com.example.maternalcare.repository.GrowthEntryRepository;
 import com.example.maternalcare.repository.RegistrationRepository;
 import com.example.maternalcare.services.EmailService;
@@ -20,13 +22,16 @@ public class GrowthEntryService {
     
     private final GrowthEntryRepository repository;
     private final RegistrationRepository registrationRepository;
+    private final BabyRepository babyRepository;
     private final EmailService emailService;
 
     public GrowthEntryService(GrowthEntryRepository repository, 
                              RegistrationRepository registrationRepository,
+                             BabyRepository babyRepository,
                              EmailService emailService) {
         this.repository = repository;
         this.registrationRepository = registrationRepository;
+        this.babyRepository = babyRepository;
         this.emailService = emailService;
     }
 
@@ -106,11 +111,21 @@ public class GrowthEntryService {
                 // Format the date for display
                 String formattedDate = entry.getDate().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
                 
+                // Get baby name if baby ID is provided
+                String babyName = "Your baby";
+                if (entry.getBabyId() != null) {
+                    Optional<Baby> babyOpt = babyRepository.findById(entry.getBabyId());
+                    if (babyOpt.isPresent()) {
+                        babyName = babyOpt.get().getBabyName();
+                    }
+                }
+                
                 // Send email notification
                 emailService.sendGrowthRecordUpdateEmail(
                     mother.getEmail(),
                     mother.getFullName(),
                     midwifeName,
+                    babyName,
                     entry.getHeight(),
                     entry.getWeight(),
                     formattedDate

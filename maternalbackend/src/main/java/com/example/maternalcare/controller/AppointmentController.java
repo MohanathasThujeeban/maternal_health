@@ -22,6 +22,17 @@ public class AppointmentController {
     @Autowired
     private AppointmentService appointmentService;
     
+    // Get all appointments
+    @GetMapping("/all")
+    public ResponseEntity<List<AppointmentDTO>> getAllAppointments() {
+        try {
+            List<AppointmentDTO> appointments = appointmentService.getAllAppointments();
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
     // Create a new appointment
     @PostMapping
     public ResponseEntity<?> createAppointment(@Valid @RequestBody AppointmentDTO appointmentDTO) {

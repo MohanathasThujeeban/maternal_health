@@ -1182,9 +1182,9 @@ public class EmailService {
      * Send growth record update notification email to mother
      */
     public void sendGrowthRecordUpdateEmail(String to, String motherName, String midwifeName, 
-                                          double height, double weight, String recordDate) {
+                                          String babyName, double height, double weight, String recordDate) {
         try {
-            String subject = "🌱 Baby Growth Record Updated - Maternal Health";
+            String subject = "🌱 " + babyName + "'s Growth Record Updated - Maternal Health";
             
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -1193,7 +1193,7 @@ public class EmailService {
             helper.setTo(to);
             helper.setSubject(subject);
             
-            String htmlContent = buildGrowthRecordUpdateEmailHtml(motherName, midwifeName, height, weight, recordDate);
+            String htmlContent = buildGrowthRecordUpdateEmailHtml(motherName, midwifeName, babyName, height, weight, recordDate);
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
@@ -1208,7 +1208,7 @@ public class EmailService {
     /**
      * Build HTML content for growth record update email
      */
-    private String buildGrowthRecordUpdateEmailHtml(String motherName, String midwifeName, 
+    private String buildGrowthRecordUpdateEmailHtml(String motherName, String midwifeName, String babyName,
                                                    double height, double weight, String recordDate) {
         return String.format("""
                 <!DOCTYPE html>
@@ -1374,14 +1374,14 @@ public class EmailService {
                     <div class="container">
                         <div class="header">
                             <span class="icon">🌱</span>
-                            <h1>Baby Growth Record Updated!</h1>
+                            <h1>%s's Growth Record Updated!</h1>
                         </div>
                         
                         <div class="content">
                             <div class="greeting">Hello %s! 👋</div>
                             
                             <div class="message">
-                                Great news! Your baby's growth record has been updated by your midwife. 
+                                Great news! %s's growth record has been updated by your midwife. 
                                 Here are the latest measurements taken during your visit:
                             </div>
                             
@@ -1414,12 +1414,12 @@ public class EmailService {
                             
                             <div class="encouragement">
                                 <span class="heart">💖</span>
-                                <strong>Your baby is growing beautifully!</strong><br>
+                                <strong>%s is growing beautifully!</strong><br>
                                 Keep up the excellent care and continue with regular check-ups.
                             </div>
                             
                             <div class="message">
-                                You can view the complete growth chart and track your baby's progress 
+                                You can view %s's complete growth chart and track their progress 
                                 in the <span class="highlight">Maternal Health</span> mobile app.
                             </div>
                         </div>
@@ -1431,7 +1431,7 @@ public class EmailService {
                     </div>
                 </body>
                 </html>
-                """, motherName, height, weight, recordDate, midwifeName);
+                """, babyName, motherName, babyName, height, weight, recordDate, midwifeName, babyName, babyName);
     }
 
     public void sendPasswordChangeConfirmationEmail(String to, String motherName, String changeDateTime, String deviceInfo) {

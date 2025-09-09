@@ -21,4 +21,10 @@ public class GrowthRecordController {
         List<GrowthRecord> records = growthRecordRepository.findByMotherNicOrderByDateDesc(motherNic);
         return ResponseEntity.ok(records);
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<GrowthRecord>> getAllGrowthRecords() {
+        List<GrowthRecord> records = growthRecordRepository.findAll();
+        return ResponseEntity.ok(records);
+    }
 }
