@@ -9,4 +9,9 @@ import java.util.List;
 @Repository
 public interface GrowthRecordRepository extends JpaRepository<GrowthRecord, Long> {
     List<GrowthRecord> findByMotherNicOrderByDateDesc(String motherNic);
+    
+    // Baby-specific methods
+    List<GrowthRecord> findByBabyIdOrderByDateDesc(Long babyId);
+    
+    List<GrowthRecord> findByMotherNicAndBabyIdOrderByDateDesc(String motherNic, Long babyId);
 }

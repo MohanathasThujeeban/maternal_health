@@ -27,4 +27,27 @@ public class GrowthRecordController {
         List<GrowthRecord> records = growthRecordRepository.findAll();
         return ResponseEntity.ok(records);
     }
+
+    // Baby-specific endpoints for mother dashboard
+    @GetMapping("/baby/{babyId}")
+    public ResponseEntity<List<GrowthRecord>> getGrowthRecordsByBaby(@PathVariable Long babyId) {
+        try {
+            List<GrowthRecord> records = growthRecordRepository.findByBabyIdOrderByDateDesc(babyId);
+            return ResponseEntity.ok(records);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    @GetMapping("/mother/{motherNic}/baby/{babyId}")
+    public ResponseEntity<List<GrowthRecord>> getGrowthRecordsByMotherAndBaby(
+            @PathVariable String motherNic, 
+            @PathVariable Long babyId) {
+        try {
+            List<GrowthRecord> records = growthRecordRepository.findByMotherNicAndBabyIdOrderByDateDesc(motherNic, babyId);
+            return ResponseEntity.ok(records);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
 }

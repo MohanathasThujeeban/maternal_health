@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:maternal_health/services/thiriposa_api_service.dart';
 import 'package:maternal_health/services/user_service.dart';
+import 'package:maternal_health/services/baby_service.dart';
 
 class ThiriposaRecordsScreen extends StatefulWidget {
   const ThiriposaRecordsScreen({super.key});
@@ -11,6 +12,7 @@ class ThiriposaRecordsScreen extends StatefulWidget {
 
 class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
   List<dynamic> _records = [];
+  Map<int, Map<String, dynamic>> _babiesData = {}; // Store baby data by babyId
   bool _isLoading = true;
   String _errorMessage = '';
 
@@ -40,14 +42,33 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
       // Fetch Thiriposa records for this user
       final result = await ThiriposaApiService.getRecordsByNic(nic);
 
-      setState(() {
-        _isLoading = false;
-        if (result['success']) {
-          _records = result['records'];
-        } else {
-          _errorMessage = result['message'];
+      if (result['success']) {
+        _records = result['records'];
+
+        // Fetch baby data for each record that has a babyId
+        _babiesData.clear();
+        for (var record in _records) {
+          final babyId = record['babyId'];
+          if (babyId != null && !_babiesData.containsKey(babyId)) {
+            try {
+              final babyData = await BabyService.getBabyById(babyId);
+              _babiesData[babyId] = babyData;
+            } catch (e) {
+              print('Error fetching baby $babyId: $e');
+              // Continue with other babies even if one fails
+            }
+          }
         }
-      });
+
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = result['message'];
+        });
+      }
     } catch (e) {
       setState(() {
         _isLoading = false;
@@ -330,6 +351,17 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
                           fontFamily: 'SpotifyCircular',
                         ),
                       ),
+                      if (_getUniqueBabies().isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'For ${_getUniqueBabies().length} ${_getUniqueBabies().length == 1 ? 'baby' : 'babies'}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                            fontFamily: 'SpotifyCircular',
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -362,6 +394,22 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
 
         const SizedBox(height: 20),
 
+        // Baby Breakdown Section
+        if (_getUniqueBabies().isNotEmpty) ...[
+          const Text(
+            'Baby-wise Summary',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E7D5A),
+              fontFamily: 'SpotifyCircular',
+            ),
+          ),
+          const SizedBox(height: 12),
+          ..._buildBabySummaryCards(),
+          const SizedBox(height: 20),
+        ],
+
         const Text(
           'Recent Records',
           style: TextStyle(
@@ -391,6 +439,11 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
     final date = DateTime.parse(record['date']);
     final quantity = record['quantity'];
     final notes = record['notes'] ?? '';
+    final babyId = record['babyId'];
+
+    // Get baby information if available
+    final babyData = babyId != null ? _babiesData[babyId] : null;
+    final babyName = babyData?['babyName'] ?? 'Unknown Baby';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -463,6 +516,42 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
                 ],
               ),
 
+              // Baby Information Section
+              if (babyId != null) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4FC3A1).withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF4FC3A1).withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.child_care,
+                        size: 16,
+                        color: Color(0xFF4FC3A1),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'For Baby: $babyName',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF2E7D5A),
+                            fontFamily: 'SpotifyCircular',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               if (notes.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Container(
@@ -521,5 +610,125 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
       final years = (difference.inDays / 365).floor();
       return '$years ${years == 1 ? 'year' : 'years'} ago';
     }
+  }
+
+  List<int> _getUniqueBabies() {
+    Set<int> uniqueBabyIds = {};
+    for (var record in _records) {
+      final babyId = record['babyId'];
+      if (babyId != null) {
+        uniqueBabyIds.add(babyId);
+      }
+    }
+    return uniqueBabyIds.toList();
+  }
+
+  String _getBabySummary() {
+    final uniqueBabies = _getUniqueBabies();
+    if (uniqueBabies.isEmpty) return '';
+
+    List<String> babyNames = [];
+    for (int babyId in uniqueBabies) {
+      final babyData = _babiesData[babyId];
+      if (babyData != null) {
+        babyNames.add(babyData['babyName'] ?? 'Unknown');
+      }
+    }
+
+    if (babyNames.isEmpty) return '';
+    if (babyNames.length == 1) return babyNames.first;
+    if (babyNames.length == 2) return '${babyNames[0]} and ${babyNames[1]}';
+    return '${babyNames.take(babyNames.length - 1).join(', ')}, and ${babyNames.last}';
+  }
+
+  List<Widget> _buildBabySummaryCards() {
+    final uniqueBabies = _getUniqueBabies();
+    List<Widget> cards = [];
+
+    for (int babyId in uniqueBabies) {
+      final babyData = _babiesData[babyId];
+      final babyName = babyData?['babyName'] ?? 'Unknown Baby';
+
+      // Calculate packets for this baby
+      int totalPackets = 0;
+      int recordCount = 0;
+      for (var record in _records) {
+        if (record['babyId'] == babyId) {
+          totalPackets += (record['quantity'] as int? ?? 0);
+          recordCount++;
+        }
+      }
+
+      cards.add(
+        Container(
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFF4FC3A1).withOpacity(0.3)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Icon(
+                  Icons.child_care,
+                  color: Color(0xFF4FC3A1),
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      babyName,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2E7D5A),
+                        fontFamily: 'SpotifyCircular',
+                      ),
+                    ),
+                    Text(
+                      '$recordCount ${recordCount == 1 ? 'record' : 'records'}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontFamily: 'SpotifyCircular',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4FC3A1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$totalPackets packets',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    fontFamily: 'SpotifyCircular',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return cards;
   }
 }

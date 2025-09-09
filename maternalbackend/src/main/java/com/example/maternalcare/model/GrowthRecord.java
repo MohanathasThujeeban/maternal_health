@@ -13,6 +13,9 @@ public class GrowthRecord {
     @Column(name = "mother_nic", nullable = false)
     private String motherNic;
 
+    @Column(name = "baby_id")
+    private Long babyId;
+
     @Column(nullable = false)
     private Double height;
 
@@ -38,6 +41,14 @@ public class GrowthRecord {
 
     public void setMotherNic(String motherNic) {
         this.motherNic = motherNic;
+    }
+
+    public Long getBabyId() {
+        return babyId;
+    }
+
+    public void setBabyId(Long babyId) {
+        this.babyId = babyId;
     }
 
     public Double getHeight() {

@@ -8,13 +8,13 @@ import '../../../appointments/schedule_appointment_screen.dart';
 import '../../../appointments/appointments_list_screen.dart';
 import '../../../../widgets/custom_loading.dart';
 import '../../../thiriposa/thiriposa_records_screen.dart';
-import './baby_records_screen.dart';
 import './vaccinations_screen.dart';
 import './mother_growth_chart_screen.dart';
 import './comprehensive_profile_screen.dart';
 import './privacy_security_screen.dart';
 import './eye_ear_records_screen.dart';
 import './add_baby_screen.dart';
+import './baby_specific_records_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -305,14 +305,15 @@ class MotherDashboardScreen extends StatelessWidget {
             subtitle: localizations.manageHealthRecords,
             cards: [
               _CategoryCard(
-                icon: Icons.baby_changing_station,
-                title: localizations.babyRecords,
-                description: localizations.babyRecordsDescription,
+                icon: Icons.folder_open,
+                title: 'Baby Records',
+                description:
+                    'View all records for each baby (vaccines, growth, etc.)',
                 color: const Color(0xFF4FC3A1),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const BabyRecordsScreen(),
+                    builder: (context) => const BabySpecificRecordsScreen(),
                   ),
                 ),
               ),
