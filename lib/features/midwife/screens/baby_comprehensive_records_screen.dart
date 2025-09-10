@@ -8,9 +8,13 @@ import '../../../models/baby.dart';
 import '../../../models/vaccination.dart';
 import '../../../models/growth_entry.dart';
 import '../../../models/thiriposa_record.dart';
+import '../../../models/appointment.dart';
 import '../../../services/vaccination_service.dart';
 import '../../../services/growth_entry_service.dart';
 import '../../../services/thiriposa_service.dart';
+import '../../../services/eye_ear_record_service.dart';
+import '../../../services/appointment_service.dart';
+import '../../../services/patient_note_service.dart';
 
 class BabyComprehensiveRecordsScreen extends StatefulWidget {
   final Baby baby;
@@ -32,6 +36,9 @@ class _BabyComprehensiveRecordsScreenState
   List<Vaccination> _vaccinations = [];
   List<GrowthEntry> _growthEntries = [];
   List<ThiriposaRecord> _thiriposaRecords = [];
+  List<Map<String, dynamic>> _eyeEarRecords = [];
+  List<Appointment> _appointments = [];
+  List<Map<String, dynamic>> _patientNotes = [];
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -53,12 +60,23 @@ class _BabyComprehensiveRecordsScreenState
         VaccinationService.getVaccinationsByBaby(widget.baby.id),
         GrowthEntryService.getEntriesByBaby(widget.baby.id),
         ThiriposaService.getRecordsByBaby(widget.baby.id),
+        EyeEarRecordService.getRecordsByBabyId(widget.baby.id),
+        AppointmentService.getAppointmentsByNic(widget.motherNic),
+        PatientNoteService.getNotesByMotherNic(widget.motherNic),
       ]);
 
       setState(() {
         _vaccinations = results[0] as List<Vaccination>;
         _growthEntries = results[1] as List<GrowthEntry>;
         _thiriposaRecords = results[2] as List<ThiriposaRecord>;
+        _eyeEarRecords = results[3] as List<Map<String, dynamic>>;
+
+        // Extract appointments from the service response
+        final appointmentResponse = results[4] as Map<String, dynamic>;
+        _appointments =
+            appointmentResponse['appointments'] as List<Appointment>;
+
+        _patientNotes = results[5] as List<Map<String, dynamic>>;
         _isLoading = false;
       });
     } catch (e) {
@@ -201,6 +219,63 @@ class _BabyComprehensiveRecordsScreenState
                 )
               else
                 _buildThiriposaTable(),
+              pw.SizedBox(height: 30),
+
+              // Eye & Ear Records Section
+              pw.Text(
+                'Eye & Ear Records',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              if (_eyeEarRecords.isEmpty)
+                pw.Text(
+                  'No eye and ear records found',
+                  style: pw.TextStyle(color: PdfColors.grey),
+                )
+              else
+                _buildEyeEarPdfTable(),
+              pw.SizedBox(height: 30),
+
+              // Appointments Section
+              pw.Text(
+                'Appointments',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.green,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              if (_appointments.isEmpty)
+                pw.Text(
+                  'No appointments found',
+                  style: pw.TextStyle(color: PdfColors.grey),
+                )
+              else
+                _buildAppointmentsPdfTable(),
+              pw.SizedBox(height: 30),
+
+              // Patient Notes Section
+              pw.Text(
+                'Doctor Notes',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.deepPurple,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              if (_patientNotes.isEmpty)
+                pw.Text(
+                  'No doctor notes found',
+                  style: pw.TextStyle(color: PdfColors.grey),
+                )
+              else
+                _buildPatientNotesPdfTable(),
               pw.SizedBox(height: 30),
 
               // Summary Section
@@ -432,6 +507,246 @@ class _BabyComprehensiveRecordsScreenState
     );
   }
 
+  pw.Widget _buildEyeEarPdfTable() {
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(1.5),
+        1: const pw.FlexColumnWidth(1.5),
+        2: const pw.FlexColumnWidth(1),
+        3: const pw.FlexColumnWidth(2),
+      },
+      children: [
+        // Header
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.blue100),
+          children: [
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Eye Problem',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Ear Problem',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Duration',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Date & Remarks',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        // Data rows
+        ..._eyeEarRecords.map((record) {
+          return pw.TableRow(
+            children: [
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(record['eyeProblem'] ?? 'None'),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(record['earProblem'] ?? 'None'),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(record['symptomsDuration'] ?? 'Unknown'),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(
+                  '${record['dateOfDiagnosis'] ?? 'Unknown'}\n${record['remarks'] ?? ''}',
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  pw.Widget _buildAppointmentsPdfTable() {
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(1),
+        1: const pw.FlexColumnWidth(1.5),
+        2: const pw.FlexColumnWidth(1),
+        3: const pw.FlexColumnWidth(1),
+        4: const pw.FlexColumnWidth(2),
+      },
+      children: [
+        // Header
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.green100),
+          children: [
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Type',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Provider',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Date',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Status',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Notes',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        // Data rows
+        ..._appointments.map((appointment) {
+          return pw.TableRow(
+            children: [
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(appointment.appointmentType.toUpperCase()),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(appointment.providerName),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(
+                  DateFormat('dd/MM/yyyy').format(appointment.appointmentDate),
+                ),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(appointment.status),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(appointment.notes ?? 'None'),
+              ),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+
+  pw.Widget _buildPatientNotesPdfTable() {
+    return pw.Table(
+      border: pw.TableBorder.all(color: PdfColors.grey),
+      columnWidths: {
+        0: const pw.FlexColumnWidth(1.5),
+        1: const pw.FlexColumnWidth(1),
+        2: const pw.FlexColumnWidth(3),
+      },
+      children: [
+        // Header
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(color: PdfColors.purple100),
+          children: [
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Doctor',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Date',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Container(
+              padding: const pw.EdgeInsets.all(8),
+              child: pw.Text(
+                'Notes & Treatment',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        // Data rows
+        ..._patientNotes.map((note) {
+          final createdAt = note['createdAt'] != null
+              ? DateTime.tryParse(note['createdAt'])
+              : null;
+          final dateString = createdAt != null
+              ? DateFormat('dd/MM/yyyy').format(createdAt)
+              : 'Unknown';
+
+          final noteDetails = [
+            if (note['notes'] != null && note['notes'].toString().isNotEmpty)
+              'Notes: ${note['notes']}',
+            if (note['diagnosis'] != null &&
+                note['diagnosis'].toString().isNotEmpty)
+              'Diagnosis: ${note['diagnosis']}',
+            if (note['treatmentPlan'] != null &&
+                note['treatmentPlan'].toString().isNotEmpty)
+              'Treatment: ${note['treatmentPlan']}',
+            if (note['nextAppointment'] != null &&
+                note['nextAppointment'].toString().isNotEmpty)
+              'Next: ${note['nextAppointment']}',
+          ].join('\n');
+
+          return pw.TableRow(
+            children: [
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(note['doctorName'] ?? 'Unknown Doctor'),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(dateString),
+              ),
+              pw.Container(
+                padding: const pw.EdgeInsets.all(8),
+                child: pw.Text(
+                  noteDetails.isNotEmpty ? noteDetails : 'No details',
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ],
+    );
+  }
+
   pw.Widget _buildSummarySection() {
     final completedVaccinations = _vaccinations
         .where((v) => v.status.toUpperCase() == 'COMPLETED')
@@ -467,6 +782,14 @@ class _BabyComprehensiveRecordsScreenState
           pw.SizedBox(height: 10),
           pw.Text('Total Thiriposa Records: ${_thiriposaRecords.length}'),
           pw.Text('Total Thiriposa Packets: $totalThiriposa'),
+          pw.SizedBox(height: 10),
+          pw.Text('Total Eye & Ear Records: ${_eyeEarRecords.length}'),
+          pw.Text('Total Appointments: ${_appointments.length}'),
+          pw.Text(
+            'Completed Appointments: ${_appointments.where((a) => a.status.toLowerCase() == 'completed').length}',
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text('Total Doctor Notes: ${_patientNotes.length}'),
         ],
       ),
     );
@@ -550,6 +873,12 @@ class _BabyComprehensiveRecordsScreenState
                     _buildGrowthSection(),
                     SizedBox(height: 20),
                     _buildThiriposaSection(),
+                    SizedBox(height: 20),
+                    _buildEyeEarSection(),
+                    SizedBox(height: 20),
+                    _buildAppointmentsSection(),
+                    SizedBox(height: 20),
+                    _buildPatientNotesSection(),
                     SizedBox(height: 20),
 
                     // Export Button
@@ -663,71 +992,170 @@ class _BabyComprehensiveRecordsScreenState
       0,
       (sum, record) => sum + record.quantity,
     );
+    final completedAppointments = _appointments
+        .where((a) => a.status.toLowerCase() == 'completed')
+        .length;
 
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Card(
-            color: Colors.green[50],
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Icon(Icons.vaccines, color: Colors.green[600], size: 30),
-                  SizedBox(height: 8),
-                  Text(
-                    '$completedVaccinations/${_vaccinations.length}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // First row
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                color: Colors.green[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(Icons.vaccines, color: Colors.green[600], size: 30),
+                      SizedBox(height: 8),
+                      Text(
+                        '$completedVaccinations/${_vaccinations.length}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Vaccinations', style: TextStyle(fontSize: 12)),
+                    ],
                   ),
-                  Text('Vaccinations', style: TextStyle(fontSize: 12)),
-                ],
+                ),
               ),
             ),
-          ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Card(
+                color: Colors.blue[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.trending_up,
+                        color: Colors.blue[600],
+                        size: 30,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '${_growthEntries.length}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Growth Records', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Card(
+                color: Colors.purple[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.local_pharmacy,
+                        color: Colors.purple[600],
+                        size: 30,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '$totalThiriposa',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Thiriposa Packets', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
-        SizedBox(width: 8),
-        Expanded(
-          child: Card(
-            color: Colors.blue[50],
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Icon(Icons.trending_up, color: Colors.blue[600], size: 30),
-                  SizedBox(height: 8),
-                  Text(
-                    '${_growthEntries.length}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        SizedBox(height: 8),
+        // Second row
+        Row(
+          children: [
+            Expanded(
+              child: Card(
+                color: Colors.cyan[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(Icons.visibility, color: Colors.cyan[600], size: 30),
+                      SizedBox(height: 8),
+                      Text(
+                        '${_eyeEarRecords.length}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Eye & Ear Records', style: TextStyle(fontSize: 12)),
+                    ],
                   ),
-                  Text('Growth Records', style: TextStyle(fontSize: 12)),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-        SizedBox(width: 8),
-        Expanded(
-          child: Card(
-            color: Colors.purple[50],
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.local_pharmacy,
-                    color: Colors.purple[600],
-                    size: 30,
+            SizedBox(width: 8),
+            Expanded(
+              child: Card(
+                color: Colors.orange[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Colors.orange[600],
+                        size: 30,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        '$completedAppointments/${_appointments.length}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Appointments', style: TextStyle(fontSize: 12)),
+                    ],
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    '$totalThiriposa',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  Text('Thiriposa Packets', style: TextStyle(fontSize: 12)),
-                ],
+                ),
               ),
             ),
-          ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Card(
+                color: Colors.pink[50],
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      Icon(Icons.note_alt, color: Colors.pink[600], size: 30),
+                      SizedBox(height: 8),
+                      Text(
+                        '${_patientNotes.length}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text('Doctor Notes', style: TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -934,9 +1362,247 @@ class _BabyComprehensiveRecordsScreenState
             ),
             SizedBox(height: 8),
             Text(
-              'This will generate a comprehensive PDF report containing all vaccination, growth, and thiriposa records for ${widget.baby.name} only.',
+              'This will generate a comprehensive PDF report containing all vaccination, growth, thiriposa, eye/ear, appointments, and doctor notes records for ${widget.baby.name}.',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEyeEarSection() {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.visibility, color: Colors.blue[600]),
+                SizedBox(width: 8),
+                Text(
+                  'Eye & Ear Records (${_eyeEarRecords.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            if (_eyeEarRecords.isEmpty)
+              Text(
+                'No eye and ear records found',
+                style: TextStyle(color: Colors.grey),
+              )
+            else
+              Column(
+                children: _eyeEarRecords.map((record) {
+                  return Card(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue[100],
+                        child: Icon(Icons.visibility, color: Colors.blue[700]),
+                      ),
+                      title: Text(
+                        '${record['eyeProblem'] ?? 'None'} | ${record['earProblem'] ?? 'None'}',
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Duration: ${record['symptomsDuration'] ?? 'Unknown'}',
+                          ),
+                          Text(
+                            'Date: ${record['dateOfDiagnosis'] ?? 'Unknown'}',
+                          ),
+                          if (record['remarks'] != null &&
+                              record['remarks'].toString().isNotEmpty)
+                            Text('Remarks: ${record['remarks']}'),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppointmentsSection() {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.calendar_today, color: Colors.green[600]),
+                SizedBox(width: 8),
+                Text(
+                  'Appointments (${_appointments.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            if (_appointments.isEmpty)
+              Text(
+                'No appointments found',
+                style: TextStyle(color: Colors.grey),
+              )
+            else
+              Column(
+                children: _appointments.map((appointment) {
+                  final isCompleted =
+                      appointment.status.toLowerCase() == 'completed';
+                  final isPending =
+                      appointment.status.toLowerCase() == 'pending';
+
+                  return Card(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: isCompleted
+                            ? Colors.green[100]
+                            : isPending
+                            ? Colors.orange[100]
+                            : Colors.red[100],
+                        child: Icon(
+                          isCompleted
+                              ? Icons.check_circle
+                              : isPending
+                              ? Icons.schedule
+                              : Icons.cancel,
+                          color: isCompleted
+                              ? Colors.green[700]
+                              : isPending
+                              ? Colors.orange[700]
+                              : Colors.red[700],
+                        ),
+                      ),
+                      title: Text(
+                        '${appointment.appointmentType.toUpperCase()} - ${appointment.providerName}',
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Date: ${DateFormat('dd/MM/yyyy').format(appointment.appointmentDate)}',
+                          ),
+                          Text('Time: ${appointment.timeSlot}'),
+                          Text('Status: ${appointment.status}'),
+                          if (appointment.notes != null &&
+                              appointment.notes!.isNotEmpty)
+                            Text('Notes: ${appointment.notes}'),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPatientNotesSection() {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.note_alt, color: Colors.purple[600]),
+                SizedBox(width: 8),
+                Text(
+                  'Doctor Notes (${_patientNotes.length})',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 16),
+            if (_patientNotes.isEmpty)
+              Text(
+                'No doctor notes found',
+                style: TextStyle(color: Colors.grey),
+              )
+            else
+              Column(
+                children: _patientNotes.map((note) {
+                  return Card(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.purple[100],
+                        child: Icon(Icons.note_alt, color: Colors.purple[700]),
+                      ),
+                      title: Text(
+                        note['doctorName'] ?? 'Unknown Doctor',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        'Date: ${note['createdAt'] != null ? DateFormat('dd/MM/yyyy HH:mm').format(DateTime.parse(note['createdAt'])) : 'Unknown'}',
+                      ),
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (note['notes'] != null &&
+                                  note['notes'].toString().isNotEmpty) ...[
+                                Text(
+                                  'Notes:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(note['notes']),
+                                SizedBox(height: 8),
+                              ],
+                              if (note['diagnosis'] != null &&
+                                  note['diagnosis'].toString().isNotEmpty) ...[
+                                Text(
+                                  'Diagnosis:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(note['diagnosis']),
+                                SizedBox(height: 8),
+                              ],
+                              if (note['treatmentPlan'] != null &&
+                                  note['treatmentPlan']
+                                      .toString()
+                                      .isNotEmpty) ...[
+                                Text(
+                                  'Treatment Plan:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(note['treatmentPlan']),
+                                SizedBox(height: 8),
+                              ],
+                              if (note['nextAppointment'] != null &&
+                                  note['nextAppointment']
+                                      .toString()
+                                      .isNotEmpty) ...[
+                                Text(
+                                  'Next Appointment:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(note['nextAppointment']),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
           ],
         ),
       ),

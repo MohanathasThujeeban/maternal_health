@@ -16,6 +16,7 @@ import 'package:printing/printing.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_thiriposa_records_screen.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_vaccinations_screen.dart';
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
+import 'package:maternal_health/features/midwife/screens/midwife_mother_selection_screen.dart';
 import 'package:maternal_health/services/user_service.dart';
 import 'package:maternal_health/services/activity_service.dart';
 import 'package:maternal_health/services/mothers_service.dart';
@@ -848,14 +849,15 @@ class PatientsTab extends StatelessWidget {
                   _buildActionCard(
                     context,
                     title: 'View Records',
-                    subtitle: 'Browse all records with mother & baby info',
+                    subtitle:
+                        'Select mother to view baby health records & export PDF',
                     icon: Icons.folder_open,
                     color: const Color(0xFF2196F3),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => const ViewAllRecordsScreen(),
+                          builder: (_) => const MidwifeMotherSelectionScreen(),
                         ),
                       );
                     },
