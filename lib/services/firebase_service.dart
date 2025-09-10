@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import '../firebase_options.dart';
 import '../config/api_config.dart';
 
@@ -106,7 +107,7 @@ class FirebaseService {
   static Future<void> registerFCMToken(String token) async {
     try {
       // Get current user ID (you might need to implement this based on your auth system)
-      String? userId = getCurrentUserId();
+      String? userId = await getCurrentUserId();
 
       if (userId == null) {
         print('No user ID available, skipping token registration');
@@ -116,7 +117,11 @@ class FirebaseService {
       final response = await http.post(
         Uri.parse('${ApiConfig.baseApiUrl}/notifications/register-token'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'userId': userId, 'fcmToken': token}),
+        body: jsonEncode({
+          'userId': userId,
+          'userNic': userId, // Also send as userNic for backend compatibility
+          'fcmToken': token,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -151,11 +156,14 @@ class FirebaseService {
   }
 
   // Get current user ID (implement based on your auth system)
-  static String? getCurrentUserId() {
-    // This should be implemented based on your authentication system
-    // For example, you might get it from SharedPreferences, a provider, etc.
-    // For now, returning a placeholder
-    return 'user123'; // Replace with actual implementation
+  static Future<String?> getCurrentUserId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('user_nic'); // Use the user NIC as the ID
+    } catch (e) {
+      print('Error getting current user ID: $e');
+      return null;
+    }
   }
 
   // Send test notification (for development)
@@ -166,24 +174,29 @@ class FirebaseService {
     }
 
     try {
+      String? userId = await getCurrentUserId();
+
+      if (userId == null) {
+        print('No user ID available for test notification');
+        return;
+      }
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseApiUrl}/notifications/send'),
+        Uri.parse('${ApiConfig.baseApiUrl}/notifications/send-test'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'fcmToken': _fcmToken,
+          'userNic': userId,
           'title': 'Test Notification',
-          'body': 'This is a test notification from the app',
-          'data': {
-            'type': 'test',
-            'timestamp': DateTime.now().toIso8601String(),
-          },
+          'body': 'This is a test notification from the Maternal Health app',
         }),
       );
 
       if (response.statusCode == 200) {
         print('Test notification sent successfully');
       } else {
-        print('Failed to send test notification: ${response.statusCode}');
+        print(
+          'Failed to send test notification: ${response.statusCode} - ${response.body}',
+        );
       }
     } catch (e) {
       print('Error sending test notification: $e');
