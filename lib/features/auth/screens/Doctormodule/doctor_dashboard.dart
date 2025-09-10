@@ -5,7 +5,7 @@ import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/mothers_service.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
-import '../Midwivesmodule/comprehensive_records_screen.dart';
+import 'doctor_baby_selection_screen.dart';
 
 class DoctorDashboard extends StatefulWidget {
   final Map<String, dynamic>? providerData;
@@ -955,17 +955,32 @@ class _PatientsTabState extends State<PatientsTab> {
                               children: [
                                 const SizedBox(height: 4),
                                 Text(
-                                  'NIC: ${mother['nicNumber'] ?? 'N/A'}',
+                                  'NIC: ${mother['nicNumber'] ?? 'Not Available'}',
                                   style: const TextStyle(
                                     fontSize: 14,
                                     fontFamily: 'CircularStd',
                                     color: Colors.grey,
                                   ),
                                 ),
-                                if (mother['email'] != null) ...[
+                                if (mother['email'] != null &&
+                                    mother['email'].toString().isNotEmpty) ...[
                                   const SizedBox(height: 2),
                                   Text(
                                     mother['email'],
+                                    style: TextStyle(
+                                      fontFamily: 'CircularStd',
+                                      fontSize: 12,
+                                      color: Colors.grey[500],
+                                    ),
+                                  ),
+                                ],
+                                if (mother['phoneNumber'] != null &&
+                                    mother['phoneNumber']
+                                        .toString()
+                                        .isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Phone: ${mother['phoneNumber']}',
                                     style: TextStyle(
                                       fontFamily: 'CircularStd',
                                       fontSize: 12,
@@ -987,7 +1002,7 @@ class _PatientsTabState extends State<PatientsTab> {
                                   ),
                                   child: Text(
                                     (mother['isActive'] ?? true) == true
-                                        ? 'Active'
+                                        ? 'Active Patient'
                                         : 'Inactive',
                                     style: TextStyle(
                                       fontSize: 10,
@@ -1004,12 +1019,9 @@ class _PatientsTabState extends State<PatientsTab> {
                             ),
                             trailing: ElevatedButton.icon(
                               onPressed: () => _openPatientDetails(mother),
-                              icon: const Icon(
-                                Icons.medical_information,
-                                size: 18,
-                              ),
+                              icon: const Icon(Icons.child_care, size: 18),
                               label: const Text(
-                                'View Details',
+                                'View Babies',
                                 style: TextStyle(fontSize: 12),
                               ),
                               style: ElevatedButton.styleFrom(
@@ -2762,7 +2774,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
           isScrollable: true,
           tabs: const [
             Tab(icon: Icon(Icons.person), text: 'Profile'),
-            Tab(icon: Icon(Icons.folder_open), text: 'View Records'),
+            Tab(icon: Icon(Icons.child_care), text: 'Baby Records'),
             Tab(icon: Icon(Icons.note_add), text: 'Add Note'),
             Tab(icon: Icon(Icons.history), text: 'Notes History'),
           ],
@@ -2878,12 +2890,15 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                 // Patient Details
                 _buildInfoRow(
                   'NIC Number',
-                  widget.motherData['nicNumber'] ?? 'N/A',
+                  widget.motherData['nicNumber'] ?? 'Not Available',
                 ),
-                _buildInfoRow('Email', widget.motherData['email'] ?? 'N/A'),
+                _buildInfoRow(
+                  'Email',
+                  widget.motherData['email'] ?? 'Not Available',
+                ),
                 _buildInfoRow(
                   'Phone',
-                  widget.motherData['phoneNumber'] ?? 'N/A',
+                  widget.motherData['phoneNumber'] ?? 'Not Available',
                 ),
                 _buildInfoRow(
                   'Registration Date',
@@ -2891,7 +2906,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                       ? widget.motherData['registrationDate']
                             .toString()
                             .substring(0, 10)
-                      : 'N/A',
+                      : 'Not Available',
                 ),
                 _buildInfoRow(
                   'Last Updated',
@@ -2900,7 +2915,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                           0,
                           10,
                         )
-                      : 'N/A',
+                      : 'Not Available',
                 ),
               ],
             ),
@@ -2941,7 +2956,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          _tabController.animateTo(1);
+                          _tabController.animateTo(2);
                         },
                         icon: const Icon(Icons.note_add),
                         label: const Text('Add Note'),
@@ -2959,10 +2974,10 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
                     Expanded(
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          _tabController.animateTo(2);
+                          _tabController.animateTo(1);
                         },
-                        icon: const Icon(Icons.history),
-                        label: const Text('View History'),
+                        icon: const Icon(Icons.child_care),
+                        label: const Text('Baby Records'),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue.shade600,
                           foregroundColor: Colors.white,
@@ -2992,7 +3007,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen>
           colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
         ),
       ),
-      child: ComprehensiveRecordsScreen(mother: widget.motherData),
+      child: DoctorBabySelectionScreen(motherData: widget.motherData),
     );
   }
 
