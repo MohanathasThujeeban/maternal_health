@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
 
 class EmailService {
-  static const String _emailEndpoint = '${ApiConfig.baseApiUrl}/email';
+  static String get _emailEndpoint => '${ApiConfig.baseApiUrl}/email';
 
   /// Send a baby registration confirmation email to the mother
   static Future<bool> sendBabyRegistrationConfirmation({

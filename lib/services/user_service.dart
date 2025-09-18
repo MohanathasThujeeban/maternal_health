@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'dart:io';
+import '../config/api_config.dart';
 
 class UserService {
   static const String _isLoggedInKey = 'is_logged_in';
@@ -12,19 +13,8 @@ class UserService {
   static const String _userMedicalLicenseKey = 'user_medical_license';
   static const String _userInstitutionKey = 'user_institution';
 
-  // Dynamic base URL based on platform
-  static String get baseUrl {
-    if (kIsWeb) {
-      // For web (Chrome, Firefox, etc.)
-      return 'http://10.11.8.134:8080/api';
-    } else if (Platform.isAndroid) {
-      // For Android devices on ITUM WiFi network
-      return 'http://10.11.8.134:8080/api';
-    } else {
-      // For iOS simulator and other platforms
-      return 'http://10.11.8.134:8080/api';
-    }
-  }
+  // Dynamic base URL from ApiConfig (supports ngrok)
+  static String get baseUrl => ApiConfig.baseApiUrl;
 
   // Save user data after login
   // Save user data including medical license and institution for healthcare providers

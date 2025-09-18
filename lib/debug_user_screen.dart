@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'services/user_service.dart';
 import 'services/firebase_service.dart';
+import 'config/api_config.dart';
 
 class DebugUserScreen extends StatefulWidget {
   const DebugUserScreen({super.key});
@@ -79,7 +80,7 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('http://10.11.8.134:8080/api/notifications/send-daily-tip'),
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications/send-daily-tip'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userNic': userNic}),
       );
@@ -108,7 +109,7 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('http://10.11.8.134:8080/api/notifications/send-motivation'),
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications/send-motivation'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userNic': userNic}),
       );
@@ -137,7 +138,7 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
       }
 
       final response = await http.post(
-        Uri.parse('http://10.11.8.134:8080/api/notifications/send-health-tip'),
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications/send-health-tip'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userNic': userNic}),
       );
@@ -166,9 +167,7 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
       }
 
       final response = await http.post(
-        Uri.parse(
-          'http://10.11.8.134:8080/api/notifications/send-baby-care-tip',
-        ),
+        Uri.parse('${ApiConfig.baseUrl}/api/notifications/send-baby-care-tip'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'userNic': userNic}),
       );
@@ -190,12 +189,56 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Debug User Data')),
+      appBar: AppBar(
+        title: const Text('Debug User Data'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Using: ${ApiConfig.baseUrl}')),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // API Status Indicator
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: ApiConfig.useNgrok ? Colors.green[50] : Colors.blue[50],
+                border: Border.all(
+                  color: ApiConfig.useNgrok ? Colors.green : Colors.blue,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    ApiConfig.useNgrok ? Icons.cloud : Icons.wifi,
+                    color: ApiConfig.useNgrok ? Colors.green : Colors.blue,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'API Mode: ${ApiConfig.currentMode}',
+                      style: TextStyle(
+                        color: ApiConfig.useNgrok
+                            ? Colors.green[800]
+                            : Colors.blue[800],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
             Text(
               'Current User Data:',
               style: Theme.of(context).textTheme.headlineSmall,

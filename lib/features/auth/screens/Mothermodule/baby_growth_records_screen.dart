@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:maternal_health/services/user_service.dart';
+import 'package:maternal_health/config/api_config.dart';
 import 'dart:convert';
 
 class BabyGrowthRecordsScreen extends StatefulWidget {
@@ -40,7 +41,7 @@ class _BabyGrowthRecordsScreenState extends State<BabyGrowthRecordsScreen> {
 
       final response = await http
           .get(
-            Uri.parse('http://10.11.8.134:8080/api/growth/get/$motherNic'),
+            Uri.parse('${ApiConfig.baseUrl}/api/growth/get/$motherNic'),
             headers: {'Accept': 'application/json'},
           )
           .timeout(const Duration(seconds: 10));
