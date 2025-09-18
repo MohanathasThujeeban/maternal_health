@@ -211,26 +211,19 @@ class _DebugUserScreenState extends State<DebugUserScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: ApiConfig.useNgrok ? Colors.green[50] : Colors.blue[50],
-                border: Border.all(
-                  color: ApiConfig.useNgrok ? Colors.green : Colors.blue,
-                ),
+                color: Colors.blue[50],
+                border: Border.all(color: Colors.blue),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
                 children: [
-                  Icon(
-                    ApiConfig.useNgrok ? Icons.cloud : Icons.wifi,
-                    color: ApiConfig.useNgrok ? Colors.green : Colors.blue,
-                  ),
+                  Icon(Icons.wifi, color: Colors.blue),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'API Mode: ${ApiConfig.currentMode}',
                       style: TextStyle(
-                        color: ApiConfig.useNgrok
-                            ? Colors.green[800]
-                            : Colors.blue[800],
+                        color: Colors.blue[800],
                         fontWeight: FontWeight.bold,
                       ),
                     ),
