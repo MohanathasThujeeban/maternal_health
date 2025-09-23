@@ -908,6 +908,251 @@ public class EmailService {
                 """.formatted(motherName, childName, childName, vaccinationType, ageToGive, vaccinationDate, midwifeName);
     }
     
+    public void sendMaternalVaccinationNotificationEmail(String to, String motherName, 
+                                                       String vaccinationType, String ageToGive, 
+                                                       String vaccinationDate, String midwifeName) {
+        try {
+            String subject = "Maternal Vaccination Record Updated - " + motherName;
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            
+            helper.setFrom(fromEmail);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            
+            String htmlContent = buildMaternalVaccinationNotificationHtml(motherName, 
+                vaccinationType, ageToGive, vaccinationDate, midwifeName);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Maternal vaccination notification email sent successfully to {}", to);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send maternal vaccination notification email to {}: {}", to, e.getMessage());
+            throw new RuntimeException("Failed to send maternal vaccination notification email", e);
+        }
+    }
+    
+    private String buildMaternalVaccinationNotificationHtml(String motherName, 
+                                                           String vaccinationType, String ageToGive, 
+                                                           String vaccinationDate, String midwifeName) {
+        return """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Maternal Vaccination Record Updated</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            background-color: #f5f5f5;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .container {
+                            max-width: 600px;
+                            margin: 0 auto;
+                            background-color: #ffffff;
+                            border-radius: 10px;
+                            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                            overflow: hidden;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #FF6B9D 0%%, #FF8DA1 50%%, #FFA8B5 100%%);
+                            color: white;
+                            text-align: center;
+                            padding: 30px 20px;
+                        }
+                        .header h1 {
+                            margin: 0;
+                            font-size: 28px;
+                            font-weight: 600;
+                        }
+                        .header .icon {
+                            font-size: 48px;
+                            margin-bottom: 10px;
+                        }
+                        .content {
+                            padding: 40px 30px;
+                        }
+                        .greeting {
+                            font-size: 18px;
+                            color: #2c3e50;
+                            margin-bottom: 20px;
+                        }
+                        .main-message {
+                            background-color: #fff5f8;
+                            border-left: 4px solid #FF6B9D;
+                            padding: 20px;
+                            margin: 20px 0;
+                            border-radius: 5px;
+                        }
+                        .vaccination-details {
+                            background-color: #ffffff;
+                            border: 2px solid #ffeef2;
+                            border-radius: 10px;
+                            padding: 25px;
+                            margin: 20px 0;
+                        }
+                        .vaccination-details h3 {
+                            color: #FF6B9D;
+                            font-size: 20px;
+                            margin-bottom: 15px;
+                            border-bottom: 2px solid #ffeef2;
+                            padding-bottom: 10px;
+                        }
+                        .detail-row {
+                            display: flex;
+                            margin-bottom: 12px;
+                            align-items: center;
+                        }
+                        .detail-label {
+                            font-weight: 600;
+                            color: #2c3e50;
+                            min-width: 140px;
+                            margin-right: 10px;
+                        }
+                        .detail-value {
+                            color: #34495e;
+                            font-weight: 500;
+                        }
+                        .highlight {
+                            background-color: #FF6B9D;
+                            color: white;
+                            padding: 4px 8px;
+                            border-radius: 4px;
+                            font-weight: 600;
+                        }
+                        .midwife-info {
+                            background-color: #ffeef2;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            text-align: center;
+                        }
+                        .important-note {
+                            background-color: #fff7e6;
+                            border: 1px solid #ffd700;
+                            border-radius: 8px;
+                            padding: 15px;
+                            margin: 20px 0;
+                            color: #8b6914;
+                        }
+                        .footer {
+                            background-color: #f8f9fa;
+                            text-align: center;
+                            padding: 25px;
+                            border-top: 1px solid #e9ecef;
+                            font-size: 14px;
+                            color: #6c757d;
+                        }
+                        .logo {
+                            width: 40px;
+                            height: 40px;
+                            background-color: rgba(255, 255, 255, 0.2);
+                            border-radius: 50%%;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin-bottom: 10px;
+                        }
+                        .pregnancy-highlight {
+                            background-color: #fff0f5;
+                            border: 2px solid #FF6B9D;
+                            border-radius: 10px;
+                            padding: 15px;
+                            margin: 15px 0;
+                            text-align: center;
+                        }
+                        .pregnancy-highlight .emoji {
+                            font-size: 24px;
+                            margin-right: 8px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <div class="header">
+                            <div class="logo">🤰</div>
+                            <h1>Maternal Vaccination Updated</h1>
+                            <p>Your pregnancy vaccination record has been updated</p>
+                        </div>
+                        <div class="content">
+                            <div class="greeting">
+                                Dear <strong>%s</strong>,
+                            </div>
+                            
+                            <div class="pregnancy-highlight">
+                                <span class="emoji">🤱</span>
+                                <strong>Protecting You and Your Baby</strong>
+                                <p>This vaccination is an important part of your prenatal care to ensure both your health and your baby's well-being during pregnancy.</p>
+                            </div>
+                            
+                            <div class="main-message">
+                                <p>We are pleased to inform you that your maternal vaccination record has been successfully updated. This important immunization is part of your comprehensive prenatal care and helps protect both you and your developing baby.</p>
+                            </div>
+                            
+                            <div class="vaccination-details">
+                                <h3>🩺 Maternal Vaccination Details</h3>
+                                <div class="detail-row">
+                                    <span class="detail-label">Patient Name:</span>
+                                    <span class="detail-value"><strong>%s</strong></span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Vaccine Type:</span>
+                                    <span class="detail-value highlight">%s</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Pregnancy Stage:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">Vaccination Date:</span>
+                                    <span class="detail-value">%s</span>
+                                </div>
+                            </div>
+                            
+                            <div class="midwife-info">
+                                <p><strong>👩‍⚕️ Administered by:</strong> %s</p>
+                                <p><em>Licensed Healthcare Provider</em></p>
+                            </div>
+                            
+                            <div class="important-note">
+                                <p><strong>🤰 Important Maternal Health Reminders:</strong></p>
+                                <ul>
+                                    <li>Keep this record as part of your pregnancy documentation</li>
+                                    <li>Monitor for any unusual symptoms and contact your healthcare provider immediately if concerned</li>
+                                    <li>Continue to attend all scheduled prenatal appointments</li>
+                                    <li>This vaccination helps protect both you and your baby from serious diseases</li>
+                                    <li>Discuss any concerns about pregnancy vaccinations with your healthcare team</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="pregnancy-highlight">
+                                <p><strong>📅 Next Steps:</strong> Continue following your prenatal care schedule and discuss any additional vaccinations that may be recommended during your pregnancy.</p>
+                            </div>
+                            
+                            <p>If you have any questions about this vaccination or your prenatal care, please don't hesitate to contact your healthcare provider.</p>
+                            
+                            <p>Thank you for prioritizing your health and your baby's health during this special time.</p>
+                            
+                            <p>Best regards,<br><strong>Maternal Health Care Team</strong></p>
+                        </div>
+                        <div class="footer">
+                            <p>This is an important maternal health notification. Please keep this record for your pregnancy files.</p>
+                            <p>If you have concerns about this vaccination during pregnancy, please contact your healthcare provider immediately.</p>
+                            <p><strong>Maternal Health Care System</strong> - Caring for mothers and babies</p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                """.formatted(motherName, motherName, vaccinationType, ageToGive, vaccinationDate, midwifeName);
+    }
+    
     public void sendHealthcareProviderPasswordResetEmail(String to, String providerName, String providerType, String token) {
         try {
             System.out.println("Starting to send healthcare provider password reset email...");

@@ -64,15 +64,31 @@ public class VaccinationService {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 String formattedDate = request.getVaccinationDate().format(formatter);
                 
-                emailService.sendVaccinationNotificationEmail(
-                    mother.getEmail(),
-                    mother.getFullName(),
-                    request.getChildName(),
-                    request.getVaccinationType(),
-                    request.getAgeToGive(),
-                    formattedDate,
-                    "Healthcare Provider" // You can pass midwife name from frontend if needed
-                );
+                // Determine if this is a maternal vaccination or child vaccination
+                boolean isMaternalVaccination = isMaternalVaccination(request.getVaccinationType(), request.getChildName(), mother.getFullName());
+                
+                if (isMaternalVaccination) {
+                    // Use maternal vaccination email template
+                    emailService.sendMaternalVaccinationNotificationEmail(
+                        mother.getEmail(),
+                        mother.getFullName(),
+                        request.getVaccinationType(),
+                        request.getAgeToGive(),
+                        formattedDate,
+                        "Healthcare Provider" // You can pass midwife name from frontend if needed
+                    );
+                } else {
+                    // Use child vaccination email template
+                    emailService.sendVaccinationNotificationEmail(
+                        mother.getEmail(),
+                        mother.getFullName(),
+                        request.getChildName(),
+                        request.getVaccinationType(),
+                        request.getAgeToGive(),
+                        formattedDate,
+                        "Healthcare Provider" // You can pass midwife name from frontend if needed
+                    );
+                }
                 
                 logger.info("Vaccination notification email sent to mother: {}", mother.getEmail());
             } else {
@@ -129,15 +145,31 @@ public class VaccinationService {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 String formattedDate = request.getVaccinationDate().format(formatter);
                 
-                emailService.sendVaccinationNotificationEmail(
-                    mother.getEmail(),
-                    mother.getFullName(),
-                    request.getChildName(),
-                    request.getVaccinationType(),
-                    request.getAgeToGive(),
-                    formattedDate,
-                    "Healthcare Provider" // You can pass midwife name from frontend if needed
-                );
+                // Determine if this is a maternal vaccination or child vaccination
+                boolean isMaternalVaccination = isMaternalVaccination(request.getVaccinationType(), request.getChildName(), mother.getFullName());
+                
+                if (isMaternalVaccination) {
+                    // Use maternal vaccination email template
+                    emailService.sendMaternalVaccinationNotificationEmail(
+                        mother.getEmail(),
+                        mother.getFullName(),
+                        request.getVaccinationType(),
+                        request.getAgeToGive(),
+                        formattedDate,
+                        "Healthcare Provider" // You can pass midwife name from frontend if needed
+                    );
+                } else {
+                    // Use child vaccination email template
+                    emailService.sendVaccinationNotificationEmail(
+                        mother.getEmail(),
+                        mother.getFullName(),
+                        request.getChildName(),
+                        request.getVaccinationType(),
+                        request.getAgeToGive(),
+                        formattedDate,
+                        "Healthcare Provider" // You can pass midwife name from frontend if needed
+                    );
+                }
                 
                 logger.info("Vaccination update notification email sent to mother: {}", mother.getEmail());
             } else {
@@ -150,6 +182,50 @@ public class VaccinationService {
         }
         
         return convertToResponse(updated);
+    }
+
+    // Helper method to determine if this is a maternal vaccination
+    /**
+     * Determines whether a vaccination record is for the mother (maternal vaccination) 
+     * or for a child based on vaccination type and recipient name.
+     * 
+     * Maternal vaccinations are typically:
+     * - Tetanus (TT, Td, Tdap) - given during pregnancy
+     * - COVID-19 vaccines - recommended for pregnant women
+     * - Influenza (Flu) - annual vaccination during pregnancy
+     * - Pertussis (Whooping Cough) - given during pregnancy to protect newborns
+     * - Hepatitis B - if mother is at risk
+     * - MMR - given before pregnancy if not immune
+     * 
+     * @param vaccinationType The type of vaccination being administered
+     * @param childName The name recorded as the recipient
+     * @param motherName The mother's full name for comparison
+     * @return true if this is a maternal vaccination, false if it's for a child
+     */
+    private boolean isMaternalVaccination(String vaccinationType, String childName, String motherName) {
+        // Check if the vaccination type is typically given to pregnant mothers
+        String[] maternalVaccines = {
+            "Tetanus", "TT", "Td", "Tdap",
+            "COVID-19", "Covid-19", "COVID", "Coronavirus",
+            "Influenza", "Flu", "H1N1",
+            "Pertussis", "Whooping Cough",
+            "Hepatitis B", "HepB",
+            "MMR", "Measles", "Mumps", "Rubella"
+        };
+        
+        for (String vaccine : maternalVaccines) {
+            if (vaccinationType.toLowerCase().contains(vaccine.toLowerCase())) {
+                return true;
+            }
+        }
+        
+        // Also check if the child name is the same as mother's name (indicating it's for the mother)
+        if (childName != null && motherName != null && 
+            childName.trim().equalsIgnoreCase(motherName.trim())) {
+            return true;
+        }
+        
+        return false;
     }
 
     public VaccinationResponse updateVaccinationStatus(Long id, String status) {

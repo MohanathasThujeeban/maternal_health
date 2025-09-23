@@ -149,14 +149,19 @@ class _ComprehensiveProfileScreenState
   // Rhesus Factors
   final List<String> _rhesusFactors = ['Positive', 'Negative'];
 
-  // Pregnancy Status Options
+  // Pregnancy Status Options and Mappings
   final List<String> _pregnancyStatusOptions = [
-    'First Trimester',
-    'Second Trimester',
-    'Third Trimester',
-    'Post Delivery',
-    'Not Pregnant',
+    'PREGNANT',
+    'POST_DELIVERY',
+    'NOT_PREGNANT',
   ];
+
+  // Display names for pregnancy status
+  final Map<String, String> _pregnancyStatusDisplay = {
+    'PREGNANT': 'Pregnant',
+    'POST_DELIVERY': 'Post Delivery',
+    'NOT_PREGNANT': 'Not Pregnant',
+  };
 
   @override
   void initState() {
@@ -1086,10 +1091,21 @@ class _ComprehensiveProfileScreenState
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildDropdownField<String>(
+                child: DropdownButtonFormField<String>(
                   value: _pregnancyStatus,
-                  label: 'Pregnancy Status',
-                  items: _pregnancyStatusOptions,
+                  decoration: InputDecoration(
+                    labelText: 'Pregnancy Status',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
+                    ),
+                  ),
+                  items: _pregnancyStatusOptions.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(_pregnancyStatusDisplay[value] ?? value),
+                    );
+                  }).toList(),
                   onChanged: (value) {
                     setState(() {
                       _pregnancyStatus = value;

@@ -53,7 +53,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       }
 
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseApiUrl}/profile/$_currentNic'),
+        Uri.parse('${ApiConfig.baseApiUrl}/mothers/profile/$_currentNic'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -118,7 +118,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       debugPrint('Debug: Updating profile with data: $updateData');
 
       final response = await http.put(
-        Uri.parse('${ApiConfig.baseApiUrl}/profile/$_currentNic'),
+        Uri.parse('${ApiConfig.baseApiUrl}/mothers/profile/$_currentNic'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(updateData),
       );
@@ -126,22 +126,31 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       debugPrint('Debug: Update response status: ${response.statusCode}');
       debugPrint('Debug: Update response body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        // Profile updated successfully
-        // Update local user data if needed
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+
+        if (responseData['success'] == false) {
+          throw Exception(
+            responseData['message'] ?? 'Failed to update profile',
+          );
+        }
+
+        // Update local user data
         await UserService.saveUserData(
           nic: _currentNic!,
           name: _fullNameController.text.trim(),
           email: _emailController.text.trim(),
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Profile updated successfully! ✅'),
-            backgroundColor: Colors.green,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile updated successfully! ✅'),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
 
         // Clear password fields
         _newPasswordController.clear();
@@ -149,6 +158,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
         // Reload profile data
         await _loadCurrentProfile();
+      } else if (response.statusCode == 404) {
+        throw Exception('Profile not found. Please try again.');
+      } else if (response.statusCode == 400) {
+        final responseData = jsonDecode(response.body);
+        throw Exception(responseData['message'] ?? 'Invalid data provided');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
       } else {
         final errorData = jsonDecode(response.body);
         throw Exception(errorData['message'] ?? 'Failed to update profile');

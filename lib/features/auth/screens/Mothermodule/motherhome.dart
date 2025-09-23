@@ -15,6 +15,7 @@ import './privacy_security_screen.dart';
 import './eye_ear_records_screen.dart';
 import './add_baby_screen.dart';
 import './baby_specific_records_screen.dart';
+import './my_pregnancy_records_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -327,6 +328,19 @@ class MotherDashboardScreen extends StatelessWidget {
             title: localizations.healthMedical,
             subtitle: localizations.manageHealthRecords,
             cards: [
+              _CategoryCard(
+                icon: Icons.pregnant_woman,
+                title: 'My Pregnancy Records',
+                description:
+                    'View your pregnancy status, weight, vaccinations & appointments',
+                color: const Color(0xFFE91E63),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyPregnancyRecordsScreen(),
+                  ),
+                ),
+              ),
               _CategoryCard(
                 icon: Icons.folder_open,
                 title: 'Baby Records',
