@@ -22,6 +22,7 @@ import 'package:maternal_health/services/activity_service.dart';
 import 'package:maternal_health/services/mothers_service.dart';
 import 'package:maternal_health/config/api_config.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
+import 'pregnant_mothers_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -873,6 +874,21 @@ class PatientsTab extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const MidwifeVaccinationsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  _buildActionCard(
+                    context,
+                    title: 'Pregnant Mother\'s Records',
+                    subtitle: 'Manage pregnancy records, weight, and health',
+                    icon: Icons.pregnant_woman,
+                    color: const Color(0xFF4FC3A1),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PregnantMothersListScreen(),
                         ),
                       );
                     },

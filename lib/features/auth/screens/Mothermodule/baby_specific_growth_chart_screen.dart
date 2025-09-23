@@ -807,7 +807,11 @@ class _BabySpecificGrowthChartScreenState
     }
 
     // Add some padding to min/max values
-    final padding = (maxY - minY) * 0.1;
+    // If maxY and minY are equal, set a small default difference
+    final double difference = (maxY - minY) <= 0
+        ? maxY * 0.1 + 0.1
+        : (maxY - minY);
+    final padding = difference * 0.1;
     minY = (minY - padding).clamp(0, double.infinity);
     maxY = maxY + padding;
 
@@ -950,7 +954,9 @@ class _BabySpecificGrowthChartScreenState
                   gridData: FlGridData(
                     show: true,
                     drawVerticalLine: false,
-                    horizontalInterval: (maxY - minY) / 5,
+                    horizontalInterval: (maxY - minY) <= 0
+                        ? 1.0
+                        : (maxY - minY) / 5,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
                         color: Colors.grey.shade300,
