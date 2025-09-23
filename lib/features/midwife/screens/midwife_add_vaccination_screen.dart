@@ -21,20 +21,34 @@ class MidwifeAddVaccinationScreen extends StatefulWidget {
 class _MidwifeAddVaccinationScreenState
     extends State<MidwifeAddVaccinationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _vaccinationTypeController = TextEditingController();
   final _ageToGiveController = TextEditingController();
   final _batchNumberController = TextEditingController();
   final _effectsController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
   String _selectedStatus = 'PENDING';
+  String? _selectedVaccinationType;
   bool _isSubmitting = false;
 
   final List<String> _statusOptions = ['PENDING', 'COMPLETED', 'OVERDUE'];
+  final List<String> _vaccinationTypes = [
+    'BCG',
+    'DTaP',
+    'Hepatitis A',
+    'Hepatitis B',
+    'Hib',
+    'HPV',
+    'IPV',
+    'MMR',
+    'OPV',
+    'PCV',
+    'Rotavirus',
+    'Tdap',
+    'Varicella',
+  ];
 
   @override
   void dispose() {
-    _vaccinationTypeController.dispose();
     _ageToGiveController.dispose();
     _batchNumberController.dispose();
     _effectsController.dispose();
@@ -65,7 +79,7 @@ class _MidwifeAddVaccinationScreenState
         motherNic: widget.motherNic,
         babyId: widget.baby.id,
         childName: widget.baby.name,
-        vaccinationType: _vaccinationTypeController.text.trim(),
+        vaccinationType: _selectedVaccinationType!,
         ageToGive: _ageToGiveController.text.trim(),
         vaccinationDate: DateFormat('yyyy-MM-dd').format(_selectedDate),
         batchNumber: _batchNumberController.text.trim().isEmpty
@@ -182,25 +196,45 @@ class _MidwifeAddVaccinationScreenState
                         ),
                         SizedBox(height: 16),
 
-                        // Vaccination Type Text Field
-                        TextFormField(
-                          controller: _vaccinationTypeController,
+                        // Vaccination Type Dropdown
+                        DropdownButtonFormField<String>(
+                          value: _selectedVaccinationType,
                           decoration: InputDecoration(
                             labelText: 'Vaccination Type *',
-                            hintText: 'e.g., BCG, DPT, Polio, MMR, etc.',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade400,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(color: Colors.green[600]!),
                             ),
+                            filled: true,
+                            fillColor: Colors.white,
                           ),
+                          style: TextStyle(color: Colors.black87, fontSize: 16),
+                          dropdownColor: Colors.white,
+                          items: _vaccinationTypes.map((type) {
+                            return DropdownMenuItem(
+                              value: type,
+                              child: Text(type),
+                            );
+                          }).toList(),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Please enter vaccination type';
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a vaccination type';
                             }
                             return null;
+                          },
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedVaccinationType = value;
+                            });
                           },
                         ),
 

@@ -203,43 +203,63 @@ class _EyeEarRecordsScreenState extends State<EyeEarRecordsScreen> {
     final hasEarIssue = earProblem != 'None' && earProblem.isNotEmpty;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with date and patient name
-            Row(
+      child: Column(
+        children: [
+          // Header with colored background
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  const Color(0xFF4FC3A1).withOpacity(0.15),
+                  const Color(0xFF4FC3A1).withOpacity(0.05),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF4FC3A1).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4FC3A1).withOpacity(0.15),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
                   child: Icon(
                     hasEyeIssue || hasEarIssue
                         ? Icons.warning_amber_rounded
                         : Icons.health_and_safety,
                     color: hasEyeIssue || hasEarIssue
-                        ? Colors.orange
+                        ? const Color(0xFFFF9800)
                         : const Color(0xFF4FC3A1),
-                    size: 24,
+                    size: 28,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,17 +267,42 @@ class _EyeEarRecordsScreenState extends State<EyeEarRecordsScreen> {
                       Text(
                         record['patientName'] ?? 'Unknown Patient',
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'SpotifyCircular',
+                          color: Color(0xFF2E7D5A),
+                          letterSpacing: -0.5,
                         ),
                       ),
-                      Text(
-                        _formatDate(record['dateOfDiagnosis']),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                          fontFamily: 'SpotifyCircular',
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.event,
+                              size: 16,
+                              color: Color(0xFF4FC3A1),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _formatDate(record['dateOfDiagnosis']),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF4FC3A1),
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -265,142 +310,311 @@ class _EyeEarRecordsScreenState extends State<EyeEarRecordsScreen> {
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: 16),
-
-            // Eye and Ear problems
-            if (hasEyeIssue) ...[
-              _buildProblemSection(
-                'Eye Problem',
-                eyeProblem,
-                Icons.remove_red_eye,
-                Colors.blue,
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            if (hasEarIssue) ...[
-              _buildProblemSection(
-                'Ear Problem',
-                earProblem,
-                Icons.hearing,
-                Colors.orange,
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            if (!hasEyeIssue && !hasEarIssue) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green,
-                      size: 20,
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      'No eye or ear problems detected',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'SpotifyCircular',
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            // Symptoms duration
-            if (record['symptomsDuration'] != null) ...[
-              _buildInfoRow('Duration', record['symptomsDuration']),
-              const SizedBox(height: 8),
-            ],
-
-            // Remarks
-            if (record['remarks'] != null &&
-                record['remarks'].toString().isNotEmpty) ...[
-              _buildInfoRow('Remarks', record['remarks']),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProblemSection(
-    String title,
-    String problem,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Expanded(
+          // Problems Container
+          Container(
+            padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: color,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'SpotifyCircular',
+                // Eye Problem Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: hasEyeIssue
+                        ? const Color(0xFFFFF8E1)
+                        : const Color(0xFFF1F8E9),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: hasEyeIssue
+                          ? const Color(0xFFFFB74D).withOpacity(0.3)
+                          : const Color(0xFF81C784).withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (hasEyeIssue
+                                          ? const Color(0xFFFFB74D)
+                                          : const Color(0xFF81C784))
+                                      .withOpacity(0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.remove_red_eye,
+                          color: hasEyeIssue
+                              ? const Color(0xFFFF9800)
+                              : const Color(0xFF4CAF50),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Eye Examination',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: hasEyeIssue
+                                    ? const Color(0xFFE65100)
+                                    : const Color(0xFF2E7D32),
+                                letterSpacing: -0.3,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              eyeProblem,
+                              style: TextStyle(
+                                fontSize: 15,
+                                height: 1.4,
+                                color: Colors.grey[800],
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  problem,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'SpotifyCircular',
+
+                const SizedBox(height: 16),
+
+                // Ear Problem Card
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: hasEarIssue
+                        ? const Color(0xFFFFF8E1)
+                        : const Color(0xFFF1F8E9),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: hasEarIssue
+                          ? const Color(0xFFFFB74D).withOpacity(0.3)
+                          : const Color(0xFF81C784).withOpacity(0.3),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (hasEarIssue
+                                          ? const Color(0xFFFFB74D)
+                                          : const Color(0xFF81C784))
+                                      .withOpacity(0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.hearing,
+                          color: hasEarIssue
+                              ? const Color(0xFFFF9800)
+                              : const Color(0xFF4CAF50),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Ear Examination',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: hasEarIssue
+                                    ? const Color(0xFFE65100)
+                                    : const Color(0xFF2E7D32),
+                                letterSpacing: -0.3,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              earProblem,
+                              style: TextStyle(
+                                fontSize: 15,
+                                height: 1.4,
+                                color: Colors.grey[800],
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                // Additional Information
+                if (record['duration'] != null ||
+                    record['remarks'] != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFB),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF4FC3A1).withOpacity(0.15),
+                        width: 1.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.info_outline,
+                                size: 18,
+                                color: Color(0xFF4FC3A1),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            const Text(
+                              'Additional Information',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2E7D5A),
+                                letterSpacing: -0.3,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (record['duration'] != null) ...[
+                          const SizedBox(height: 16),
+                          _buildInfoItem(
+                            icon: Icons.access_time_outlined,
+                            label: 'Duration',
+                            value: record['duration'] ?? '',
+                          ),
+                        ],
+                        if (record['remarks'] != null) ...[
+                          if (record['duration'] != null)
+                            const SizedBox(height: 12),
+                          _buildInfoItem(
+                            icon: Icons.note_alt_outlined,
+                            label: 'Remarks',
+                            value: record['remarks'] ?? '',
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ],
       ),
     );
+
+    // Note: symptomsDuration and remarks are now handled in the Additional Information section
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  // Removed unused _buildProblemSection method
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          width: 80,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
-              fontFamily: 'SpotifyCircular',
-            ),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFF4FC3A1).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
+          child: Icon(icon, size: 20, color: const Color(0xFF4FC3A1)),
         ),
-        const Text(': ', style: TextStyle(fontSize: 12)),
+        const SizedBox(width: 14),
         Expanded(
-          child: Text(
-            value,
-            style: const TextStyle(fontSize: 12, fontFamily: 'SpotifyCircular'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF2E7D5A),
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'SpotifyCircular',
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey[800],
+                  height: 1.4,
+                  fontFamily: 'SpotifyCircular',
+                ),
+              ),
+            ],
           ),
         ),
       ],

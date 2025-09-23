@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
 import '../../../../widgets/custom_loading.dart';
@@ -223,6 +226,11 @@ class _MyPregnancyRecordsScreenState extends State<MyPregnancyRecordsScreen>
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            onPressed: _generateAndDownloadPdf,
+            tooltip: 'Download Records as PDF',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadUserDataAndRecords,
@@ -717,6 +725,254 @@ class _MyPregnancyRecordsScreenState extends State<MyPregnancyRecordsScreen>
                 color: Color(0xFF2E7D5A),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _generateAndDownloadPdf() async {
+    try {
+      final pdf = pw.Document();
+
+      pdf.addPage(
+        pw.Page(
+          margin: const pw.EdgeInsets.all(20),
+          build: (context) => pw.Container(
+            padding: const pw.EdgeInsets.all(10),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.teal, width: 1),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(10),
+                  color: PdfColors.teal50,
+                  child: pw.Row(
+                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                    children: [
+                      pw.Text(
+                        'Complete Health Records',
+                        style: pw.TextStyle(
+                          fontSize: 20,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.teal900,
+                        ),
+                      ),
+                      pw.Text(
+                        'Generated: ${DateFormat('MMM dd, yyyy').format(DateTime.now())}',
+                        style: const pw.TextStyle(fontSize: 10),
+                      ),
+                    ],
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+
+                // Baby & Mother Information
+                pw.Container(
+                  padding: const pw.EdgeInsets.all(10),
+                  color: PdfColors.lightBlue50,
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Pregnant Mother Information',
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue900,
+                        ),
+                      ),
+                      pw.SizedBox(height: 10),
+                      if (_maternalProfile != null) ...[
+                        _buildSimpleInfoRow(
+                          'Mother\'s Name',
+                          _maternalProfile!['fullName']?.toString() ??
+                              'Not specified',
+                        ),
+                        _buildSimpleInfoRow('NIC', _motherNic!),
+                        _buildSimpleInfoRow('Status', _getPregnancyStatus()),
+                        if (_getCurrentPregnancyWeek() > 0)
+                          _buildSimpleInfoRow(
+                            'Current Week',
+                            _getCurrentPregnancyWeek().toString(),
+                          ),
+                        if (_getExpectedDeliveryDate() != null)
+                          _buildSimpleInfoRow(
+                            'EDD',
+                            _formatDate(_getExpectedDeliveryDate()),
+                          ),
+                      ],
+                    ],
+                  ),
+                ),
+                pw.SizedBox(height: 15),
+
+                // Vaccination Records
+                if (_vaccinationRecords.isNotEmpty) ...[
+                  _buildSimpleSection(
+                    'Vaccination Records (${_vaccinationRecords.length})',
+                    _vaccinationRecords
+                        .map(
+                          (record) => <String>[
+                            _formatDate(record['vaccinationDate']),
+                            record['vaccinationType']?.toString() ?? 'N/A',
+                            record['status']?.toString() ?? 'Pending',
+                          ],
+                        )
+                        .toList(),
+                    <String>['Date', 'Vaccine', 'Status'],
+                    PdfColors.purple50,
+                    PdfColors.purple900,
+                  ),
+                  pw.SizedBox(height: 15),
+                ],
+
+                // Weight Records
+                if (_pregnancyWeightRecords.isNotEmpty) ...[
+                  _buildSimpleSection(
+                    'Growth Records (${_pregnancyWeightRecords.length})',
+                    _pregnancyWeightRecords
+                        .map(
+                          (record) => <String>[
+                            'Week ${record['pregnancyWeek']?.toString() ?? 'N/A'}',
+                            '${record['currentWeight']?.toString() ?? 'N/A'} kg',
+                            record['bloodPressure']?.toString() ?? 'N/A',
+                          ],
+                        )
+                        .toList(),
+                    <String>['Week', 'Weight', 'Blood Pressure'],
+                    PdfColors.pink50,
+                    PdfColors.pink900,
+                  ),
+                  pw.SizedBox(height: 15),
+                ],
+
+                // Appointment Records
+                if (_appointmentRecords.isNotEmpty) ...[
+                  _buildSimpleSection(
+                    'Eye & Ear Records (${_appointmentRecords.length})',
+                    _appointmentRecords
+                        .map(
+                          (record) => <String>[
+                            _formatDate(record['appointmentDate']),
+                            record['appointmentType']?.toString() ?? 'N/A',
+                            record['status']?.toString() ?? 'Pending',
+                          ],
+                        )
+                        .toList(),
+                    <String>['Date', 'Type', 'Status'],
+                    PdfColors.orange50,
+                    PdfColors.orange900,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      );
+
+      // Print the document
+      await Printing.layoutPdf(
+        onLayout: (format) async {
+          return pdf.save();
+        },
+        name:
+            'maternal_health_records_${_motherNic}_${DateFormat('yyyyMMdd').format(DateTime.now())}.pdf',
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('PDF generated and downloaded successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      print('Error generating PDF: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error generating PDF: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  pw.Widget _buildSimpleInfoRow(String label, String value) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 2),
+      child: pw.Row(
+        children: [
+          pw.Text(
+            '$label: ',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+          pw.Text(value),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildSimpleSection(
+    String title,
+    List<List<String>> data,
+    List<String> headers,
+    PdfColor bgColor,
+    PdfColor textColor,
+  ) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(10),
+      color: bgColor,
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            title,
+            style: pw.TextStyle(
+              fontSize: 14,
+              fontWeight: pw.FontWeight.bold,
+              color: textColor,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Table(
+            border: pw.TableBorder.all(color: textColor),
+            children: [
+              // Header row
+              pw.TableRow(
+                decoration: pw.BoxDecoration(color: textColor),
+                children: headers
+                    .map(
+                      (header) => pw.Container(
+                        padding: const pw.EdgeInsets.all(5),
+                        child: pw.Text(
+                          header,
+                          style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.white,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              // Data rows
+              ...data.map(
+                (row) => pw.TableRow(
+                  children: row
+                      .map(
+                        (cell) => pw.Container(
+                          padding: const pw.EdgeInsets.all(5),
+                          child: pw.Text(cell),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
           ),
         ],
       ),

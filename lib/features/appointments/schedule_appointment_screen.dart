@@ -374,7 +374,6 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
 
                 // Email Field
@@ -510,6 +509,11 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.grey.shade300),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -518,45 +522,55 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                               width: 2,
                             ),
                           ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
                         ),
                         value: _selectedProvider,
-                        items: (_availableProviders[_appointmentType] ?? []).map((
-                          provider,
-                        ) {
-                          return DropdownMenuItem<String>(
-                            value: '${provider['name']} - ${provider['title']}',
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '${provider['name']}',
-                                  style: const TextStyle(
-                                    fontFamily: 'SpotifyCircular',
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                        isExpanded: true,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        dropdownColor: Colors.white,
+                        items: (_availableProviders[_appointmentType] ?? []).map(
+                          (provider) {
+                            return DropdownMenuItem<String>(
+                              value:
+                                  '${provider['name']} - ${provider['title']}',
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4.0,
                                 ),
-                                Text(
-                                  '${provider['title']}',
-                                  style: const TextStyle(
-                                    fontFamily: 'SpotifyCircular',
-                                    fontSize: 12,
-                                    color: Colors.grey,
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: provider['name'] ?? '',
+                                        style: const TextStyle(
+                                          fontFamily: 'SpotifyCircular',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      if (provider['title'] != null) ...[
+                                        const TextSpan(text: '\n'),
+                                        TextSpan(
+                                          text: provider['title']!,
+                                          style: const TextStyle(
+                                            fontFamily: 'SpotifyCircular',
+                                            fontSize: 12,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
                                 ),
-                                if (provider['institution']?.isNotEmpty == true)
-                                  Text(
-                                    '${provider['institution']} • ${provider['yearsOfExperience']} years',
-                                    style: const TextStyle(
-                                      fontFamily: 'SpotifyCircular',
-                                      fontSize: 11,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+                              ),
+                            );
+                          },
+                        ).toList(),
                         onChanged: (value) async {
                           final provider =
                               (_availableProviders[_appointmentType] ?? [])
@@ -624,60 +638,64 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
                 const SizedBox(height: 16),
 
                 // Time Slot Selection
-                if (_availableTimeSlots.isNotEmpty) ...[
-                  const Text(
-                    'Available Time Slots *',
-                    style: TextStyle(
-                      fontFamily: 'SpotifyCircular',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF2E7D5A),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _availableTimeSlots.map((slot) {
-                      final isSelected = _selectedTimeSlot == slot;
-                      return InkWell(
-                        onTap: () {
-                          setState(() {
-                            _selectedTimeSlot = slot;
-                          });
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? const Color(0xFF4FC3A1)
-                                : Colors.white,
-                            border: Border.all(
-                              color: isSelected
-                                  ? const Color(0xFF4FC3A1)
-                                  : Colors.grey.shade300,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            slot,
-                            style: TextStyle(
-                              fontFamily: 'SpotifyCircular',
-                              color: isSelected ? Colors.white : Colors.black,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
+                ...(_availableTimeSlots.isNotEmpty
+                    ? [
+                        const Text(
+                          'Available Time Slots *',
+                          style: TextStyle(
+                            fontFamily: 'SpotifyCircular',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2E7D5A),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _availableTimeSlots.map((slot) {
+                            final isSelected = _selectedTimeSlot == slot;
+                            return InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _selectedTimeSlot = slot;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFF4FC3A1)
+                                      : Colors.white,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? const Color(0xFF4FC3A1)
+                                        : Colors.grey.shade300,
+                                  ),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  slot,
+                                  style: TextStyle(
+                                    fontFamily: 'SpotifyCircular',
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.black,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                        const SizedBox(height: 16),
+                      ]
+                    : []),
 
                 // Additional Problems
                 TextFormField(
