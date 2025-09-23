@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'logging_service.dart';
 import '../config/api_config.dart';
 
 class PatientNoteService {
@@ -26,7 +27,7 @@ class PatientNoteService {
         throw Exception('Failed to load patient notes: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching patient notes: $e');
+      LoggingService.error('Error fetching patient notes', e);
       throw Exception('Failed to load patient notes: $e');
     }
   }
@@ -52,7 +53,7 @@ class PatientNoteService {
         throw Exception('Failed to load patient notes: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching all patient notes: $e');
+      LoggingService.error('Error fetching all patient notes', e);
       throw Exception('Failed to load patient notes: $e');
     }
   }
@@ -82,7 +83,7 @@ class PatientNoteService {
         throw Exception('Failed to load doctor notes: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching doctor notes: $e');
+      LoggingService.error('Error fetching doctor notes', e);
       throw Exception('Failed to load doctor notes: $e');
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'logging_service.dart';
 import '../services/user_service.dart';
 import '../config/api_config.dart';
 
@@ -21,8 +22,10 @@ class EyeEarRecordService {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print('Eye and Ear records API response: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      LoggingService.debug(
+        'Eye and Ear records API response: ${response.statusCode}',
+      );
+      LoggingService.debug('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -35,7 +38,7 @@ class EyeEarRecordService {
         throw Exception('Failed to load records: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching eye and ear records: $e');
+      LoggingService.error('Error fetching eye and ear records', e);
       throw Exception('Failed to load eye and ear records: $e');
     }
   }
@@ -59,7 +62,7 @@ class EyeEarRecordService {
         throw Exception('Failed to load records: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching all eye and ear records: $e');
+      LoggingService.error('Error fetching all eye and ear records', e);
       throw Exception('Failed to load eye and ear records: $e');
     }
   }
@@ -85,7 +88,7 @@ class EyeEarRecordService {
         throw Exception('Failed to load records: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching records for mother $motherNic: $e');
+      LoggingService.error('Error fetching records for mother $motherNic', e);
       throw Exception('Failed to load eye and ear records: $e');
     }
   }
@@ -111,7 +114,7 @@ class EyeEarRecordService {
         throw Exception('Failed to load records: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching records for baby $babyId: $e');
+      LoggingService.error('Error fetching records for baby $babyId', e);
       throw Exception('Failed to load eye and ear records: $e');
     }
   }
@@ -158,7 +161,7 @@ class EyeEarRecordService {
         throw Exception('Failed to create record: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error creating eye and ear record: $e');
+      LoggingService.error('Error creating eye and ear record', e);
       throw Exception('Failed to create eye and ear record: $e');
     }
   }

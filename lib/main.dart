@@ -5,13 +5,13 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/health_chatbox/health_chatbox_screen.dart';
 import 'providers/language_provider.dart';
 import 'l10n/app_localizations.dart';
-import 'services/firebase_service.dart';
+import 'services/logging_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase service
-  await FirebaseService.initialize();
+  // Initialize logging service
+  LoggingService.initialize();
 
   runApp(
     ChangeNotifierProvider(

@@ -2,22 +2,17 @@ package com.example.maternalcare.services;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 @Service
 public class MaternalCareNotificationService {
     
     private static final Logger logger = LoggerFactory.getLogger(MaternalCareNotificationService.class);
-    
-    @Autowired
-    private FirebaseMessagingService firebaseMessagingService;
     
     private final Random random = new Random();
     
@@ -76,22 +71,7 @@ public class MaternalCareNotificationService {
         try {
             NotificationMessage message = getRandomTip();
             
-            Map<String, String> data = Map.of(
-                "type", "DAILY_TIP",
-                "category", "maternal_care",
-                "scheduled", "true"
-            );
-            
-            firebaseMessagingService.sendNotificationToUser(
-                userNic, 
-                message.title, 
-                message.body, 
-                "DAILY_TIP", 
-                null, 
-                data
-            );
-            
-            logger.info("📱 Daily tip sent to user: {}", userNic);
+            logger.info("📱 Daily tip for user {}: {} - {}", userNic, message.title, message.body);
             
         } catch (Exception e) {
             logger.error("❌ Error sending daily tip to user {}: {}", userNic, e.getMessage());
@@ -105,21 +85,7 @@ public class MaternalCareNotificationService {
         try {
             NotificationMessage quote = maternalQuotes.get(random.nextInt(maternalQuotes.size()));
             
-            Map<String, String> data = Map.of(
-                "type", "MOTIVATIONAL_QUOTE",
-                "category", "inspiration"
-            );
-            
-            firebaseMessagingService.sendNotificationToUser(
-                userNic,
-                quote.title,
-                quote.body,
-                "MOTIVATIONAL_QUOTE",
-                null,
-                data
-            );
-            
-            logger.info("💝 Motivational quote sent to user: {}", userNic);
+            logger.info("💝 Motivational quote for user {}: {} - {}", userNic, quote.title, quote.body);
             
         } catch (Exception e) {
             logger.error("❌ Error sending motivational quote to user {}: {}", userNic, e.getMessage());
@@ -133,21 +99,7 @@ public class MaternalCareNotificationService {
         try {
             NotificationMessage tip = healthTips.get(random.nextInt(healthTips.size()));
             
-            Map<String, String> data = Map.of(
-                "type", "HEALTH_TIP",
-                "category", "health"
-            );
-            
-            firebaseMessagingService.sendNotificationToUser(
-                userNic,
-                tip.title,
-                tip.body,
-                "HEALTH_TIP",
-                null,
-                data
-            );
-            
-            logger.info("💊 Health tip sent to user: {}", userNic);
+            logger.info("💊 Health tip for user {}: {} - {}", userNic, tip.title, tip.body);
             
         } catch (Exception e) {
             logger.error("❌ Error sending health tip to user {}: {}", userNic, e.getMessage());
@@ -161,21 +113,7 @@ public class MaternalCareNotificationService {
         try {
             NotificationMessage tip = babyCareMessages.get(random.nextInt(babyCareMessages.size()));
             
-            Map<String, String> data = Map.of(
-                "type", "BABY_CARE_TIP",
-                "category", "baby_care"
-            );
-            
-            firebaseMessagingService.sendNotificationToUser(
-                userNic,
-                tip.title,
-                tip.body,
-                "BABY_CARE_TIP",
-                null,
-                data
-            );
-            
-            logger.info("👶 Baby care tip sent to user: {}", userNic);
+            logger.info("👶 Baby care tip for user {}: {} - {}", userNic, tip.title, tip.body);
             
         } catch (Exception e) {
             logger.error("❌ Error sending baby care tip to user {}: {}", userNic, e.getMessage());
@@ -189,22 +127,7 @@ public class MaternalCareNotificationService {
         try {
             NotificationMessage reminder = medicalReminders.get(random.nextInt(medicalReminders.size()));
             
-            Map<String, String> data = Map.of(
-                "type", "MEDICAL_REMINDER",
-                "category", "medical",
-                "priority", "high"
-            );
-            
-            firebaseMessagingService.sendNotificationToUser(
-                userNic,
-                reminder.title,
-                reminder.body,
-                "MEDICAL_REMINDER",
-                null,
-                data
-            );
-            
-            logger.info("🩺 Medical reminder sent to user: {}", userNic);
+            logger.info("🩺 Medical reminder for user {}: {} - {}", userNic, reminder.title, reminder.body);
             
         } catch (Exception e) {
             logger.error("❌ Error sending medical reminder to user {}: {}", userNic, e.getMessage());

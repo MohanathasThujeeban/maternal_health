@@ -21,10 +21,10 @@ dependencies:
   image_picker: ^1.0.4
   pdf: ^3.11.3
   printing: ^5.14.2
-  # Firebase dependencies for push notifications
-  firebase_core: ^2.24.2
-  firebase_messaging: ^14.7.10
+
   dio: ^5.4.0
+  logging: ^1.2.0
+  onesignal_flutter: ^5.1.0
 
 dev_dependencies:
   flutter_test:

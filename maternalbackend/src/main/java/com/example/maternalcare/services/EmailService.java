@@ -25,8 +25,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
     
-    @Autowired
-    private FirebaseMessagingService firebaseMessagingService;
+   
     
     @Value("${spring.mail.username}")
     private String fromEmail;
@@ -130,14 +129,7 @@ public class EmailService {
             mailSender.send(message);
             logger.info("HTML email sent successfully to: {}", to);
             
-            // Send push notification with known user NIC
-            if (recipientNic != null && !recipientNic.isEmpty()) {
-                String shortSubject = subject.length() > 50 ? 
-                    subject.substring(0, 47) + "..." : subject;
-                
-                firebaseMessagingService.sendEmailNotification(recipientNic, shortSubject, "Maternal Health System");
-                logger.info("📱 Push notification sent for email to user: {}", recipientNic);
-            }
+          
             
         } catch (Exception e) {
             logger.error("Failed to send HTML email to: {}", to, e);

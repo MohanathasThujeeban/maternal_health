@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/api_config.dart';
+import 'logging_service.dart';
 import 'vaccination_service.dart';
 import 'thiriposa_service.dart';
 import 'appointment_service.dart';
@@ -42,7 +43,7 @@ class ComprehensiveRecordsService {
       );
       return records;
     } catch (e) {
-      print('Error fetching vaccination records: $e');
+      LoggingService.error('Error fetching vaccination records', e);
       return [];
     }
   }
@@ -56,7 +57,7 @@ class ComprehensiveRecordsService {
       // Convert ThiriposaRecord objects to Maps
       return records.map((record) => record.toJson()).toList();
     } catch (e) {
-      print('Error fetching thiriposa records: $e');
+      LoggingService.error('Error fetching thiriposa records', e);
       return [];
     }
   }
@@ -76,7 +77,7 @@ class ComprehensiveRecordsService {
       }
       return [];
     } catch (e) {
-      print('Error fetching appointment records: $e');
+      LoggingService.error('Error fetching appointment records', e);
       return [];
     }
   }
@@ -105,7 +106,7 @@ class ComprehensiveRecordsService {
         );
       }
     } catch (e) {
-      print('Error fetching growth records: $e');
+      LoggingService.error('Error fetching growth records', e);
       return [];
     }
   }
@@ -120,7 +121,7 @@ class ComprehensiveRecordsService {
       );
       return records;
     } catch (e) {
-      print('Error fetching eye/ear records: $e');
+      LoggingService.error('Error fetching eye/ear records', e);
       return [];
     }
   }
@@ -146,7 +147,7 @@ class ComprehensiveRecordsService {
       }
       return null;
     } catch (e) {
-      print('Error fetching mother details: $e');
+      LoggingService.error('Error fetching mother details', e);
       return null;
     }
   }

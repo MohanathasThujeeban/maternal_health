@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import '../../../config/api_config.dart';
+import '../../../services/logging_service.dart';
 
 class ApiService {
   // Dynamic base URL based on platform - enhanced with centralized config
@@ -25,14 +26,15 @@ class ApiService {
     String password,
   ) async {
     try {
-      print('Attempting login with NIC: $nicNumber');
+      LoggingService.info('Attempting login with NIC: $nicNumber');
+      // Prepare login data
 
       final Map<String, dynamic> loginData = {
         'nicNumber': nicNumber,
         'password': password,
       };
 
-      print('Sending login data: ${jsonEncode(loginData)}');
+      LoggingService.debug('Sending login data: ${jsonEncode(loginData)}');
 
       final response = await http
           .post(
