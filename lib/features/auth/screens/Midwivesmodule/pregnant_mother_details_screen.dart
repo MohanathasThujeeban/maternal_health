@@ -20,8 +20,10 @@ class _PregnantMotherDetailsScreenState
   late TabController _tabController;
   Map<String, dynamic>? _maternalProfile;
   List<Map<String, dynamic>> _weightRecords = [];
+  List<Map<String, dynamic>> _vaccinationRecords = [];
   bool _isLoading = true;
   bool _isSaving = false;
+  bool _isAddingVaccination = false;
   String? _errorMessage;
 
   // Form controllers
@@ -38,6 +40,19 @@ class _PregnantMotherDetailsScreenState
   final TextEditingController _generalNotesController = TextEditingController();
   final TextEditingController _nutritionalSupplementsController =
       TextEditingController();
+
+  // Vaccination form controllers
+  final TextEditingController _vaccinationTypeController =
+      TextEditingController();
+  final TextEditingController _vaccinationChildNameController =
+      TextEditingController();
+  final TextEditingController _vaccinationAgeToGiveController =
+      TextEditingController();
+  final TextEditingController _vaccinationBatchController =
+      TextEditingController();
+  final TextEditingController _vaccinationEffectsController =
+      TextEditingController();
+  DateTime? _vaccinationDate;
 
   DateTime? _selectedEDD;
   int? _pregnancyWeek;
@@ -70,6 +85,11 @@ class _PregnantMotherDetailsScreenState
     _vaccinationsController.dispose();
     _generalNotesController.dispose();
     _nutritionalSupplementsController.dispose();
+    _vaccinationTypeController.dispose();
+    _vaccinationChildNameController.dispose();
+    _vaccinationAgeToGiveController.dispose();
+    _vaccinationBatchController.dispose();
+    _vaccinationEffectsController.dispose();
     super.dispose();
   }
 
@@ -97,6 +117,8 @@ class _PregnantMotherDetailsScreenState
           });
           // Load weight records after profile is loaded
           await _loadWeightRecords();
+          // Load vaccinations
+          await _loadVaccinations();
         } else {
           throw Exception(data['message'] ?? 'Failed to load maternal profile');
         }
@@ -134,6 +156,29 @@ class _PregnantMotherDetailsScreenState
     }
   }
 
+  Future<void> _loadVaccinations() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${ApiConfig.baseApiUrl}/vaccinations/mother/${widget.motherData['nicNumber']}',
+        ),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _vaccinationRecords = data.cast<Map<String, dynamic>>();
+        });
+      } else if (response.statusCode != 404) {
+        // Ignore 404 as it means no vaccinations yet
+        print('Failed to load vaccinations: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error loading vaccinations: $e');
+    }
+  }
+
   void _populateFormFields() {
     if (_maternalProfile == null) return;
 
@@ -146,7 +191,7 @@ class _PregnantMotherDetailsScreenState
     _midwifeNotesController.text = profile['midwifeNotes'] ?? '';
     _medicationsController.text = profile['currentMedications'] ?? '';
     _allergiesController.text = profile['allergies'] ?? '';
-    _vaccinationsController.text = profile['vaccinations'] ?? '';
+    // Vaccinations are managed via dedicated endpoints; not part of profile payload
     _generalNotesController.text = profile['generalNotes'] ?? '';
     _nutritionalSupplementsController.text =
         profile['nutritionalSupplements'] ?? '';
@@ -170,7 +215,7 @@ class _PregnantMotherDetailsScreenState
         'midwifeNotes': _midwifeNotesController.text.trim(),
         'currentMedications': _medicationsController.text.trim(),
         'allergies': _allergiesController.text.trim(),
-        'vaccinations': _vaccinationsController.text.trim(),
+        // vaccinations are not part of profile DTO; handled separately
         'generalNotes': _generalNotesController.text.trim(),
         'nutritionalSupplements': _nutritionalSupplementsController.text.trim(),
         'expectedDeliveryDate': _selectedEDD?.toIso8601String().split('T')[0],
@@ -230,6 +275,7 @@ class _PregnantMotherDetailsScreenState
           );
           await _loadMaternalProfile(); // Refresh data
           await _loadWeightRecords(); // Refresh weight records
+          await _loadVaccinations(); // Refresh vaccinations
         } else {
           throw Exception(data['message'] ?? 'Failed to save changes');
         }
@@ -250,31 +296,110 @@ class _PregnantMotherDetailsScreenState
     }
   }
 
+  Future<void> _addVaccination() async {
+    if (_vaccinationTypeController.text.trim().isEmpty ||
+        _vaccinationDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vaccination type and date are required'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isAddingVaccination = true);
+    try {
+      final body = {
+        'motherNic': widget.motherData['nicNumber'],
+        'childName': _vaccinationChildNameController.text.trim().isEmpty
+            ? 'Mother'
+            : _vaccinationChildNameController.text.trim(),
+        'vaccinationType': _vaccinationTypeController.text.trim(),
+        'ageToGive': _vaccinationAgeToGiveController.text.trim().isEmpty
+            ? null
+            : _vaccinationAgeToGiveController.text.trim(),
+        'vaccinationDate': _vaccinationDate!.toIso8601String().split('T')[0],
+        'batchNumber': _vaccinationBatchController.text.trim().isEmpty
+            ? null
+            : _vaccinationBatchController.text.trim(),
+        'effectsFollowingImmunization':
+            _vaccinationEffectsController.text.trim().isEmpty
+            ? null
+            : _vaccinationEffectsController.text.trim(),
+      };
+
+      final resp = await http.post(
+        Uri.parse('${ApiConfig.baseApiUrl}/vaccinations'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+      );
+
+      if (resp.statusCode == 201) {
+        // Attempt to mark the created vaccination as COMPLETED right away
+        try {
+          final Map<String, dynamic> created = json.decode(resp.body);
+          final id = created['id'];
+          if (id != null) {
+            final patchResp = await http.patch(
+              Uri.parse(
+                '${ApiConfig.baseApiUrl}/vaccinations/$id/status?status=COMPLETED',
+              ),
+              headers: {'Content-Type': 'application/json'},
+            );
+            if (patchResp.statusCode != 200) {
+              // Not critical; continue with UI update
+              // ignore: avoid_print
+              print(
+                'Warning: Failed to mark vaccination as COMPLETED (${patchResp.statusCode})',
+              );
+            }
+          }
+        } catch (e) {
+          // ignore: avoid_print
+          print('Non-fatal: could not set vaccination status to COMPLETED: $e');
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vaccination added successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        _vaccinationTypeController.clear();
+        _vaccinationChildNameController.clear();
+        _vaccinationAgeToGiveController.clear();
+        _vaccinationBatchController.clear();
+        _vaccinationEffectsController.clear();
+        setState(() => _vaccinationDate = null);
+        await _loadVaccinations();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to add vaccination (${resp.statusCode})'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding vaccination: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isAddingVaccination = false);
+    }
+  }
+
   Widget _buildProfileTab() {
+    // Show ONLY the data that midwives can update. Remove static/uneditable info.
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionCard('Mother Information', Icons.person, [
-            _buildInfoRow(
-              'Full Name',
-              widget.motherData['fullName'] ?? 'Unknown',
-            ),
-            _buildInfoRow(
-              'NIC Number',
-              widget.motherData['nicNumber'] ?? 'Unknown',
-            ),
-            _buildInfoRow(
-              'Email',
-              widget.motherData['email'] ?? 'Not provided',
-            ),
-            _buildInfoRow(
-              'Phone',
-              widget.motherData['phoneNumber3'] ?? 'Not provided',
-            ),
-          ]),
-          const SizedBox(height: 16),
           if (_maternalProfile != null) ...[
             _buildSectionCard('Pregnancy Information', Icons.pregnant_woman, [
               _buildInfoRow(
@@ -292,47 +417,40 @@ class _PregnantMotherDetailsScreenState
               ),
               _buildInfoRow(
                 'Vaccinations',
-                _maternalProfile!['vaccinations'] ?? 'Not recorded',
+                _vaccinationRecords.isNotEmpty
+                    ? '${_vaccinationRecords.first['vaccinationType'] ?? 'Unknown'} on '
+                          '${_formatDate(_vaccinationRecords.first['vaccinationDate'])}'
+                    : 'Not recorded',
               ),
             ]),
             const SizedBox(height: 16),
-            _buildSectionCard('Physical Measurements', Icons.monitor_weight, [
-              _buildInfoRow(
-                'Pre-pregnancy Weight',
-                _maternalProfile!['prePregnancyWeight'] != null
-                    ? '${_maternalProfile!['prePregnancyWeight']} kg'
-                    : 'Not recorded',
-              ),
-              _buildInfoRow(
-                'Pre-pregnancy Height',
-                _maternalProfile!['prePregnancyHeight'] != null
-                    ? '${_maternalProfile!['prePregnancyHeight']} cm'
-                    : 'Not recorded',
-              ),
-              _buildInfoRow(
-                'BMI',
-                _maternalProfile!['prePregnancyBmi'] != null
-                    ? '${_maternalProfile!['prePregnancyBmi']}'
-                    : 'Not calculated',
-              ),
-            ]),
+            _buildSectionCard(
+              'Medical Information (Updatable)',
+              Icons.medical_services,
+              [
+                _buildInfoRow(
+                  'Current Medications',
+                  _maternalProfile!['currentMedications'] ?? 'Not recorded',
+                ),
+                _buildInfoRow(
+                  'Allergies',
+                  _maternalProfile!['allergies'] ?? 'Not recorded',
+                ),
+                _buildInfoRow(
+                  'Nutritional Supplements',
+                  _maternalProfile!['nutritionalSupplements'] ?? 'Not recorded',
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
-            _buildSectionCard('Medical Information', Icons.medical_services, [
+            _buildSectionCard('Notes', Icons.note, [
               _buildInfoRow(
-                'Blood Type',
-                _maternalProfile!['bloodType'] ?? 'Not recorded',
+                'General Notes',
+                _maternalProfile!['generalNotes'] ?? 'None',
               ),
               _buildInfoRow(
-                'Rhesus Factor',
-                _maternalProfile!['rhesusFactor'] ?? 'Not recorded',
-              ),
-              _buildInfoRow(
-                'Allergies',
-                _maternalProfile!['allergies'] ?? 'None recorded',
-              ),
-              _buildInfoRow(
-                'High Risk Pregnancy',
-                _maternalProfile!['isHighRiskPregnancy'] == true ? 'Yes' : 'No',
+                'Midwife Notes',
+                _maternalProfile!['midwifeNotes'] ?? 'None',
               ),
             ]),
           ],
@@ -366,11 +484,12 @@ class _PregnantMotherDetailsScreenState
                         setState(() => _pregnancyWeek = int.tryParse(value)),
                   ),
                   const SizedBox(height: 16),
-                  _buildDropdownField(
-                    'Pregnancy Status',
-                    _pregnancyStatus,
-                    _pregnancyStatusOptions,
-                    (value) => setState(() => _pregnancyStatus = value),
+                  // Friendlier chip selector instead of dropdown
+                  _buildChipSelector(
+                    label: 'Pregnancy Status',
+                    options: _pregnancyStatusOptions,
+                    value: _pregnancyStatus ?? _pregnancyStatusOptions.first,
+                    onSelected: (val) => setState(() => _pregnancyStatus = val),
                   ),
                 ],
               ),
@@ -425,12 +544,7 @@ class _PregnantMotherDetailsScreenState
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
-                  _buildTextField(
-                    'Vaccinations Received',
-                    _vaccinationsController,
-                    TextInputType.multiline,
-                    maxLines: 3,
-                  ),
+                  // Vaccinations handled below with dedicated form
                   const SizedBox(height: 16),
                   _buildTextField(
                     'Nutritional Supplements',
@@ -443,6 +557,128 @@ class _PregnantMotherDetailsScreenState
             ),
           ),
           const SizedBox(height: 16),
+          _buildSectionHeader('Add Vaccination'),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _buildTextField(
+                    'Vaccination Type',
+                    _vaccinationTypeController,
+                    TextInputType.text,
+                  ),
+                  const SizedBox(height: 8),
+                  _buildQuickTypeChips(
+                    ['TT1', 'TT2', 'Influenza', 'COVID-19 Booster', 'HepB'],
+                    onPick: (v) =>
+                        setState(() => _vaccinationTypeController.text = v),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildDateField(
+                    'Vaccination Date',
+                    _vaccinationDate,
+                    (date) => setState(() => _vaccinationDate = date),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    'Child Name (optional)',
+                    _vaccinationChildNameController,
+                    TextInputType.text,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    'Age To Give (optional)',
+                    _vaccinationAgeToGiveController,
+                    TextInputType.text,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    'Batch Number (optional)',
+                    _vaccinationBatchController,
+                    TextInputType.text,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    'Effects Following Immunization (optional)',
+                    _vaccinationEffectsController,
+                    TextInputType.multiline,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isAddingVaccination ? null : _addVaccination,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4FC3A1),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _isAddingVaccination
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              'Add Vaccination',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                fontFamily: 'SpotifyCircular',
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Recent vaccinations
+          if (_vaccinationRecords.isNotEmpty) ...[
+            _buildSectionHeader('Recent Vaccinations'),
+            Card(
+              child: Column(
+                children: _vaccinationRecords
+                    .take(5)
+                    .map(
+                      (v) => ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Color(0xFF4FC3A1),
+                          child: Icon(Icons.vaccines, color: Colors.white),
+                        ),
+                        title: Text(
+                          v['vaccinationType'] ?? 'Unknown',
+                          style: const TextStyle(
+                            fontFamily: 'SpotifyCircular',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Date: ${_formatDate(v['vaccinationDate'])} • Status: ${v['status'] ?? 'PENDING'}',
+                          style: const TextStyle(fontFamily: 'SpotifyCircular'),
+                        ),
+                        trailing: Icon(
+                          (v['status'] ?? '').toString().toUpperCase() ==
+                                  'COMPLETED'
+                              ? Icons.check_circle
+                              : Icons.schedule,
+                          color:
+                              (v['status'] ?? '').toString().toUpperCase() ==
+                                  'COMPLETED'
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Additional Notes
           _buildSectionHeader('Additional Notes'),
           Card(
             child: Padding(
@@ -782,9 +1018,15 @@ class _PregnantMotherDetailsScreenState
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(fontFamily: 'SpotifyCircular'),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 12,
+        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFF4FC3A1)),
         ),
       ),
@@ -813,7 +1055,13 @@ class _PregnantMotherDetailsScreenState
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(fontFamily: 'SpotifyCircular'),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: const Icon(Icons.calendar_today),
         ),
         child: Text(
@@ -848,31 +1096,77 @@ class _PregnantMotherDetailsScreenState
     );
   }
 
-  Widget _buildDropdownField(
-    String label,
-    String? value,
-    List<String> options,
-    Function(String?) onChanged,
-  ) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(fontFamily: 'SpotifyCircular'),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF4FC3A1)),
-        ),
-      ),
-      items: options.map((String option) {
-        return DropdownMenuItem<String>(
-          value: option,
+  // Chip selector for compact, touch-friendly status choice
+  Widget _buildChipSelector({
+    required String label,
+    required List<String> options,
+    required String value,
+    required ValueChanged<String> onSelected,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
           child: Text(
-            option,
-            style: const TextStyle(fontFamily: 'SpotifyCircular'),
+            label,
+            style: const TextStyle(
+              fontFamily: 'SpotifyCircular',
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2E7D5A),
+            ),
           ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((opt) {
+            final selected = value == opt;
+            return ChoiceChip(
+              label: Text(
+                opt,
+                style: TextStyle(
+                  fontFamily: 'SpotifyCircular',
+                  color: selected ? Colors.white : const Color(0xFF2E7D5A),
+                ),
+              ),
+              selected: selected,
+              selectedColor: const Color(0xFF4FC3A1),
+              backgroundColor: Colors.white,
+              side: const BorderSide(color: Color(0xFF4FC3A1)),
+              onSelected: (_) => onSelected(opt),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+
+  // Quick-pick chips for common vaccination types
+  Widget _buildQuickTypeChips(
+    List<String> options, {
+    required ValueChanged<String> onPick,
+  }) {
+    final current = _vaccinationTypeController.text;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((opt) {
+        final isSelected = current == opt;
+        return ChoiceChip(
+          label: Text(
+            opt,
+            style: TextStyle(
+              fontFamily: 'SpotifyCircular',
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : const Color(0xFF2E7D5A),
+            ),
+          ),
+          selected: isSelected,
+          selectedColor: const Color(0xFF4FC3A1),
+          backgroundColor: Colors.white,
+          side: const BorderSide(color: Color(0xFF4FC3A1)),
+          onSelected: (_) => onPick(opt),
         );
       }).toList(),
     );

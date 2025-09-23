@@ -52,18 +52,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withOpacity(0.3),
+                  width: 1.5,
+                ),
               ),
               child: const Icon(
-                Icons.medical_services,
+                Icons.medical_services_outlined,
                 color: Colors.white,
-                size: 24,
+                size: 26,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             const Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -74,7 +78,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontFamily: 'SpotifyCircular',
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 20,
+                    letterSpacing: 0.5,
                   ),
                 ),
                 Text(
@@ -82,8 +87,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   style: TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontWeight: FontWeight.w400,
-                    color: Colors.white,
-                    fontSize: 12,
+                    color: Colors.white70,
+                    fontSize: 13,
+                    letterSpacing: 0.3,
                   ),
                 ),
               ],
@@ -91,49 +97,202 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ],
         ),
         backgroundColor: const Color(0xFF4FC3A1),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.white),
-            onPressed: () {
-              // Handle notifications
-            },
+        elevation: 8,
+        shadowColor: const Color(0xFF4FC3A1).withOpacity(0.3),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF4FC3A1), Color(0xFF3BA889), Color(0xFF2E8B71)],
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () {
-              _showLogoutDialog(context);
-            },
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            child: IconButton(
+              icon: Stack(
+                children: [
+                  const Icon(
+                    Icons.notifications_outlined,
+                    color: Colors.white,
+                    size: 26,
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.red[400],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 12,
+                        minHeight: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              onPressed: () {
+                // Handle notifications
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            child: IconButton(
+              icon: const Icon(
+                Icons.logout_outlined,
+                color: Colors.white,
+                size: 26,
+              ),
+              onPressed: () {
+                _showLogoutDialog(context);
+              },
+            ),
           ),
         ],
       ),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF4FC3A1),
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 0,
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.white,
+          selectedItemColor: const Color(0xFF4FC3A1),
+          unselectedItemColor: Colors.grey[600],
+          selectedFontSize: 12,
+          unselectedFontSize: 11,
+          iconSize: 24,
+          elevation: 0,
+          selectedLabelStyle: const TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.3,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Appointments',
+          unselectedLabelStyle: const TextStyle(
+            fontFamily: 'SpotifyCircular',
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0.2,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analytics',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
+          items: [
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 0
+                      ? const Color(0xFF4FC3A1).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 0
+                      ? Icons.dashboard
+                      : Icons.dashboard_outlined,
+                  color: _selectedIndex == 0
+                      ? const Color(0xFF4FC3A1)
+                      : Colors.grey[600],
+                ),
+              ),
+              label: 'Dashboard',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 1
+                      ? const Color(0xFF4FC3A1).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 1 ? Icons.people : Icons.people_outline,
+                  color: _selectedIndex == 1
+                      ? const Color(0xFF4FC3A1)
+                      : Colors.grey[600],
+                ),
+              ),
+              label: 'Patients',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 2
+                      ? const Color(0xFF4FC3A1).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 2
+                      ? Icons.calendar_today
+                      : Icons.calendar_today_outlined,
+                  color: _selectedIndex == 2
+                      ? const Color(0xFF4FC3A1)
+                      : Colors.grey[600],
+                ),
+              ),
+              label: 'Appointments',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 3
+                      ? const Color(0xFF4FC3A1).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 3
+                      ? Icons.analytics
+                      : Icons.analytics_outlined,
+                  color: _selectedIndex == 3
+                      ? const Color(0xFF4FC3A1)
+                      : Colors.grey[600],
+                ),
+              ),
+              label: 'Analytics',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _selectedIndex == 4
+                      ? const Color(0xFF4FC3A1).withOpacity(0.1)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  _selectedIndex == 4 ? Icons.person : Icons.person_outline,
+                  color: _selectedIndex == 4
+                      ? const Color(0xFF4FC3A1)
+                      : Colors.grey[600],
+                ),
+              ),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -797,10 +956,12 @@ class PatientsTab extends StatelessWidget {
 
             Expanded(
               child: GridView.count(
+                padding: const EdgeInsets.only(bottom: 16),
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 1.1,
+                // Slightly taller tiles to reduce chance of overflow on small devices
+                childAspectRatio: 1.0,
                 children: [
                   _buildActionCard(
                     context,
@@ -926,43 +1087,58 @@ class PatientsTab extends StatelessWidget {
               colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, size: 32, color: color),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2E7D5A),
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontFamily: 'SpotifyCircular',
-                  fontSize: 11,
-                  color: Colors.grey[600],
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isTight = constraints.maxHeight < 140;
+              final titleSize = isTight ? 12.0 : 13.0;
+              final subtitleSize = isTight ? 10.0 : 11.0;
+              final topGap = isTight ? 8.0 : 12.0;
+              final midGap = isTight ? 2.0 : 4.0;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, size: 32, color: color),
+                  ),
+                  SizedBox(height: topGap),
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontFamily: 'SpotifyCircular',
+                        fontSize: titleSize,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF2E7D5A),
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(height: midGap),
+                  Flexible(
+                    child: Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontFamily: 'SpotifyCircular',
+                        fontSize: subtitleSize,
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
