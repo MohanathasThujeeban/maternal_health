@@ -24,7 +24,6 @@ dependencies:
 
   dio: ^5.4.0
   logging: ^1.2.0
-  onesignal_flutter: ^5.1.0
 
 dev_dependencies:
   flutter_test:
