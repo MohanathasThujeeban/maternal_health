@@ -81,6 +81,107 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
     print(
       'Final user data: NIC=$motherNic, Name=$motherName, Email=$motherEmail',
     );
+
+    // Check for pending appointments after user data is loaded
+    if (motherNic != null) {
+      _checkPendingAppointments();
+    }
+  }
+
+  Future<void> _checkPendingAppointments() async {
+    if (motherNic == null) {
+      // Wait for user data to load first
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (motherNic == null) return;
+    }
+
+    try {
+      final result = await AppointmentService.checkPendingAppointments(
+        motherNic!,
+      );
+
+      if (result['success'] && result['hasPendingAppointment']) {
+        // Show dialog and navigate back
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showPendingAppointmentDialog(result);
+        });
+      }
+    } catch (e) {
+      print('Error checking pending appointments: $e');
+    }
+  }
+
+  void _showPendingAppointmentDialog(Map<String, dynamic> result) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+              SizedBox(width: 10),
+              Text(
+                'Active Appointment Found',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2E7D5A),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                result['message'] ?? 'You already have an active appointment.',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Color(0xFF2C3E50),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE9ECEF)),
+                ),
+                child: const Text(
+                  '💡 You can only have one active appointment at a time. Please complete or cancel your existing appointment to book a new one.',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF6C757D),
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Go back to previous screen
+              },
+              child: const Text(
+                'View My Appointments',
+                style: TextStyle(
+                  color: Color(0xFF4FC3A1),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -148,6 +249,20 @@ class _ScheduleAppointmentScreenState extends State<ScheduleAppointmentScreen> {
 
   Future<void> _scheduleAppointment() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Check for pending appointments before scheduling
+    if (motherNic != null) {
+      final pendingCheck = await AppointmentService.checkPendingAppointments(
+        motherNic!,
+      );
+      if (pendingCheck['success'] && pendingCheck['hasPendingAppointment']) {
+        _showErrorDialog(
+          pendingCheck['message'] ??
+              'You already have an active appointment. Please complete or cancel your existing appointment before booking a new one.',
+        );
+        return;
+      }
+    }
 
     // Validate user data is loaded
     if (motherName == null || motherName!.trim().isEmpty) {

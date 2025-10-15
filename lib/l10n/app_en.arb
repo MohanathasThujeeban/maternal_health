@@ -130,5 +130,20 @@
   "logoutConfirm": "Are you sure you want to logout?",
   "cancel": "Cancel",
   "noVaccinationRecords": "No vaccination records found",
-  "vaccinationRecordsDescription": "Vaccination records will appear here once they are added by your healthcare provider"
+  "vaccinationRecordsDescription": "Vaccination records will appear here once they are added by your healthcare provider",
+  "addBaby": "Add Baby",
+  "babyAddedSuccessfully": "Baby added successfully! 🍼",
+  "babyAddedSuccessfullySimple": "Baby added successfully!",
+  "appointmentCancelledSuccessfully": "Appointment cancelled successfully",
+  "eyeEarRecords": "Eye & Ear Records",
+  "viewBabyEyeEarRecords": "View your baby's eye and ear examination records",
+  "privacySecurity": "Privacy & Security",
+  "managePrivacySettings": "Manage your privacy and security settings",
+  "comprehensiveProfile": "Comprehensive Profile",
+  "viewCompleteProfile": "View and manage your complete profile",
+  "myPregnancyRecords": "My Pregnancy Records",
+  "viewPregnancyHistory": "View your pregnancy history and records",
+  "babySpecificRecords": "Baby Specific Records",
+  "viewBabySpecificData": "View specific data for each baby",
+  "registerNewBaby": "Register a new baby to your account"
 }

@@ -41,6 +41,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     boolean existsByMotherNicAndProviderAndDateAndStatusNot(@Param("motherNic") String motherNic, 
                                                             @Param("providerName") String providerName,
                                                             @Param("appointmentDate") LocalDateTime appointmentDate);
+    
+    // Check if mother already has an active (pending or confirmed) appointment
+    boolean existsByMotherNicAndStatusIn(String motherNic, List<AppointmentStatus> statuses);
 
     // Find appointments by provider ID and date range
     List<Appointment> findByProviderIdAndAppointmentDateBetweenOrderByAppointmentDateAsc(String providerId, 

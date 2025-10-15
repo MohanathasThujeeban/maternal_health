@@ -18,6 +18,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Map;
 import java.util.Optional;
 
@@ -686,6 +689,93 @@ public class HealthcareProviderController {
             
             return createErrorResponse("Password change failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // Get all active healthcare providers for appointments
+    @GetMapping("/providers/active")
+    public ResponseEntity<?> getAllActiveProviders() {
+        try {
+            List<HealthcareProvider> providers = healthcareProviderRepository.findByIsApprovedTrueAndIsActiveTrue();
+            return ResponseEntity.ok(providers);
+        } catch (Exception e) {
+            return createErrorResponse("Error fetching providers: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Get available providers formatted for appointments
+    @GetMapping("/providers/available-for-appointments")
+    public ResponseEntity<?> getAvailableProvidersForAppointments() {
+        try {
+            List<HealthcareProvider> allProviders = healthcareProviderRepository.findByIsApprovedTrueAndIsActiveTrue();
+            
+            Map<String, Object> response = new HashMap<>();
+            
+            // Group providers by type
+            List<Map<String, String>> doctorList = new ArrayList<>();
+            List<Map<String, String>> midwifeList = new ArrayList<>();
+            
+            for (HealthcareProvider provider : allProviders) {
+                Map<String, String> providerInfo = new HashMap<>();
+                providerInfo.put("id", provider.getMedicalLicenseNumber());
+                providerInfo.put("name", provider.getFullName());
+                providerInfo.put("title", formatProviderTitle(provider));
+                providerInfo.put("specialization", provider.getSpecialization() != null ? provider.getSpecialization() : "General");
+                providerInfo.put("hospital", provider.getInstitution());
+                providerInfo.put("experience", provider.getYearsOfExperience() != null ? provider.getYearsOfExperience() + " years" : "");
+                providerInfo.put("contactNumber", provider.getPhoneNumber());
+                
+                if (provider.getProviderType().toString().equals("DOCTOR")) {
+                    doctorList.add(providerInfo);
+                } else if (provider.getProviderType().toString().equals("MIDWIFE")) {
+                    midwifeList.add(providerInfo);
+                }
+            }
+            
+            response.put("doctor", doctorList);
+            response.put("midwife", midwifeList);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createErrorResponse("Error fetching available providers: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Get provider by license number or name
+    @GetMapping("/providers/find/{identifier}")
+    public ResponseEntity<?> getProviderByIdentifier(@PathVariable String identifier) {
+        try {
+            // First try to find by medical license number
+            Optional<HealthcareProvider> provider = healthcareProviderRepository.findByMedicalLicenseNumber(identifier);
+            
+            if (provider.isPresent()) {
+                return ResponseEntity.ok(provider.get());
+            }
+            
+            // If not found by license, try to find by name for backward compatibility
+            List<HealthcareProvider> allProviders = healthcareProviderRepository.findByIsApprovedTrueAndIsActiveTrue();
+            Optional<HealthcareProvider> providerByName = allProviders.stream()
+                    .filter(p -> p.getFullName().equals(identifier))
+                    .findFirst();
+                    
+            if (providerByName.isPresent()) {
+                return ResponseEntity.ok(providerByName.get());
+            }
+            
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return createErrorResponse("Error finding provider: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Helper method to format provider title
+    private String formatProviderTitle(HealthcareProvider provider) {
+        if (provider.getProviderType().toString().equals("DOCTOR")) {
+            return "Dr. " + provider.getFullName();
+        } else if (provider.getProviderType().toString().equals("MIDWIFE")) {
+            return "Mrs. " + provider.getFullName();
+        }
+        return provider.getFullName();
     }
 
     private ResponseEntity<?> createErrorResponse(String message, HttpStatus status) {

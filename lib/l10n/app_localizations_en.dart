@@ -400,4 +400,52 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get vaccinationRecordsDescription =>
       'Vaccination records will appear here once they are added by your healthcare provider';
+
+  @override
+  String get addBaby => 'Add Baby';
+
+  @override
+  String get babyAddedSuccessfully => 'Baby added successfully! 🍼';
+
+  @override
+  String get babyAddedSuccessfullySimple => 'Baby added successfully!';
+
+  @override
+  String get appointmentCancelledSuccessfully =>
+      'Appointment cancelled successfully';
+
+  @override
+  String get eyeEarRecords => 'Eye & Ear Records';
+
+  @override
+  String get viewBabyEyeEarRecords =>
+      'View your baby\'s eye and ear examination records';
+
+  @override
+  String get privacySecurity => 'Privacy & Security';
+
+  @override
+  String get managePrivacySettings =>
+      'Manage your privacy and security settings';
+
+  @override
+  String get comprehensiveProfile => 'Comprehensive Profile';
+
+  @override
+  String get viewCompleteProfile => 'View and manage your complete profile';
+
+  @override
+  String get myPregnancyRecords => 'My Pregnancy Records';
+
+  @override
+  String get viewPregnancyHistory => 'View your pregnancy history and records';
+
+  @override
+  String get babySpecificRecords => 'Baby Specific Records';
+
+  @override
+  String get viewBabySpecificData => 'View specific data for each baby';
+
+  @override
+  String get registerNewBaby => 'Register a new baby to your account';
 }

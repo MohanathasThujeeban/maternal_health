@@ -130,5 +130,20 @@
   "logoutConfirm": "ඔබට නිශ්චිතව ඉවත් වීමට අවශ්‍යද?",
   "cancel": "අවලංගු කරන්න",
   "noVaccinationRecords": "එන්නත් වාර්තා සොයාගත නොහැක",
-  "vaccinationRecordsDescription": "ඔබේ සෞඛ්‍ය සේවා සපයන්නා විසින් එකතු කළ පසු එන්නත් වාර්තා මෙහි දිස්වේ"
+  "vaccinationRecordsDescription": "ඔබේ සෞඛ්‍ය සේවා සපයන්නා විසින් එකතු කළ පසු එන්නත් වාර්තා මෙහි දිස්වේ",
+  "addBaby": "දරුවා එකතු කරන්න",
+  "babyAddedSuccessfully": "දරුවා සාර්ථකව එකතු කරන ලදී! 🍼",
+  "babyAddedSuccessfullySimple": "දරුවා සාර්ථකව එකතු කරන ලදී!",
+  "appointmentCancelledSuccessfully": "හමුවීම සාර්ථකව අවලංගු කරන ලදී",
+  "eyeEarRecords": "ඇස් සහ කණ වාර්තා",
+  "viewBabyEyeEarRecords": "ඔබේ දරුවාගේ ඇස් සහ කණ පරීක්‍ෂණ වාර්තා බලන්න",
+  "privacySecurity": "පෞද්ගලිකත්වය සහ ආරක්‍ෂාව",
+  "managePrivacySettings": "ඔබේ පෞද්ගලිකත්වය සහ ආරක්‍ෂක සැකසුම් කළමනාකරණය කරන්න",
+  "comprehensiveProfile": "සම්පූර්ණ පැතිකඩ",
+  "viewCompleteProfile": "ඔබේ සම්පූර්ණ පැතිකඩ බලන්න සහ කළමනාකරණය කරන්න",
+  "myPregnancyRecords": "මගේ ගැබ්ගැනීමේ වාර්තා",
+  "viewPregnancyHistory": "ඔබේ ගර්භාවස්ථා ඉතිහාසය සහ වාර්තා බලන්න",
+  "babySpecificRecords": "දරු විශේෂිත වාර්තා",
+  "viewBabySpecificData": "එක් එක් දරුවා සඳහා විශේෂිත දත්ත බලන්න",
+  "registerNewBaby": "ඔබේ ගිණුමට නව දරුවෙකු ලියාපදිංචි කරන්න"
 }

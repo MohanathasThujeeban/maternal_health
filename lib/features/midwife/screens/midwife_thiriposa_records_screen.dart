@@ -430,25 +430,12 @@ class _MidwifeThiriposaRecordsScreenState
                               items: _babies.map((baby) {
                                 return DropdownMenuItem<Baby>(
                                   value: baby,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        baby.name,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Age: ${baby.ageInMonths} months | Born: ${baby.formattedBirthDate}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
+                                  child: Text(
+                                    '${baby.name} (${baby.ageInMonths}m)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 );
                               }).toList(),

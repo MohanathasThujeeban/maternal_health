@@ -117,9 +117,9 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
           foregroundColor: Colors.white,
           elevation: 0,
           icon: const Icon(Icons.add),
-          label: const Text(
-            'Add Baby',
-            style: TextStyle(
+          label: Text(
+            localizations.addBaby,
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
               fontSize: 14,
               fontFamily: 'SpotifyCircular',
@@ -137,10 +137,11 @@ class _MotherHomeScreenState extends State<MotherHomeScreen> {
     );
 
     if (result == true) {
+      final localizations = AppLocalizations.of(context)!;
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Baby added successfully! 🍼'),
+        SnackBar(
+          content: Text(localizations.babyAddedSuccessfully),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -275,8 +276,8 @@ class MotherDashboardScreen extends StatelessWidget {
             cards: [
               _CategoryCard(
                 icon: Icons.add_circle,
-                title: 'Add New Baby',
-                description: 'Register a new baby to your account',
+                title: localizations.addBaby,
+                description: localizations.registerNewBaby,
                 color: const Color(0xFFE91E63),
                 onTap: () => _addNewBaby(context),
               ),
@@ -306,9 +307,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.remove_red_eye,
-                title: 'Eye & Ear Records',
-                description:
-                    'View your baby\'s eye and ear examination records',
+                title: localizations.eyeEarRecords,
+                description: localizations.viewBabyEyeEarRecords,
                 color: const Color(0xFF9C27B0),
                 onTap: () => Navigator.push(
                   context,
@@ -330,9 +330,8 @@ class MotherDashboardScreen extends StatelessWidget {
             cards: [
               _CategoryCard(
                 icon: Icons.pregnant_woman,
-                title: 'My Pregnancy Records',
-                description:
-                    'View your pregnancy status, weight, vaccinations & appointments',
+                title: localizations.myPregnancyRecords,
+                description: localizations.viewPregnancyHistory,
                 color: const Color(0xFFE91E63),
                 onTap: () => Navigator.push(
                   context,
@@ -343,9 +342,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.folder_open,
-                title: 'Baby Records',
-                description:
-                    'View all records for each baby (vaccines, growth, etc.)',
+                title: localizations.babyRecords,
+                description: localizations.babyRecordsDescription,
                 color: const Color(0xFF4FC3A1),
                 onTap: () => Navigator.push(
                   context,
@@ -401,8 +399,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.account_circle,
-                title: 'Complete Profile',
-                description: 'Complete your comprehensive maternal profile',
+                title: localizations.comprehensiveProfile,
+                description: localizations.viewCompleteProfile,
                 color: const Color(0xFF673AB7),
                 onTap: () {
                   Navigator.push(
@@ -424,8 +422,8 @@ class MotherDashboardScreen extends StatelessWidget {
               ),
               _CategoryCard(
                 icon: Icons.security,
-                title: 'Privacy & Security',
-                description: 'Manage password and privacy settings',
+                title: localizations.privacySecurity,
+                description: localizations.managePrivacySettings,
                 color: const Color(0xFF795548),
                 onTap: () {
                   Navigator.push(
@@ -583,10 +581,11 @@ class MotherDashboardScreen extends StatelessWidget {
     );
 
     if (result == true) {
+      final localizations = AppLocalizations.of(context)!;
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Baby added successfully!'),
+        SnackBar(
+          content: Text(localizations.babyAddedSuccessfullySimple),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -995,10 +994,11 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
     if (!mounted) return;
 
     if (result['success']) {
+      final localizations = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Appointment cancelled successfully'),
-          backgroundColor: Color(0xFF4FC3A1),
+        SnackBar(
+          content: Text(localizations.appointmentCancelledSuccessfully),
+          backgroundColor: const Color(0xFF4FC3A1),
         ),
       );
       _loadAppointments(); // Refresh the list

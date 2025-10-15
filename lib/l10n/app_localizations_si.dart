@@ -403,4 +403,53 @@ class AppLocalizationsSi extends AppLocalizations {
   @override
   String get vaccinationRecordsDescription =>
       'ඔබේ සෞඛ්‍ය සේවා සපයන්නා විසින් එකතු කළ පසු එන්නත් වාර්තා මෙහි දිස්වේ';
+
+  @override
+  String get addBaby => 'දරුවා එකතු කරන්න';
+
+  @override
+  String get babyAddedSuccessfully => 'දරුවා සාර්ථකව එකතු කරන ලදී! 🍼';
+
+  @override
+  String get babyAddedSuccessfullySimple => 'දරුවා සාර්ථකව එකතු කරන ලදී!';
+
+  @override
+  String get appointmentCancelledSuccessfully =>
+      'හමුවීම සාර්ථකව අවලංගු කරන ලදී';
+
+  @override
+  String get eyeEarRecords => 'ඇස් සහ කණ වාර්තා';
+
+  @override
+  String get viewBabyEyeEarRecords =>
+      'ඔබේ දරුවාගේ ඇස් සහ කණ පරීක්‍ෂණ වාර්තා බලන්න';
+
+  @override
+  String get privacySecurity => 'පෞද්ගලිකත්වය සහ ආරක්‍ෂාව';
+
+  @override
+  String get managePrivacySettings =>
+      'ඔබේ පෞද්ගලිකත්වය සහ ආරක්‍ෂක සැකසුම් කළමනාකරණය කරන්න';
+
+  @override
+  String get comprehensiveProfile => 'සම්පූර්ණ පැතිකඩ';
+
+  @override
+  String get viewCompleteProfile =>
+      'ඔබේ සම්පූර්ණ පැතිකඩ බලන්න සහ කළමනාකරණය කරන්න';
+
+  @override
+  String get myPregnancyRecords => 'මගේ ගැබ්ගැනීමේ වාර්තා';
+
+  @override
+  String get viewPregnancyHistory => 'ඔබේ ගර්භාවස්ථා ඉතිහාසය සහ වාර්තා බලන්න';
+
+  @override
+  String get babySpecificRecords => 'දරු විශේෂිත වාර්තා';
+
+  @override
+  String get viewBabySpecificData => 'එක් එක් දරුවා සඳහා විශේෂිත දත්ත බලන්න';
+
+  @override
+  String get registerNewBaby => 'ඔබේ ගිණුමට නව දරුවෙකු ලියාපදිංචි කරන්න';
 }

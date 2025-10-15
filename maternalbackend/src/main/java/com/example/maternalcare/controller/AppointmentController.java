@@ -88,6 +88,22 @@ public class AppointmentController {
         }
     }
     
+    // Check if mother has pending appointments
+    @GetMapping("/mother/{motherNic}/check-pending")
+    public ResponseEntity<?> checkPendingAppointments(@PathVariable String motherNic) {
+        try {
+            Map<String, Object> result = appointmentService.checkPendingAppointments(motherNic);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                        "success", false,
+                        "hasPendingAppointment", false,
+                        "message", "Error checking pending appointments: " + e.getMessage()
+                    ));
+        }
+    }
+
     // Get appointments for a mother by NIC and status
     @GetMapping("/mother/{motherNic}/status/{status}")
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsByMotherNicAndStatus(

@@ -410,4 +410,57 @@ class AppLocalizationsTa extends AppLocalizations {
   @override
   String get vaccinationRecordsDescription =>
       'உங்கள் சுகாதார வழங்குநரால் சேர்க்கப்பட்டதும் தடுப்பூசி பதிவுகள் இங்கே தோன்றும்';
+
+  @override
+  String get addBaby => 'குழந்தையை சேர்க்கவும்';
+
+  @override
+  String get babyAddedSuccessfully => 'குழந்தை வெற்றிகரமாக சேர்க்கப்பட்டது! 🍼';
+
+  @override
+  String get babyAddedSuccessfullySimple =>
+      'குழந்தை வெற்றிகரமாக சேர்க்கப்பட்டது!';
+
+  @override
+  String get appointmentCancelledSuccessfully =>
+      'அப்பாயின்ட்மென்ட் வெற்றிகரமாக ரத்து செய்யப்பட்டது';
+
+  @override
+  String get eyeEarRecords => 'கண் & காது பதிவுகள்';
+
+  @override
+  String get viewBabyEyeEarRecords =>
+      'உங்கள் குழந்தையின் கண் மற்றும் காது பரிசோதனை பதிவுகளை பார்க்கவும்';
+
+  @override
+  String get privacySecurity => 'தனியுரிமை & பாதுகாப்பு';
+
+  @override
+  String get managePrivacySettings =>
+      'உங்கள் தனியுரிமை மற்றும் பாதுகாப்பு அமைப்புகளை நிர்வகிக்கவும்';
+
+  @override
+  String get comprehensiveProfile => 'முழுமையான சுயவிவரம்';
+
+  @override
+  String get viewCompleteProfile =>
+      'உங்கள் முழுமையான சுயவிவரத்தை பார்க்கவும் மற்றும் நிர்வகிக்கவும்';
+
+  @override
+  String get myPregnancyRecords => 'என் கர்ப்பகால பதிவுகள்';
+
+  @override
+  String get viewPregnancyHistory =>
+      'உங்கள் கர்ப்பகால வரலாறு மற்றும் பதிவுகளை பار்க்கவும்';
+
+  @override
+  String get babySpecificRecords => 'குழந்தை சிறப்பு பதிவுகள்';
+
+  @override
+  String get viewBabySpecificData =>
+      'ஒவ்வொரு குழந்தைக்கும் குறிப்பிட்ட தரவை பார்க்கவும்';
+
+  @override
+  String get registerNewBaby =>
+      'உங்கள் கணக்கில் புதிய குழந்தையை பதிவு செய்யுங்கள்';
 }

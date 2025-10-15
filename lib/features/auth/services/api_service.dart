@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -35,6 +36,7 @@ class ApiService {
       };
 
       LoggingService.debug('Sending login data: ${jsonEncode(loginData)}');
+      LoggingService.info('Making login request to: $baseUrl/login');
 
       final response = await http
           .post(
@@ -42,7 +44,7 @@ class ApiService {
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(loginData),
           )
-          .timeout(const Duration(seconds: 10));
+          .timeout(const Duration(seconds: 30));
 
       print('Response Status: ${response.statusCode}');
       print('Response Body: ${response.body}');
@@ -77,6 +79,12 @@ class ApiService {
       return {
         'success': false,
         'message': 'No internet connection. Please check your network.',
+      };
+    } on TimeoutException {
+      return {
+        'success': false,
+        'message':
+            'Connection timeout. Please check your network and try again.',
       };
     } on http.ClientException {
       return {
@@ -363,11 +371,13 @@ class ApiService {
   // Get available healthcare providers for appointments
   static Future<Map<String, dynamic>> getAvailableHealthcareProviders() async {
     try {
-      print('Fetching available healthcare providers');
+      print('Fetching available healthcare providers for appointments');
 
       final response = await http
           .get(
-            Uri.parse('$baseUrl/healthcare/available'),
+            Uri.parse(
+              '$baseUrl/healthcare/providers/available-for-appointments',
+            ),
             headers: {'Content-Type': 'application/json'},
           )
           .timeout(const Duration(seconds: 10));
@@ -377,17 +387,17 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);
+        // The new endpoint returns {doctor: [...], midwife: [...]} format
         return {
           'success': true,
-          'providers': responseData['providers'] ?? [],
-          'message':
-              responseData['message'] ?? 'Providers fetched successfully',
+          'data': responseData,
+          'message': 'Providers fetched successfully',
         };
       } else {
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
-          'providers': [],
+          'data': {'doctor': [], 'midwife': []},
           'message':
               errorData['error'] ?? 'Failed to fetch healthcare providers',
         };
@@ -396,7 +406,7 @@ class ApiService {
       print('Error fetching healthcare providers: $e');
       return {
         'success': false,
-        'providers': [],
+        'data': {'doctor': [], 'midwife': []},
         'message': 'Error fetching healthcare providers: ${e.toString()}',
       };
     }

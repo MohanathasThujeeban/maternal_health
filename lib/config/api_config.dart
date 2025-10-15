@@ -1,6 +1,6 @@
 class ApiConfig {
   // Local network configuration
-  static const String serverIp = '10.11.8.134'; // ITUM WiFi IP address
+  static const String serverIp = '10.11.6.107'; // Current WiFi IP address
   static const int serverPort = 8080;
   static const String localUrl = 'http://$serverIp:$serverPort';
 

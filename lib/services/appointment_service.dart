@@ -70,28 +70,47 @@ class AppointmentService {
         'doctor': [],
       };
 
-      if (response['success'] == true && response['providers'] is List) {
-        final providersList = response['providers'] as List;
-        print('Found ${providersList.length} providers from API');
+      if (response['success'] == true && response['data'] is Map) {
+        final data = response['data'] as Map<String, dynamic>;
+        print('Received provider data: $data');
 
-        for (var provider in providersList) {
-          print('Processing provider: ${provider}');
-          final providerInfo = {
-            'id': (provider['medicalLicenseNumber'] ?? '').toString(),
-            'name': (provider['fullName'] ?? 'Unknown').toString(),
-            'title': (provider['specialization'] ?? 'General').toString(),
-            'institution': (provider['institution'] ?? '').toString(),
-            'yearsOfExperience':
-                (provider['yearsOfExperience']?.toString() ?? '0'),
-          };
+        // Process doctors
+        if (data['doctor'] is List) {
+          final doctorList = data['doctor'] as List;
+          print('Found ${doctorList.length} doctors from API');
 
-          print('Provider type: ${provider['providerType']}');
-          if (provider['providerType'] == 'MIDWIFE') {
-            groupedProviders['midwife']!.add(providerInfo);
-            print('Added to midwife group: ${providerInfo}');
-          } else if (provider['providerType'] == 'DOCTOR') {
+          for (var provider in doctorList) {
+            print('Processing doctor: ${provider}');
+            final providerInfo = {
+              'id': (provider['id'] ?? '').toString(),
+              'name': (provider['name'] ?? '').toString(),
+              'title': (provider['title'] ?? '').toString(),
+              'specialization': (provider['specialization'] ?? '').toString(),
+              'hospital': (provider['hospital'] ?? '').toString(),
+              'experience': (provider['experience'] ?? '').toString(),
+              'contactNumber': (provider['contactNumber'] ?? '').toString(),
+            };
             groupedProviders['doctor']!.add(providerInfo);
-            print('Added to doctor group: ${providerInfo}');
+          }
+        }
+
+        // Process midwives
+        if (data['midwife'] is List) {
+          final midwifeList = data['midwife'] as List;
+          print('Found ${midwifeList.length} midwives from API');
+
+          for (var provider in midwifeList) {
+            print('Processing midwife: ${provider}');
+            final providerInfo = {
+              'id': (provider['id'] ?? '').toString(),
+              'name': (provider['name'] ?? '').toString(),
+              'title': (provider['title'] ?? '').toString(),
+              'specialization': (provider['specialization'] ?? '').toString(),
+              'hospital': (provider['hospital'] ?? '').toString(),
+              'experience': (provider['experience'] ?? '').toString(),
+              'contactNumber': (provider['contactNumber'] ?? '').toString(),
+            };
+            groupedProviders['midwife']!.add(providerInfo);
           }
         }
       }
@@ -101,6 +120,7 @@ class AppointmentService {
       // If no providers found, return static ones as fallback
       if (groupedProviders['midwife']!.isEmpty &&
           groupedProviders['doctor']!.isEmpty) {
+        print('No providers found from API, using static fallback');
         return AppointmentService.providers;
       }
 
@@ -412,6 +432,36 @@ class AppointmentService {
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error: ${e.toString()}'};
+    }
+  }
+
+  // Check if mother has any pending appointments
+  static Future<Map<String, dynamic>> checkPendingAppointments(
+    String motherNic,
+  ) async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/mother/$motherNic/check-pending'),
+            headers: {'Content-Type': 'application/json'},
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {
+          'success': false,
+          'hasPendingAppointment': false,
+          'message': 'Failed to check pending appointments',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'hasPendingAppointment': false,
+        'message': 'Network error: ${e.toString()}',
+      };
     }
   }
 }

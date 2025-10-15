@@ -873,6 +873,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Vaccination records will appear here once they are added by your healthcare provider'**
   String get vaccinationRecordsDescription;
+
+  /// No description provided for @addBaby.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Baby'**
+  String get addBaby;
+
+  /// No description provided for @babyAddedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby added successfully! 🍼'**
+  String get babyAddedSuccessfully;
+
+  /// No description provided for @babyAddedSuccessfullySimple.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby added successfully!'**
+  String get babyAddedSuccessfullySimple;
+
+  /// No description provided for @appointmentCancelledSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment cancelled successfully'**
+  String get appointmentCancelledSuccessfully;
+
+  /// No description provided for @eyeEarRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Eye & Ear Records'**
+  String get eyeEarRecords;
+
+  /// No description provided for @viewBabyEyeEarRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'View your baby\'s eye and ear examination records'**
+  String get viewBabyEyeEarRecords;
+
+  /// No description provided for @privacySecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy & Security'**
+  String get privacySecurity;
+
+  /// No description provided for @managePrivacySettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your privacy and security settings'**
+  String get managePrivacySettings;
+
+  /// No description provided for @comprehensiveProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Comprehensive Profile'**
+  String get comprehensiveProfile;
+
+  /// No description provided for @viewCompleteProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View and manage your complete profile'**
+  String get viewCompleteProfile;
+
+  /// No description provided for @myPregnancyRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'My Pregnancy Records'**
+  String get myPregnancyRecords;
+
+  /// No description provided for @viewPregnancyHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'View your pregnancy history and records'**
+  String get viewPregnancyHistory;
+
+  /// No description provided for @babySpecificRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Baby Specific Records'**
+  String get babySpecificRecords;
+
+  /// No description provided for @viewBabySpecificData.
+  ///
+  /// In en, this message translates to:
+  /// **'View specific data for each baby'**
+  String get viewBabySpecificData;
+
+  /// No description provided for @registerNewBaby.
+  ///
+  /// In en, this message translates to:
+  /// **'Register a new baby to your account'**
+  String get registerNewBaby;
 }
 
 class _AppLocalizationsDelegate
