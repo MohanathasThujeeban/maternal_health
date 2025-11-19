@@ -19,6 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController nicController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
   bool isLoading = false;
 
   Future<void> _handleLogin() async {
@@ -139,11 +140,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const SizedBox(height: 16),
                     // Logo
-                    Image.asset('assets/logo.png', width: 250, height: 250),
+                    Image.asset('assets/logo.png', width: 240, height: 240),
                     const SizedBox(height: 32),
                     // NIC Number field
                     _RoundedTextField(
-                      hint: 'NIC Number',
+                      hint: 'New NIC Number',
                       controller: nicController,
                     ),
                     const SizedBox(height: 16),
@@ -153,7 +154,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscure: true,
                       controller: passwordController,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    // Full Name field
+                    _RoundedTextField(
+                      hint: 'Full Name',
+                      controller: fullNameController,
+                    ),
+                    const SizedBox(height: 16),
                     // Login button
                     _RoundedButton(
                       text: 'Login',

@@ -50,6 +50,10 @@ public class LoginController {
             if (loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
                 return createErrorResponse("Password is required", HttpStatus.BAD_REQUEST);
             }
+            
+             if (loginRequest.getFullName() == null || loginRequest.getFullName().trim().isEmpty()) {
+                return createErrorResponse("Username is required", HttpStatus.BAD_REQUEST);
+            }
 
             // Find user by NIC number
             Optional<Registration> userOptional = registrationRepository.findByNicNumber(loginRequest.getNicNumber().trim());

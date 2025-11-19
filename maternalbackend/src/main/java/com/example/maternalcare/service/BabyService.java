@@ -34,11 +34,25 @@ public class BabyService {
         // Validate that the mother exists in maternal profiles
         Optional<MaternalProfile> motherOpt = maternalProfileRepository.findByMotherNic(request.getMotherNic());
         if (motherOpt.isEmpty()) {
-            System.err.println("ERROR: Mother not found with NIC: " + request.getMotherNic());
-            throw new RuntimeException("Mother not found with NIC: " + request.getMotherNic());
+            System.out.println("Maternal profile not found for NIC: " + request.getMotherNic());
+            System.out.println("Creating a basic maternal profile for the mother...");
+            
+            // Create a basic maternal profile for the mother
+            MaternalProfile basicProfile = new MaternalProfile(request.getMotherNic());
+            basicProfile.setProfileCompleted(false); // Mark as incomplete since it's just basic
+            basicProfile.setLastUpdatedBy(request.getMotherNic());
+            
+            try {
+                MaternalProfile savedProfile = maternalProfileRepository.save(basicProfile);
+                System.out.println("Basic maternal profile created with ID: " + savedProfile.getId());
+                motherOpt = Optional.of(savedProfile);
+            } catch (Exception e) {
+                System.err.println("Failed to create basic maternal profile: " + e.getMessage());
+                throw new RuntimeException("Unable to create maternal profile for mother with NIC: " + request.getMotherNic() + ". Please complete your maternal profile first.");
+            }
         }
         
-        System.out.println("Mother found: " + motherOpt.get().getMotherNic());
+        System.out.println("Mother profile found/created: " + motherOpt.get().getMotherNic());
         
         // Check if baby name already exists for this mother
         if (babyRepository.existsByMotherNicAndBabyNameExcludingId(request.getMotherNic(), request.getBabyName(), null)) {

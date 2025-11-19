@@ -8,6 +8,7 @@ public class RegistrationRequest {
     private String phoneNumber3;
     private String password;
     private String email; // New field for email
+    private String husbandName; // Optional field for mother's husband name
 
     // Getters and setters for all fields
     public String getFullName() { return fullName; }
@@ -20,4 +21,6 @@ public class RegistrationRequest {
     public void setPassword(String password) { this.password = password; }
     public String getEmail() { return email; } // Getter for email
     public void setEmail(String email) { this.email = email; } // Setter for email
+    public String getHusbandName() { return husbandName; }
+    public void setHusbandName(String husbandName) { this.husbandName = husbandName; }
 }
