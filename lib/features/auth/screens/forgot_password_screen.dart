@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
+/// Screen for handling password reset requests
+/// Allows users to request a password reset link via email
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -9,17 +11,25 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  // Controller for managing email input field
   final TextEditingController emailController = TextEditingController();
-  bool isLoading = false;
+
+  
+  bool isLoading = false; 
 
   @override
   void dispose() {
+    // Clean up controller when widget is disposed to prevent memory leaks
     emailController.dispose();
     super.dispose();
   }
 
+  /// Validates the email address entered by user
+  /// Returns true if email is valid, false otherwise
   bool validateEmail() {
     final email = emailController.text.trim();
+
+    // Check if email field is empty
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -30,6 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       return false;
     }
 
+    // Basic email format validation
     if (!email.contains('@') || !email.contains('.')) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -43,20 +54,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return true;
   }
 
+  /// Handles the password reset request
+  /// Validates email and calls API to send reset link
   Future<void> _handleForgotPassword() async {
+    // Validate email before proceeding
     if (!validateEmail()) return;
 
+    // Show loading state
     setState(() {
       isLoading = true;
     });
 
     try {
+      // Call API service to send password reset email
       final result = await ApiService.forgotPassword(
         emailController.text.trim(),
       );
 
+      // Check if widget is still mounted before updating UI
       if (!mounted) return;
 
+      // Handle successful response
       if (result['success']) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -65,9 +83,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
         );
 
-        // Show success dialog
+        // Display success dialog with instructions
         _showSuccessDialog();
       } else {
+        // Handle failed response (e.g., email not found)
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(result['message']),
@@ -76,6 +95,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         );
       }
     } catch (e) {
+      // Handle any errors during API call
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -85,6 +105,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
       );
     } finally {
+      // Reset loading state regardless of success or failure
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -93,10 +114,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
+  /// Shows a dialog informing user that reset email was sent
+  /// Dialog is non-dismissible and includes back navigation on OK
+  /// Shows a dialog informing user that reset email was sent
+  /// Dialog is non-dismissible and includes back navigation on OK
   void _showSuccessDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // User must press OK button to dismiss
       builder: (BuildContext context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -115,8 +140,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pop(); // Go back to login
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Navigate back to login screen
               },
               child: const Text(
                 'OK',
@@ -157,7 +182,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             children: [
               const SizedBox(height: 20),
 
-              // Header illustration/icon
+              // Decorative icon at the top of the screen
               Center(
                 child: Container(
                   padding: const EdgeInsets.all(20),
@@ -175,7 +200,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 30),
 
-              // Title and description
+              // Screen title
               const Center(
                 child: Text(
                   'Reset Your Password',
@@ -190,6 +215,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 10),
 
+              // Instructional text explaining the process
               const Center(
                 child: Text(
                   'Enter your email address and we\'ll send you a link to reset your password.',
@@ -204,7 +230,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 40),
 
-              // Email field
+              // Email input field label
               const Text(
                 'Email Address',
                 style: TextStyle(
@@ -215,6 +241,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+              // Styled container for email input field
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFFE0F7FA),
@@ -229,7 +256,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 child: TextField(
                   controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
+                  keyboardType:
+                      TextInputType.emailAddress, // Show email keyboard
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     hintText: 'Enter your email address',
@@ -256,7 +284,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 30),
 
-              // Submit button
+              // Button to submit password reset request
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -274,7 +302,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  onPressed: isLoading ? null : _handleForgotPassword,
+                  onPressed: isLoading
+                      ? null
+                      : _handleForgotPassword, // Disable button while loading
                   child: isLoading
                       ? const SizedBox(
                           width: 20,
@@ -290,7 +320,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
               const SizedBox(height: 20),
 
-              // Back to login link
+              // Link to navigate back to login screen
               Center(
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
