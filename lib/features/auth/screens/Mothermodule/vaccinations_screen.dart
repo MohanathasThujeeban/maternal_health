@@ -16,7 +16,6 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
   List<Baby> _babies = [];
   Baby? _selectedBaby;
   bool _isLoading = true;
-  bool _isLoadingBabies = false;
   String? _motherNic;
 
   @override
@@ -70,10 +69,6 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
 
   Future<void> _loadBabies() async {
     try {
-      setState(() {
-        _isLoadingBabies = true;
-      });
-
       final babiesData = await BabyService.getBabiesByMotherNic(_motherNic!);
 
       List<Baby> babies = babiesData.map((babyData) {
@@ -99,13 +94,11 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
 
       setState(() {
         _babies = babies;
-        _isLoadingBabies = false;
       });
     } catch (e) {
       print('DEBUG: Error loading babies: $e');
       setState(() {
         _babies = [];
-        _isLoadingBabies = false;
       });
     }
   }

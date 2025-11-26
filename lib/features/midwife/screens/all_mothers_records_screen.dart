@@ -756,15 +756,6 @@ class _AllMothersRecordsScreenState extends State<AllMothersRecordsScreen> {
         .toUpperCase();
   }
 
-  void _showMotherDetails(Map<String, dynamic> mother) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _buildMotherDetailsSheet(mother),
-    );
-  }
-
   Widget _buildMotherDetailsSheet(Map<String, dynamic> mother) {
     return DraggableScrollableSheet(
       initialChildSize: 0.7,

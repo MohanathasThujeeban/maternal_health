@@ -1,9 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+/// Custom loading widget with animated logo and heartbeat effect
+/// Displays a circular logo with pulsing animation and optional message
 class CustomLoading extends StatefulWidget {
+  // Optional message to display below the loading animation
   final String? message;
+
+  // Size of the loading logo (default: 120.0)
   final double size;
+
+  // Background color of the loading screen
   final Color? backgroundColor;
 
   const CustomLoading({
@@ -19,24 +26,37 @@ class CustomLoading extends StatefulWidget {
 
 class _CustomLoadingState extends State<CustomLoading>
     with TickerProviderStateMixin {
+  // Controller for heartbeat animation (simulates real heartbeat pattern)
   late AnimationController _heartbeatController;
+
+  // Controller for glow/pulse effect around logo
   late AnimationController _pulseController;
+
+  // Controller for fade animation on loading dots
   late AnimationController _fadeController;
 
+  // Animation for heartbeat scale effect
   late Animation<double> _heartbeatAnimation;
+
+  // Animation for pulsing glow
   late Animation<double> _pulseAnimation;
+
+  // Animation for fading loading dots
   late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
 
-    // Heartbeat animation - like a real heartbeat with two beats
+    // Initialize heartbeat animation controller
+    // Creates a realistic heartbeat pattern with two beats (lub-dub)
     _heartbeatController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
+    // Create heartbeat animation sequence with 5 phases
     _heartbeatAnimation = TweenSequence<double>([
+      // Phase 1: First beat expansion ("lub")
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
@@ -44,6 +64,7 @@ class _CustomLoadingState extends State<CustomLoading>
         ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 15,
       ),
+      // Phase 2: First beat contraction
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.25,
@@ -51,6 +72,7 @@ class _CustomLoadingState extends State<CustomLoading>
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 15,
       ),
+      // Phase 3: Second beat expansion ("dub")
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 0.95,
@@ -58,6 +80,7 @@ class _CustomLoadingState extends State<CustomLoading>
         ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 10,
       ),
+      // Phase 4: Second beat contraction
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.15,
@@ -65,6 +88,7 @@ class _CustomLoadingState extends State<CustomLoading>
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 10,
       ),
+      // Phase 5: Rest period before next heartbeat
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
@@ -74,32 +98,37 @@ class _CustomLoadingState extends State<CustomLoading>
       ),
     ]).animate(_heartbeatController);
 
-    // Gentle pulse for the glow effect
+    // Initialize pulse controller for glow effect
+    // Creates a gentle pulsing animation for the shadow/glow
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
+    // Pulse animation oscillates between 0.8 and 1.2
     _pulseAnimation = Tween<double>(begin: 0.8, end: 1.2).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Fade animation for loading dots
+    // Initialize fade controller for loading dots animation
+    // Creates a smooth fade in/out effect
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
+    // Fade animation oscillates between 0.6 and 1.0 opacity
     _fadeAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
       CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
 
-    // Start animations
-    _heartbeatController.repeat();
-    _pulseController.repeat(reverse: true);
-    _fadeController.repeat(reverse: true);
+    // Start all animations
+    _heartbeatController.repeat(); // Continuous heartbeat loop
+    _pulseController.repeat(reverse: true); // Bidirectional pulse
+    _fadeController.repeat(reverse: true); // Bidirectional fade
   }
 
   @override
   void dispose() {
+    // Clean up animation controllers to prevent memory leaks
     _heartbeatController.dispose();
     _pulseController.dispose();
     _fadeController.dispose();
@@ -114,8 +143,10 @@ class _CustomLoadingState extends State<CustomLoading>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Animated Logo with Heartbeat Effect
+            // Main animated logo with heartbeat effect and glow
+            // Combines multiple animations for realistic effect
             AnimatedBuilder(
+              // Merge all animations to rebuild when any changes
               animation: Listenable.merge([
                 _heartbeatAnimation,
                 _pulseAnimation,
@@ -123,15 +154,19 @@ class _CustomLoadingState extends State<CustomLoading>
               ]),
               builder: (context, child) {
                 return Transform.scale(
+                  // Apply heartbeat scaling effect
                   scale: _heartbeatAnimation.value,
                   child: Opacity(
+                    // Apply fade effect
                     opacity: _fadeAnimation.value,
                     child: Container(
                       width: widget.size,
                       height: widget.size,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
+                        // Apply dual-color glow shadows
                         boxShadow: [
+                          // Primary glow (teal color, pulse-synced)
                           BoxShadow(
                             color: const Color(
                               0xFF4FC3A1,
@@ -139,6 +174,7 @@ class _CustomLoadingState extends State<CustomLoading>
                             blurRadius: 25 * _pulseAnimation.value,
                             spreadRadius: 8 * _pulseAnimation.value,
                           ),
+                          // Secondary glow (pink color, heartbeat-synced)
                           BoxShadow(
                             color: const Color(0xFFFF6B9D).withValues(
                               alpha: 0.2 * _heartbeatAnimation.value,
@@ -148,16 +184,18 @@ class _CustomLoadingState extends State<CustomLoading>
                           ),
                         ],
                       ),
+                      // Clip image into circular shape
                       child: ClipOval(
                         child: Image.asset(
                           'assets/load.png',
                           width: widget.size,
                           height: widget.size,
                           fit: BoxFit.cover,
+                          // Handle image loading states
                           frameBuilder:
                               (context, child, frame, wasSynchronouslyLoaded) {
                                 if (frame == null) {
-                                  // Still loading
+                                  // Show placeholder while image is loading
                                   return Container(
                                     width: widget.size,
                                     height: widget.size,
@@ -174,6 +212,7 @@ class _CustomLoadingState extends State<CustomLoading>
                                   );
                                 }
 
+                                // Log successful image load in debug mode
                                 if (kDebugMode) {
                                   print(
                                     '✅ Successfully loaded assets/load.png',
@@ -181,14 +220,16 @@ class _CustomLoadingState extends State<CustomLoading>
                                 }
                                 return child;
                               },
+                          // Handle image loading errors
                           errorBuilder: (context, error, stackTrace) {
-                            // Debug: Print detailed error information
+                            // Print detailed error information for debugging
                             if (kDebugMode) {
                               print('❌ Error loading assets/load.png: $error');
                               print('📍 Stack trace: $stackTrace');
                             }
 
-                            // Fallback if logo doesn't load - heart icon for maternal theme
+                            // Fallback UI: Show heart icon if image fails to load
+                            // Heart icon fits the maternal health theme
                             return Container(
                               width: widget.size,
                               height: widget.size,
@@ -220,7 +261,8 @@ class _CustomLoadingState extends State<CustomLoading>
 
             const SizedBox(height: 30),
 
-            // Loading dots animation
+            // Three animated loading dots below logo
+            // Each dot has different fade timing for wave effect
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(3, (index) {
@@ -230,6 +272,8 @@ class _CustomLoadingState extends State<CustomLoading>
                     return Container(
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       child: Opacity(
+                        // Create staggered fade effect across dots
+                        // Dot 0 & 2: fade with animation, Dot 1: fade inversely
                         opacity: (index == 0)
                             ? _fadeAnimation.value
                             : (index == 1)
@@ -252,7 +296,7 @@ class _CustomLoadingState extends State<CustomLoading>
 
             const SizedBox(height: 20),
 
-            // Loading message
+            // Optional custom message (if provided)
             if (widget.message != null) ...[
               Text(
                 widget.message!,
@@ -267,7 +311,7 @@ class _CustomLoadingState extends State<CustomLoading>
               const SizedBox(height: 10),
             ],
 
-            // App name
+            // Application name display
             const Text(
               'Maternal Health',
               style: TextStyle(
@@ -284,9 +328,13 @@ class _CustomLoadingState extends State<CustomLoading>
   }
 }
 
-// Simple version for small loading indicators
+/// Compact loading indicator for inline use
+/// Uses same heartbeat animation but in smaller format
 class MiniLoading extends StatefulWidget {
+  // Size of the mini loading indicator (default: 40.0)
   final double size;
+
+  // Optional custom color for the indicator
   final Color? color;
 
   const MiniLoading({super.key, this.size = 40.0, this.color});
@@ -297,19 +345,24 @@ class MiniLoading extends StatefulWidget {
 
 class _MiniLoadingState extends State<MiniLoading>
     with SingleTickerProviderStateMixin {
+  // Single controller for mini loading animation
   late AnimationController _controller;
+
+  // Heartbeat animation for mini indicator
   late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    // Initialize animation controller with 1 second duration
     _controller = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
-    // Heartbeat-style animation for mini loading too
+    // Create simplified heartbeat animation sequence for mini version
     _animation = TweenSequence<double>([
+      // First beat expansion
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
@@ -317,6 +370,7 @@ class _MiniLoadingState extends State<MiniLoading>
         ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 20,
       ),
+      // First beat contraction
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.2,
@@ -324,6 +378,7 @@ class _MiniLoadingState extends State<MiniLoading>
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 20,
       ),
+      // Second beat expansion
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 0.9,
@@ -331,6 +386,7 @@ class _MiniLoadingState extends State<MiniLoading>
         ).chain(CurveTween(curve: Curves.easeOut)),
         weight: 15,
       ),
+      // Second beat contraction
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.1,
@@ -338,6 +394,7 @@ class _MiniLoadingState extends State<MiniLoading>
         ).chain(CurveTween(curve: Curves.easeIn)),
         weight: 15,
       ),
+      // Rest period
       TweenSequenceItem(
         tween: Tween<double>(
           begin: 1.0,
@@ -347,11 +404,13 @@ class _MiniLoadingState extends State<MiniLoading>
       ),
     ]).animate(_controller);
 
+    // Start repeating animation
     _controller.repeat();
   }
 
   @override
   void dispose() {
+    // Clean up controller to prevent memory leaks
     _controller.dispose();
     super.dispose();
   }
@@ -362,10 +421,12 @@ class _MiniLoadingState extends State<MiniLoading>
       animation: _animation,
       builder: (context, child) {
         return Transform.scale(
+          // Apply heartbeat scaling
           scale: _animation.value,
           child: Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
+              // Add animated glow effect
               boxShadow: [
                 BoxShadow(
                   color: (widget.color ?? const Color(0xFF4FC3A1)).withValues(
@@ -376,12 +437,15 @@ class _MiniLoadingState extends State<MiniLoading>
                 ),
               ],
             ),
+            // Display logo image
             child: Image.asset(
               'assets/load.png',
               width: widget.size,
               height: widget.size,
               fit: BoxFit.cover,
+              // Fallback if image fails to load
               errorBuilder: (context, error, stackTrace) {
+                // Show heart icon as fallback
                 return Container(
                   width: widget.size,
                   height: widget.size,

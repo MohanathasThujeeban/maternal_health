@@ -623,24 +623,6 @@ class _ThiriposaRecordsScreenState extends State<ThiriposaRecordsScreen> {
     return uniqueBabyIds.toList();
   }
 
-  String _getBabySummary() {
-    final uniqueBabies = _getUniqueBabies();
-    if (uniqueBabies.isEmpty) return '';
-
-    List<String> babyNames = [];
-    for (int babyId in uniqueBabies) {
-      final babyData = _babiesData[babyId];
-      if (babyData != null) {
-        babyNames.add(babyData['babyName'] ?? 'Unknown');
-      }
-    }
-
-    if (babyNames.isEmpty) return '';
-    if (babyNames.length == 1) return babyNames.first;
-    if (babyNames.length == 2) return '${babyNames[0]} and ${babyNames[1]}';
-    return '${babyNames.take(babyNames.length - 1).join(', ')}, and ${babyNames.last}';
-  }
-
   List<Widget> _buildBabySummaryCards() {
     final uniqueBabies = _getUniqueBabies();
     List<Widget> cards = [];

@@ -12,7 +12,6 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_thiriposa_records_screen.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_vaccinations_screen.dart';
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
