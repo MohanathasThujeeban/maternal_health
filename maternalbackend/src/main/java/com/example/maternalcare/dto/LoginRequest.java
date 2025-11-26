@@ -1,6 +1,7 @@
 package com.example.maternalcare.dto;
 
 public class LoginRequest {
+    private String fullName;
     private String nicNumber;
     private String password;
 
@@ -8,12 +9,20 @@ public class LoginRequest {
     public LoginRequest() {}
 
     // Constructor with parameters
-    public LoginRequest(String nicNumber, String password) {
+    public LoginRequest(String fullName, String nicNumber, String password) {
+        this.fullName = fullName;
         this.nicNumber = nicNumber;
         this.password = password;
     }
     
     // Getters and setters
+    public String getFullName() {
+        return fullName;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
     public String getNicNumber() {
         return nicNumber;
     }
@@ -31,7 +40,8 @@ public class LoginRequest {
     @Override
     public String toString() {
         return "LoginRequest{" +
-                "nicNumber='" + nicNumber + '\'' +
+                "fullName='" + fullName + '\'' +
+                ", nicNumber='" + nicNumber + '\'' +
                 ", password='[PROTECTED]'" +
                 '}';
     }

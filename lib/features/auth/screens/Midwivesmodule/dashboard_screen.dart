@@ -4722,7 +4722,7 @@ class _BabyGrowthChartScreenState extends State<BabyGrowthChartScreen> {
       );
 
       if (byteData == null) {
-        throw Exception('Failed to generate chart image.');
+        throw Exception('Failed to encode chart image.');
       }
 
       Uint8List pngBytes = byteData.buffer.asUint8List();

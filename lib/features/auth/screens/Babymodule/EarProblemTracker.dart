@@ -655,14 +655,12 @@ class _BabyProblemsScreenState extends State<BabyProblemsScreen> {
                 firstDate: DateTime(2020),
                 lastDate: DateTime.now(),
               );
-              if (pickedDate != null) {
-                setState(() {
-                  _diagnosisDateController.text = pickedDate.toString().split(
-                    ' ',
-                  )[0];
-                });
-              }
-            },
+              setState(() {
+                _diagnosisDateController.text = pickedDate.toString().split(
+                  ' ',
+                )[0];
+              });
+                        },
             readOnly: true,
           ),
         ),

@@ -43,8 +43,12 @@ public class LoginController {
                 return createErrorResponse("Invalid request body", HttpStatus.BAD_REQUEST);
             }
 
+            if (loginRequest.getFullName() == null || loginRequest.getFullName().trim().isEmpty()) {
+                return createErrorResponse("Full Name is required", HttpStatus.BAD_REQUEST);
+            }
+
             if (loginRequest.getNicNumber() == null || loginRequest.getNicNumber().trim().isEmpty()) {
-                return createErrorResponse("NIC number is required", HttpStatus.BAD_REQUEST);
+                return createErrorResponse("New Nic Number is required", HttpStatus.BAD_REQUEST);
             }
 
             if (loginRequest.getPassword() == null || loginRequest.getPassword().trim().isEmpty()) {
@@ -56,10 +60,16 @@ public class LoginController {
             
             if (userOptional.isEmpty()) {
                 System.out.println("User not found with NIC: " + loginRequest.getNicNumber());
-                return createErrorResponse("Invalid NIC number or password", HttpStatus.UNAUTHORIZED);
+                return createErrorResponse("Invalid New Nic Number or password", HttpStatus.UNAUTHORIZED);
             }
 
             Registration user = userOptional.get();
+
+            // Verify that the provided full name matches the stored full name
+            if (!user.getFullName().equalsIgnoreCase(loginRequest.getFullName().trim())) {
+                System.out.println("Full name mismatch for NIC: " + loginRequest.getNicNumber());
+                return createErrorResponse("Invalid Full Name or New Nic Number", HttpStatus.UNAUTHORIZED);
+            }
             
             // Check password - handle both encrypted and plain text passwords
             boolean passwordMatches = false;

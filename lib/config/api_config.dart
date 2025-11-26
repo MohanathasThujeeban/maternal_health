@@ -1,6 +1,6 @@
 class ApiConfig {
   // Local network configuration
-  static const String serverIp = '10.11.23.136'; // Current WiFi IP address
+  static const String serverIp = '10.11.19.220 '; // Current WiFi IP address
   static const int serverPort = 8080;
   static const String localUrl = 'http://$serverIp:$serverPort';
 

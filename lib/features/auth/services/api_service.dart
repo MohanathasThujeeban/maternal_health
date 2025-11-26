@@ -23,6 +23,7 @@ class ApiService {
 
   // Login method
   static Future<Map<String, dynamic>> login(
+    String fullName,
     String nicNumber,
     String password,
   ) async {
@@ -32,6 +33,7 @@ class ApiService {
       // Prepare login data
 
       final Map<String, dynamic> loginData = {
+        'fullName': fullName,
         'nicNumber': nicNumber,
         'password': password,
       };
