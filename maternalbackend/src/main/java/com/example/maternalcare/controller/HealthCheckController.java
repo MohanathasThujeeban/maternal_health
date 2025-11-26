@@ -17,7 +17,7 @@ public class HealthCheckController {
             "status", "OK",
             "message", "Maternal Health Backend is running",
             "timestamp", LocalDateTime.now(),
-            "server", "10.11.6.107:8080"
+            "server", "10.11.23.136:8080"
         );
     }
 }

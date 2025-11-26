@@ -28,6 +28,7 @@ class ApiService {
   ) async {
     try {
       LoggingService.info('Attempting login with NIC: $nicNumber');
+      print('🔐 Login attempt for NIC: $nicNumber');
       // Prepare login data
 
       final Map<String, dynamic> loginData = {
@@ -37,6 +38,8 @@ class ApiService {
 
       LoggingService.debug('Sending login data: ${jsonEncode(loginData)}');
       LoggingService.info('Making login request to: $baseUrl/login');
+      print('🌐 API URL: $baseUrl/login');
+      print('📤 Request body: ${jsonEncode(loginData)}');
 
       final response = await http
           .post(
@@ -46,8 +49,8 @@ class ApiService {
           )
           .timeout(const Duration(seconds: 30));
 
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
+      print('📥 Response Status: ${response.statusCode}');
+      print('📥 Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = jsonDecode(response.body);

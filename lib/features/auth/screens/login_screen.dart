@@ -19,8 +19,21 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController nicController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController fullNameController = TextEditingController();
   bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _testConnection();
+  }
+
+  Future<void> _testConnection() async {
+    try {
+      print('🔗 Testing backend connection to: ${ApiService.baseUrl}');
+    } catch (e) {
+      print('⚠️ Connection test failed: $e');
+    }
+  }
 
   Future<void> _handleLogin() async {
     // Validate input
@@ -40,10 +53,15 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      print('🔑 Starting login process...');
       final result = await ApiService.login(
         nicController.text.trim(),
         passwordController.text.trim(),
       );
+
+      print('📊 Login result: $result');
+
+      if (!mounted) return;
 
       if (result['success']) {
         // Save user data to local storage with role-specific fields
@@ -55,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
           institution: result['institution'],
         );
 
+        if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Welcome back! ${result['message']}'),
@@ -64,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         // Route based on user role
         final String userRole = result['userRole'] ?? 'MOTHER';
+        print('👤 User role: $userRole');
 
         if (userRole == 'MIDWIFE') {
           Navigator.pushReplacement(
@@ -83,24 +104,51 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result['message']),
+            content: Text(result['message'] ?? 'Login failed'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Login failed: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
+      print('❌ Login error: $e');
+      if (!mounted) return;
       setState(() {
         isLoading = false;
       });
+
+      String errorMessage = 'Login failed';
+      if (e.toString().contains('SocketException') ||
+          e.toString().contains('Failed host lookup')) {
+        errorMessage =
+            'Cannot connect to server. Please check:\n'
+            '1. Backend server is running\n'
+            '2. You are on ITUM WiFi (10.11.23.136)\n'
+            '3. Server is at port 8080';
+      } else if (e.toString().contains('TimeoutException')) {
+        errorMessage = 'Connection timeout. Server may be down.';
+      } else {
+        errorMessage = 'Login failed: ${e.toString()}';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 7),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -144,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 32),
                     // NIC Number field
                     _RoundedTextField(
-                      hint: 'New NIC Number',
+                      hint: 'NIC Number',
                       controller: nicController,
                     ),
                     const SizedBox(height: 16),
@@ -153,12 +201,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       hint: 'Password',
                       obscure: true,
                       controller: passwordController,
-                    ),
-                    const SizedBox(height: 16),
-                    // Full Name field
-                    _RoundedTextField(
-                      hint: 'Full Name',
-                      controller: fullNameController,
                     ),
                     const SizedBox(height: 16),
                     // Login button

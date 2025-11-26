@@ -30,7 +30,7 @@ public class EmailService {
     @Value("${spring.mail.username}")
     private String fromEmail;
     
-    @Value("${app.server.url:http://10.11.6.107:8080}")
+    @Value("${app.server.url:http://10.11.23.136:8080}")
     private String serverUrl;
 
     public void sendVerificationEmail(String to, String token) {
