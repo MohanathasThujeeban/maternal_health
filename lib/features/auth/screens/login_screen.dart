@@ -197,12 +197,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     _RoundedTextField(
                       hint: 'Full Name',
                       controller: fullNameController,
+                      obscure: false,
                     ),
                     const SizedBox(height: 16),
                     // New Nic Number field
                     _RoundedTextField(
                       hint: 'New Nic Number',
                       controller: nicController,
+                      obscure: false,
                     ),
                     const SizedBox(height: 16),
                     // Password field
