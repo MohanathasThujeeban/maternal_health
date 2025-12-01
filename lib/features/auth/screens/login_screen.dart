@@ -17,7 +17,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController fullNameController = TextEditingController();
   final TextEditingController nicController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
@@ -38,12 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     // Validate input
-    if (fullNameController.text.trim().isEmpty ||
-        nicController.text.trim().isEmpty ||
+    if (nicController.text.trim().isEmpty ||
         passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter Full Name, New Nic Number, and password'),
+          content: Text('Please enter NIC Number and password'),
           backgroundColor: Colors.red,
         ),
       );
@@ -57,7 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       print('🔑 Starting login process...');
       final result = await ApiService.login(
-        fullNameController.text.trim(),
         nicController.text.trim(),
         passwordController.text.trim(),
       );
@@ -192,16 +189,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     // Logo
                     Image.asset('assets/logo.png', width: 240, height: 240),
                     const SizedBox(height: 32),
-                    // Full Name field
+                    // NIC Number field
                     _RoundedTextField(
-                      hint: 'Full Name',
-                      controller: fullNameController,
-                      obscure: false,
-                    ),
-                    const SizedBox(height: 16),
-                    // New Nic Number field
-                    _RoundedTextField(
-                      hint: 'New Nic Number',
+                      hint: 'NIC Number',
                       controller: nicController,
                       obscure: false,
                     ),
