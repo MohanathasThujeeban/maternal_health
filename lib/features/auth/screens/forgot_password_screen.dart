@@ -23,9 +23,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     emailController.dispose();
     super.dispose();
   }
-
-  /// Validates the email address entered by user
-  /// Returns true if email is valid, false otherwise
+  
   bool validateEmail() {
     final email = emailController.text.trim();
 

@@ -1,6 +1,12 @@
+// Thiriposa Management Screen
+// This screen allows midwives to manage Thiriposa (nutritional supplement) distribution records
+// Features: User search, record creation, and viewing previous distributions
+
 import 'package:flutter/material.dart';
 import 'package:maternal_health/services/thiriposa_api_service.dart';
 
+/// Main screen for managing Thiriposa (nutritional supplement) distribution records
+/// Displays a searchable list of all registered users and allows midwives to add new records
 class ThiriposaManagementScreen extends StatefulWidget {
   const ThiriposaManagementScreen({super.key});
 
@@ -9,49 +15,75 @@ class ThiriposaManagementScreen extends StatefulWidget {
       _ThiriposaManagementScreenState();
 }
 
+/// State class for ThiriposaManagementScreen
+/// Manages user list, search functionality, and loading states
 class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
+  // Controller for the search input field
   final TextEditingController _searchController = TextEditingController();
+
+  // Complete list of all registered users from the database
   List<dynamic> _allUsers = [];
+
+  // Filtered list based on search query (displayed to user)
   List<dynamic> _filteredUsers = [];
+
+  // Loading state for initial data fetch
   bool _isLoading = true;
+
+  // Error message to display if data loading fails
   String _errorMessage = '';
 
+  /// Initialize state and load all users from the database
   @override
   void initState() {
     super.initState();
     _loadUsers();
   }
 
+  /// Loads all registered users from the backend API
+  /// Sets loading state, fetches data, and updates both user lists
+  /// Handles errors by setting appropriate error messages
   Future<void> _loadUsers() async {
+    // Check if widget is still mounted before updating state
     if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = '';
     });
 
+    // Fetch all users from the API service
     final result = await ThiriposaApiService.getAllUsers();
 
+    // Check again if widget is still mounted after async operation
     if (!mounted) return;
     setState(() {
       _isLoading = false;
       if (result['success']) {
+        // Populate both lists with fetched users
         _allUsers = result['users'];
         _filteredUsers = _allUsers;
       } else {
+        // Store error message for display
         _errorMessage = result['message'];
       }
     });
   }
 
+  /// Filters the user list based on search query
+  /// Searches in both NIC number and full name fields (case-insensitive)
+  /// Updates the filtered list to reflect search results
   void _filterUsers(String query) {
     setState(() {
       if (query.isEmpty) {
+        // Show all users when search is cleared
         _filteredUsers = _allUsers;
       } else {
+        // Filter users where NIC or name contains the search query
         _filteredUsers = _allUsers.where((user) {
           final nicNumber = user['nicNumber'].toString().toLowerCase();
           final fullName = user['fullName'].toString().toLowerCase();
           final searchQuery = query.toLowerCase();
+          // Return true if either field matches the search query
           return nicNumber.contains(searchQuery) ||
               fullName.contains(searchQuery);
         }).toList();
@@ -117,6 +149,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
       body: Column(
         children: [
           // Enhanced Header Section
+          // Contains title, description, and search bar with gradient background
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
@@ -176,6 +209,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
                 ),
                 const SizedBox(height: 20),
                 // Enhanced Search Bar
+                // Allows real-time search by name or NIC with clear button
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -236,6 +270,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
             ),
           ),
           // Enhanced Status Bar
+          // Displays count of filtered users and active status indicator
           if (!_isLoading) ...[
             Container(
               margin: const EdgeInsets.all(16),
@@ -298,13 +333,17 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
             ),
           ],
           // Users List
+          // Scrollable list of all filtered users with their information
           Expanded(child: _buildUsersList()),
         ],
       ),
     );
   }
 
+  /// Builds the user list widget based on current state
+  /// Shows loading spinner, error message, empty state, or list of user cards
   Widget _buildUsersList() {
+    // Show loading indicator while fetching data
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(
@@ -313,6 +352,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
       );
     }
 
+    // Show error message with retry button if data loading failed
     if (_errorMessage.isNotEmpty) {
       return Center(
         child: Column(
@@ -352,6 +392,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
       );
     }
 
+    // Show empty state message when no users match search criteria
     if (_filteredUsers.isEmpty) {
       return const Center(
         child: Column(
@@ -373,6 +414,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
       );
     }
 
+    // Build scrollable list of user cards
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _filteredUsers.length,
@@ -383,6 +425,9 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
     );
   }
 
+  /// Builds a card widget for a single user
+  /// Displays user avatar, name, NIC, and phone number
+  /// Taps navigate to the record form screen for that user
   Widget _buildUserCard(Map<String, dynamic> user) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -470,6 +515,7 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
     );
   }
 
+  /// Clean up resources when widget is disposed
   @override
   void dispose() {
     _searchController.dispose();
@@ -477,7 +523,10 @@ class _ThiriposaManagementScreenState extends State<ThiriposaManagementScreen> {
   }
 }
 
+/// Screen for adding and viewing Thiriposa distribution records for a specific user
+/// Allows midwives to record new distributions and view previous records
 class ThiriposaRecordFormScreen extends StatefulWidget {
+  // User data passed from the management screen
   final Map<String, dynamic> user;
 
   const ThiriposaRecordFormScreen({super.key, required this.user});
@@ -487,22 +536,41 @@ class ThiriposaRecordFormScreen extends StatefulWidget {
       _ThiriposaRecordFormScreenState();
 }
 
+/// State class for ThiriposaRecordFormScreen
+/// Manages form inputs, record submission, and display of existing records
 class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
+  // Form key for validation
   final _formKey = GlobalKey<FormState>();
+
+  // Controller for quantity input field
   final TextEditingController _quantityController = TextEditingController();
+
+  // Controller for notes input field
   final TextEditingController _notesController = TextEditingController();
+
+  // Selected distribution date (defaults to today)
   DateTime _selectedDate = DateTime.now();
+
+  // Loading state for form submission
   bool _isLoading = false;
+
+  // List of previously recorded distributions for this user
   List<dynamic> _existingRecords = [];
+
+  // Loading state for fetching existing records
   bool _isLoadingRecords = true;
 
+  /// Initialize state and load existing records for the selected user
   @override
   void initState() {
     super.initState();
     _loadExistingRecords();
   }
 
+  /// Fetches all existing Thiriposa records for the current user
+  /// Uses the user's NIC number to retrieve their distribution history
   Future<void> _loadExistingRecords() async {
+    // Fetch records from API using user's NIC
     final result = await ThiriposaApiService.getRecordsByNic(
       widget.user['nicNumber'],
     );
@@ -510,11 +578,15 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
     setState(() {
       _isLoadingRecords = false;
       if (result['success']) {
+        // Store the fetched records for display
         _existingRecords = result['records'];
       }
     });
   }
 
+  /// Shows a date picker dialog for selecting the distribution date
+  /// Allows selecting dates from 2020 to today
+  /// Updates the selected date if user confirms selection
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -543,15 +615,21 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
     }
   }
 
+  /// Validates and submits a new Thiriposa distribution record
+  /// Sends data to backend API and handles success/error responses
+  /// Clears form and refreshes records list on success
   Future<void> _submitRecord() async {
+    // Validate form inputs before submission
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
+    // Set loading state during API call
     setState(() {
       _isLoading = true;
     });
 
+    // Submit new record to the backend API
     final result = await ThiriposaApiService.addThiriposaRecord(
       motherNic: widget.user['nicNumber'],
       supplyDate: _selectedDate,
@@ -563,7 +641,9 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
       _isLoading = false;
     });
 
+    // Handle successful record creation
     if (result['success']) {
+      // Show success message to user
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['message']),
@@ -576,13 +656,14 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
       );
 
       // Refresh records and clear form
-      _loadExistingRecords();
-      _quantityController.clear();
-      _notesController.clear();
+      _loadExistingRecords(); // Reload to show the new record
+      _quantityController.clear(); // Clear quantity input
+      _notesController.clear(); // Clear notes input
       setState(() {
-        _selectedDate = DateTime.now();
+        _selectedDate = DateTime.now(); // Reset date to today
       });
     } else {
+      // Show error message if record creation failed
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(result['message']),
@@ -676,6 +757,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
               child: Column(
                 children: [
                   // Add New Record Form
+                  // Form with date picker, quantity input, notes field, and submit button
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -700,6 +782,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
                             const SizedBox(height: 20),
 
                             // Date Selection
+                            // Tappable field that opens date picker dialog
                             InkWell(
                               onTap: _selectDate,
                               child: Container(
@@ -729,6 +812,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
                             const SizedBox(height: 16),
 
                             // Quantity Input
+                            // Numeric input field with validation for positive integers
                             TextFormField(
                               controller: _quantityController,
                               keyboardType: TextInputType.number,
@@ -762,6 +846,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
                             const SizedBox(height: 16),
 
                             // Notes Input
+                            // Optional multi-line text field for additional information
                             TextFormField(
                               controller: _notesController,
                               maxLines: 3,
@@ -785,6 +870,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
                             const SizedBox(height: 20),
 
                             // Submit Button
+                            // Full-width button that submits the form (shows loading indicator during submission)
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -827,6 +913,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
                   const SizedBox(height: 20),
 
                   // Existing Records
+                  // Displays list of all previous Thiriposa distributions for this user
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -926,6 +1013,7 @@ class _ThiriposaRecordFormScreenState extends State<ThiriposaRecordFormScreen> {
     );
   }
 
+  /// Clean up controllers when widget is disposed
   @override
   void dispose() {
     _quantityController.dispose();

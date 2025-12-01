@@ -70,7 +70,6 @@ class _LoginScreenState extends State<LoginScreen> {
         // Save user data to local storage with role-specific fields
         await UserService.saveUserData(
           nic: result['nicNumber'] ?? '',
-          name: result['fullName'] ?? '',
           email: result['email'] ?? '',
           medicalLicense: result['medicalLicenseNumber'],
           institution: result['institution'],
@@ -131,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
         errorMessage =
             'Cannot connect to server. Please check:\n'
             '1. Backend server is running\n'
-            '2. You are on ITUM WiFi (10.11.23.136)\n'
+            '2. You are on ITUM WiFi (10.11.6.107)\n'
             '3. Server is at port 8080';
       } else if (e.toString().contains('TimeoutException')) {
         errorMessage = 'Connection timeout. Server may be down.';

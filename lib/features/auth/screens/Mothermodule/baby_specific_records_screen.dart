@@ -70,13 +70,24 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
       // Load babies for this mother
       final babiesData = await BabyService.getBabiesByMotherNic(_motherNic!);
 
+      print('DEBUG: Loaded ${babiesData.length} babies');
+
       List<Baby> babies = babiesData.map((babyData) {
+        print('DEBUG: Baby data: $babyData');
+        print('DEBUG: Date of birth from API: ${babyData['dateOfBirth']}');
+        print('DEBUG: Birth date from API: ${babyData['birthDate']}');
+
+        // Try both dateOfBirth and birthDate fields
+        final dob = babyData['birthDate'] ?? babyData['dateOfBirth'] ?? '';
+
+        print('DEBUG: Final DOB to use: $dob');
+
         return Baby(
           id: babyData['id'],
           motherNic: babyData['motherNic'],
           motherName: babyData['motherName'] ?? 'Unknown',
           name: babyData['babyName'] ?? 'Unnamed Baby',
-          dateOfBirth: babyData['dateOfBirth'] ?? '',
+          dateOfBirth: dob,
           gender: babyData['gender'] ?? 'Not specified',
           birthWeight: babyData['birthWeight']?.toDouble(),
           birthHeight: babyData['birthHeight']?.toDouble(),
@@ -802,50 +813,102 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
         ],
         bottom: _babies.length > 1
             ? PreferredSize(
-                preferredSize: const Size.fromHeight(60),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  child: DropdownButtonFormField<Baby>(
-                    value: _selectedBaby,
-                    decoration: InputDecoration(
-                      labelText: 'Select Baby',
-                      labelStyle: const TextStyle(color: Colors.white70),
-                      fillColor: Colors.white.withOpacity(0.1),
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.white30),
+                preferredSize: const Size.fromHeight(80),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.3),
+                        width: 1.5,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: Colors.white30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButtonFormField<Baby>(
+                        value: _selectedBaby,
+                        decoration: const InputDecoration(
+                          labelText: 'Select Baby',
+                          labelStyle: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.child_care,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                        ),
+                        dropdownColor: const Color(0xFF3A9B7A),
+                        icon: const Icon(
+                          Icons.arrow_drop_down_circle,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontFamily: 'SpotifyCircular',
+                          fontWeight: FontWeight.w600,
+                        ),
+                        isExpanded: true,
+                        items: _babies.map((baby) {
+                          final age = _calculateAge(baby.dateOfBirth);
+                          final gender = baby.gender.toLowerCase();
+                          final genderIcon = gender == 'male'
+                              ? Icons.boy
+                              : gender == 'female'
+                              ? Icons.girl
+                              : Icons.child_care;
+
+                          return DropdownMenuItem<Baby>(
+                            value: baby,
+                            child: Row(
+                              children: [
+                                Icon(genderIcon, color: Colors.white, size: 20),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    '${baby.name} • $age',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'SpotifyCircular',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (Baby? newBaby) async {
+                          if (newBaby != null && newBaby != _selectedBaby) {
+                            setState(() {
+                              _selectedBaby = newBaby;
+                            });
+                            await _loadRecordsForSelectedBaby();
+                          }
+                        },
                       ),
                     ),
-                    dropdownColor: const Color(0xFF4FC3A1),
-                    style: const TextStyle(color: Colors.white),
-                    items: _babies.map((baby) {
-                      return DropdownMenuItem<Baby>(
-                        value: baby,
-                        child: Text(
-                          baby.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'SpotifyCircular',
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (Baby? newBaby) async {
-                      if (newBaby != null && newBaby != _selectedBaby) {
-                        setState(() {
-                          _selectedBaby = newBaby;
-                        });
-                        await _loadRecordsForSelectedBaby();
-                      }
-                    },
                   ),
                 ),
               )
@@ -1354,5 +1417,69 @@ class _BabySpecificRecordsScreenState extends State<BabySpecificRecordsScreen>
       total += (record['quantity'] as int? ?? 0);
     }
     return total;
+  }
+
+  String _calculateAge(String dateOfBirthStr) {
+    try {
+      // Handle empty or null date
+      if (dateOfBirthStr.isEmpty) {
+        print('DEBUG: Empty date of birth');
+        return 'Unknown age';
+      }
+
+      print('DEBUG: Parsing date: $dateOfBirthStr');
+
+      // Try to parse the date
+      DateTime dob;
+      try {
+        dob = DateTime.parse(dateOfBirthStr);
+      } catch (e) {
+        // If standard parsing fails, try different formats
+        print('DEBUG: Standard parsing failed, trying alternative formats');
+
+        // Try format: dd/MM/yyyy or MM/dd/yyyy
+        final parts = dateOfBirthStr.split('/');
+        if (parts.length == 3) {
+          try {
+            // Assume yyyy-MM-dd or dd-MM-yyyy
+            final year = int.parse(parts[2]);
+            final month = int.parse(parts[1]);
+            final day = int.parse(parts[0]);
+            dob = DateTime(year, month, day);
+          } catch (e2) {
+            print('DEBUG: Alternative format parsing failed: $e2');
+            return 'Unknown age';
+          }
+        } else {
+          print('DEBUG: Unrecognized date format');
+          return 'Unknown age';
+        }
+      }
+
+      print('DEBUG: Successfully parsed date: $dob');
+
+      final now = DateTime.now();
+      final ageInMonths =
+          ((now.year - dob.year) * 12) + (now.month - dob.month);
+
+      print('DEBUG: Age in months: $ageInMonths');
+
+      if (ageInMonths < 1) {
+        final ageInDays = now.difference(dob).inDays;
+        return '$ageInDays days old';
+      } else if (ageInMonths < 12) {
+        return '$ageInMonths month${ageInMonths == 1 ? '' : 's'} old';
+      } else {
+        final years = ageInMonths ~/ 12;
+        final months = ageInMonths % 12;
+        if (months == 0) {
+          return '$years year${years == 1 ? '' : 's'} old';
+        }
+        return '$years yr${years == 1 ? '' : 's'} $months mo';
+      }
+    } catch (e) {
+      print('DEBUG: Error calculating age: $e');
+      return 'Unknown age';
+    }
   }
 }

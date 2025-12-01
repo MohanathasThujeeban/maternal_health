@@ -19,7 +19,7 @@ public class EmailVerificationService {
     @Autowired
     private EmailService emailService;
     
-    @Value("${app.server.url:http://10.11.23.136:8080}")
+    @Value("${app.server.url:http://10.11.24.105:8080}")
     private String serverUrl;
     
     public boolean sendVerificationEmail(String email) {

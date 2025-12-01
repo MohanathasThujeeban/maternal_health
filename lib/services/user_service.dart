@@ -18,14 +18,16 @@ class UserService {
   // Save user data including medical license and institution for healthcare providers
   static Future<void> saveUserData({
     required String nic,
-    required String name,
+    String? name,
     required String email,
     String? medicalLicense,
     String? institution,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userNicKey, nic);
-    await prefs.setString(_userNameKey, name);
+    if (name != null) {
+      await prefs.setString(_userNameKey, name);
+    }
     await prefs.setString(_userEmailKey, email);
     await prefs.setBool(_isLoggedInKey, true);
 
@@ -141,7 +143,6 @@ class UserService {
         if (data['success']) {
           await saveUserData(
             nic: data['nicNumber'] ?? nic,
-            name: data['fullName'] ?? '',
             email: data['email'] ?? '',
             medicalLicense: data['medicalLicenseNumber'],
             institution: data['institution'],

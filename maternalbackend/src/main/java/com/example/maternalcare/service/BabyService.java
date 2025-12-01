@@ -88,10 +88,26 @@ public class BabyService {
      * Get all babies for a mother
      */
     public List<BabyResponse> getBabiesByMotherNic(String motherNic) {
+        System.out.println("=== GET BABIES BY MOTHER NIC ===");
+        System.out.println("Mother NIC: " + motherNic);
+        
         List<Baby> babies = babyRepository.findByMotherNicAndIsActiveTrueOrderByBabyOrder(motherNic);
-        return babies.stream()
+        
+        System.out.println("Found " + babies.size() + " babies");
+        for (Baby baby : babies) {
+            System.out.println("Baby: " + baby.getBabyName() + ", Birth Date: " + baby.getBirthDate());
+        }
+        
+        List<BabyResponse> responses = babies.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
+        
+        System.out.println("Converted to " + responses.size() + " responses");
+        for (BabyResponse response : responses) {
+            System.out.println("Response: " + response.getBabyName() + ", Birth Date: " + response.getBirthDate());
+        }
+        
+        return responses;
     }
     
     /**

@@ -81,19 +81,30 @@ class BabyService {
     String motherNic,
   ) async {
     try {
+      print('DEBUG: Fetching babies for mother NIC: $motherNic');
+
       final response = await http.get(
         Uri.parse('$baseUrl/mother/$motherNic'),
         headers: {'Content-Type': 'application/json'},
       );
 
+      print('DEBUG: Response status code: ${response.statusCode}');
+      print('DEBUG: Response body: ${response.body}');
+
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200 && responseData['success'] == true) {
-        return List<Map<String, dynamic>>.from(responseData['babies']);
+        final babies = List<Map<String, dynamic>>.from(responseData['babies']);
+        print('DEBUG: Number of babies: ${babies.length}');
+        for (var baby in babies) {
+          print('DEBUG: Baby raw data: $baby');
+        }
+        return babies;
       } else {
         throw Exception(responseData['error'] ?? 'Failed to fetch babies');
       }
     } catch (e) {
+      print('DEBUG: Error fetching babies: $e');
       throw Exception('Failed to fetch babies: $e');
     }
   }

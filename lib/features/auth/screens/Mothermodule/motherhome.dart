@@ -16,6 +16,7 @@ import './eye_ear_records_screen.dart';
 import './add_baby_screen.dart';
 import './baby_specific_records_screen.dart';
 import './my_pregnancy_records_screen.dart';
+import './emergency_contact_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -417,7 +418,12 @@ class MotherDashboardScreen extends StatelessWidget {
                 description: localizations.quickEmergencyAccess,
                 color: const Color(0xFFF44336),
                 onTap: () {
-                  _showEmergencyDialog(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EmergencyContactScreen(),
+                    ),
+                  );
                 },
               ),
               _CategoryCard(
@@ -508,69 +514,6 @@ class MotherDashboardScreen extends StatelessWidget {
                 children: cards,
               ),
       ],
-    );
-  }
-
-  void _showEmergencyDialog(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            localizations.emergencyContacts,
-            style: const TextStyle(
-              fontFamily: 'SpotifyCircular',
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2E7D5A),
-            ),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.local_hospital, color: Colors.red),
-                title: Text(localizations.emergencyServices),
-                subtitle: const Text('110 / 119'),
-                onTap: () {
-                  // Call emergency services
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.medical_services, color: Colors.blue),
-                title: Text(localizations.hospital),
-                subtitle: Text(localizations.yourRegisteredHospital),
-                onTap: () {
-                  // Call hospital
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.person, color: Colors.green),
-                title: Text(localizations.yourDoctor),
-                subtitle: const Text('Dr. Smith'),
-                onTap: () {
-                  // Call doctor
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                localizations.close,
-                style: const TextStyle(
-                  color: Color(0xFF4FC3A1),
-                  fontFamily: 'SpotifyCircular',
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 

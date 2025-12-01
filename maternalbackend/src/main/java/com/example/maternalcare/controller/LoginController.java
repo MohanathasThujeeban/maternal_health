@@ -101,7 +101,6 @@ public class LoginController {
             loginData.put("success", true);
             loginData.put("message", "Login successful");
             loginData.put("userId", user.getId());
-            loginData.put("fullName", user.getFullName());
             loginData.put("email", user.getEmail());
             loginData.put("nicNumber", user.getNicNumber());
             loginData.put("phoneNumber", user.getPhoneNumber3());
@@ -207,7 +206,9 @@ public class LoginController {
                 System.err.println("Failed to send password change confirmation email: " + emailError.getMessage());
                 // Don't fail the entire operation if email fails
             }
-
+            //koothaari intha code evaluation la vanthu ellaam sikkala kidakku aarum uthavi seiya maatangalo endu eangi kondu irukka thaan
+            //thujee and pu1 vanthaangal nalla vela ivangal group la irukkurathaala ithukala seiya koodiya maari irukku illa endaa athuvum sikkal thaan
+            //kaalam seitha koolam
             // Create success response
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
