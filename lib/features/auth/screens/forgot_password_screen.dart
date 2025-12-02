@@ -14,8 +14,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   // Controller for managing email input field
   final TextEditingController emailController = TextEditingController();
 
-  
-  bool isLoading = false; 
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -23,7 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     emailController.dispose();
     super.dispose();
   }
-  
+
   bool validateEmail() {
     final email = emailController.text.trim();
 

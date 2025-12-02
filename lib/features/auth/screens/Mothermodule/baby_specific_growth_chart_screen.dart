@@ -402,9 +402,17 @@ class _BabySpecificGrowthChartScreenState
     final localizations = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Colors.green.shade50,
+      backgroundColor: const Color(0xFFF5F9FF),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF4FC3A1),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Text(
           localizations.babyGrowthChart,
           style: const TextStyle(
@@ -415,6 +423,7 @@ class _BabySpecificGrowthChartScreenState
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
         actions: [
           if (selectedBaby != null && growthData.isNotEmpty) ...[
             // Download as Image button
@@ -444,11 +453,27 @@ class _BabySpecificGrowthChartScreenState
           ? _buildNoBabiesWidget()
           : _buildMainContent(),
       floatingActionButton: (selectedBaby != null && growthData.isNotEmpty)
-          ? FloatingActionButton(
-              onPressed: _showDownloadOptions,
-              backgroundColor: const Color(0xFF4FC3A1),
-              child: const Icon(Icons.download, color: Colors.white),
-              tooltip: 'Download Chart',
+          ? Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF2F80ED).withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: FloatingActionButton(
+                onPressed: _showDownloadOptions,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                child: const Icon(Icons.download, color: Colors.white),
+                tooltip: 'Download Chart',
+              ),
             )
           : null,
     );
@@ -519,16 +544,20 @@ class _BabySpecificGrowthChartScreenState
         // Baby Selection Section
         Container(
           margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            gradient: const LinearGradient(
+              colors: [Colors.white, Color(0xFFFAFCFF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+                color: const Color(0xFF2F80ED).withOpacity(0.1),
+                spreadRadius: 0,
+                blurRadius: 20,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -604,8 +633,13 @@ class _BabySpecificGrowthChartScreenState
                           Container(
                             padding: const EdgeInsets.all(6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4FC3A1).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(6),
+                              gradient: LinearGradient(
+                                colors: [
+                                  const Color(0xFF56CCF2).withOpacity(0.2),
+                                  const Color(0xFF2F80ED).withOpacity(0.1),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
                               baby['gender'] == 'male'
@@ -613,8 +647,8 @@ class _BabySpecificGrowthChartScreenState
                                   : baby['gender'] == 'female'
                                   ? Icons.girl
                                   : Icons.child_care,
-                              color: const Color(0xFF4FC3A1),
-                              size: 20,
+                              color: const Color(0xFF2F80ED),
+                              size: 22,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -666,51 +700,101 @@ class _BabySpecificGrowthChartScreenState
             child: Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        chartType = 'weight';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: chartType == 'weight'
-                          ? const Color(0xFF4FC3A1)
-                          : Colors.grey.shade300,
-                      foregroundColor: chartType == 'weight'
-                          ? Colors.white
-                          : Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: chartType == 'weight'
+                          ? const LinearGradient(
+                              colors: [Color(0xFFFF6B9D), Color(0xFFC06C84)],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: chartType == 'weight'
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFFC06C84).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: Text(
-                      localizations.weight,
-                      style: const TextStyle(fontFamily: 'CircularStd'),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          chartType = 'weight';
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: chartType == 'weight'
+                            ? Colors.transparent
+                            : const Color(0xFFF0F4F8),
+                        foregroundColor: chartType == 'weight'
+                            ? Colors.white
+                            : const Color(0xFF64748B),
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        localizations.weight,
+                        style: const TextStyle(
+                          fontFamily: 'CircularStd',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        chartType = 'height';
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: chartType == 'height'
-                          ? const Color(0xFF4FC3A1)
-                          : Colors.grey.shade300,
-                      foregroundColor: chartType == 'height'
-                          ? Colors.white
-                          : Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: chartType == 'height'
+                          ? const LinearGradient(
+                              colors: [Color(0xFF56CCF2), Color(0xFF2F80ED)],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: chartType == 'height'
+                          ? [
+                              BoxShadow(
+                                color: const Color(0xFF2F80ED).withOpacity(0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
-                    child: Text(
-                      localizations.height,
-                      style: const TextStyle(fontFamily: 'CircularStd'),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          chartType = 'height';
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: chartType == 'height'
+                            ? Colors.transparent
+                            : const Color(0xFFF0F4F8),
+                        foregroundColor: chartType == 'height'
+                            ? Colors.white
+                            : const Color(0xFF64748B),
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        localizations.height,
+                        style: const TextStyle(
+                          fontFamily: 'CircularStd',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -836,10 +920,21 @@ class _BabySpecificGrowthChartScreenState
           children: [
             Row(
               children: [
-                Icon(
-                  chartType == 'weight' ? Icons.monitor_weight : Icons.height,
-                  color: const Color(0xFF4FC3A1),
-                  size: 24,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: chartType == 'weight'
+                          ? [const Color(0xFFFF6B9D), const Color(0xFFC06C84)]
+                          : [const Color(0xFF56CCF2), const Color(0xFF2F80ED)],
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    chartType == 'weight' ? Icons.monitor_weight : Icons.height,
+                    color: Colors.white,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -876,12 +971,53 @@ class _BabySpecificGrowthChartScreenState
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      color: const Color(0xFF4FC3A1),
-                      barWidth: 3,
-                      dotData: const FlDotData(show: true),
+                      gradient: LinearGradient(
+                        colors: chartType == 'weight'
+                            ? [const Color(0xFFFF6B9D), const Color(0xFFC06C84)]
+                            : [
+                                const Color(0xFF56CCF2),
+                                const Color(0xFF2F80ED),
+                              ],
+                      ),
+                      barWidth: 4,
+                      isStrokeCapRound: true,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter: (spot, percent, barData, index) {
+                          return FlDotCirclePainter(
+                            radius: 6,
+                            color: Colors.white,
+                            strokeWidth: 3,
+                            strokeColor: chartType == 'weight'
+                                ? const Color(0xFFC06C84)
+                                : const Color(0xFF2F80ED),
+                          );
+                        },
+                      ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                        gradient: LinearGradient(
+                          colors: chartType == 'weight'
+                              ? [
+                                  const Color(0xFFFF6B9D).withOpacity(0.3),
+                                  const Color(0xFFC06C84).withOpacity(0.1),
+                                ]
+                              : [
+                                  const Color(0xFF56CCF2).withOpacity(0.3),
+                                  const Color(0xFF2F80ED).withOpacity(0.1),
+                                ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                      shadow: Shadow(
+                        color:
+                            (chartType == 'weight'
+                                    ? const Color(0xFFC06C84)
+                                    : const Color(0xFF2F80ED))
+                                .withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
                       ),
                     ),
                   ],
@@ -952,14 +1088,23 @@ class _BabySpecificGrowthChartScreenState
                   ),
                   gridData: FlGridData(
                     show: true,
-                    drawVerticalLine: false,
+                    drawVerticalLine: true,
                     horizontalInterval: (maxY - minY) <= 0
                         ? 1.0
                         : (maxY - minY) / 5,
+                    verticalInterval: 1,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Colors.grey.shade300,
+                        color: Colors.grey.shade200,
                         strokeWidth: 1,
+                        dashArray: [5, 5],
+                      );
+                    },
+                    getDrawingVerticalLine: (value) {
+                      return FlLine(
+                        color: Colors.grey.shade200,
+                        strokeWidth: 1,
+                        dashArray: [5, 5],
                       );
                     },
                   ),
@@ -967,7 +1112,13 @@ class _BabySpecificGrowthChartScreenState
                   minY: minY,
                   maxY: maxY,
                   lineTouchData: LineTouchData(
+                    enabled: true,
                     touchTooltipData: LineTouchTooltipData(
+                      tooltipPadding: const EdgeInsets.all(12),
+                      tooltipMargin: 8,
+                      getTooltipColor: (touchedSpot) => chartType == 'weight'
+                          ? const Color(0xFFC06C84)
+                          : const Color(0xFF2F80ED),
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((touchedSpot) {
                           final index = touchedSpot.x.toInt();
@@ -986,8 +1137,11 @@ class _BabySpecificGrowthChartScreenState
                               const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontFamily: 'CircularStd',
+                                shadows: [
+                                  Shadow(color: Colors.black26, blurRadius: 2),
+                                ],
                               ),
                             );
                           }
@@ -995,6 +1149,34 @@ class _BabySpecificGrowthChartScreenState
                         }).toList();
                       },
                     ),
+                    getTouchedSpotIndicator: (barData, spotIndexes) {
+                      return spotIndexes.map((spotIndex) {
+                        return TouchedSpotIndicatorData(
+                          FlLine(
+                            color:
+                                (chartType == 'weight'
+                                        ? const Color(0xFFC06C84)
+                                        : const Color(0xFF2F80ED))
+                                    .withOpacity(0.5),
+                            strokeWidth: 2,
+                            dashArray: [5, 5],
+                          ),
+                          FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, barData, index) {
+                              return FlDotCirclePainter(
+                                radius: 8,
+                                color: chartType == 'weight'
+                                    ? const Color(0xFFC06C84)
+                                    : const Color(0xFF2F80ED),
+                                strokeWidth: 2,
+                                strokeColor: Colors.white,
+                              );
+                            },
+                          ),
+                        );
+                      }).toList();
+                    },
                   ),
                 ),
               ),
@@ -1003,17 +1185,44 @@ class _BabySpecificGrowthChartScreenState
             // Latest measurement
             if (growthData.isNotEmpty) ...[
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4FC3A1).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: chartType == 'weight'
+                        ? [
+                            const Color(0xFFFF6B9D).withOpacity(0.15),
+                            const Color(0xFFC06C84).withOpacity(0.05),
+                          ]
+                        : [
+                            const Color(0xFF56CCF2).withOpacity(0.15),
+                            const Color(0xFF2F80ED).withOpacity(0.05),
+                          ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        (chartType == 'weight'
+                                ? const Color(0xFFFF6B9D)
+                                : const Color(0xFF56CCF2))
+                            .withOpacity(0.3),
+                    width: 1,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: const Color(0xFF4FC3A1),
-                      size: 20,
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: chartType == 'weight'
+                            ? const Color(0xFFC06C84)
+                            : const Color(0xFF2F80ED),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.info_outline,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(

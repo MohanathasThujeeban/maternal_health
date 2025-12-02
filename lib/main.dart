@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/health_chatbox/health_chatbox_screen.dart';
 import 'providers/language_provider.dart';
+import 'providers/theme_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'services/logging_service.dart';
 
@@ -14,8 +15,11 @@ void main() async {
   LoggingService.initialize();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => LanguageProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => LanguageProvider()),
+        ChangeNotifierProvider(create: (context) => ThemeProvider()),
+      ],
       child: const MainApp(),
     ),
   );
@@ -26,12 +30,14 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<LanguageProvider>(
-      builder: (context, languageProvider, child) {
+    return Consumer2<LanguageProvider, ThemeProvider>(
+      builder: (context, languageProvider, themeProvider, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           locale: languageProvider.currentLocale,
-          theme: ThemeData(fontFamily: 'CircularStd'),
+          theme: ThemeProvider.lightTheme,
+          darkTheme: ThemeProvider.darkTheme,
+          themeMode: themeProvider.themeMode,
           localizationsDelegates: [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,

@@ -217,54 +217,153 @@ class _VaccinationsScreenState extends State<VaccinationsScreen> {
                             children: [
                               // Baby selection dropdown if multiple babies
                               if (_babies.length > 1) ...[
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Icon(
-                                      Icons.child_care,
-                                      color: Colors.white,
-                                      size: 20,
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(
+                                              0.3,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.child_care,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Text(
+                                          'Select Baby',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontFamily: 'SpotifyCircular',
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 10),
-                                    const Text(
-                                      'Select Baby: ',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontFamily: 'SpotifyCircular',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
+                                    const SizedBox(height: 10),
                                     Container(
+                                      width: double.infinity,
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
+                                        horizontal: 16,
                                         vertical: 4,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(20),
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(12),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.1,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
                                       child: DropdownButtonHideUnderline(
                                         child: DropdownButton<Baby>(
                                           value: _selectedBaby,
-                                          dropdownColor: const Color(
-                                            0xFF4FC3A1,
+                                          isExpanded: true,
+                                          dropdownColor: Colors.white,
+                                          icon: const Icon(
+                                            Icons.keyboard_arrow_down_rounded,
+                                            color: Color(0xFF4FC3A1),
+                                            size: 28,
                                           ),
                                           style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 14,
+                                            color: Color(0xFF2E7D5A),
+                                            fontSize: 15,
                                             fontFamily: 'SpotifyCircular',
-                                            fontWeight: FontWeight.w500,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                           items: _babies.map((baby) {
                                             return DropdownMenuItem<Baby>(
                                               value: baby,
-                                              child: Text(
-                                                baby.name,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14,
-                                                ),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    padding:
+                                                        const EdgeInsets.all(6),
+                                                    decoration: BoxDecoration(
+                                                      gradient:
+                                                          const LinearGradient(
+                                                            colors: [
+                                                              Color(0xFF4FC3A1),
+                                                              Color(0xFF3A9B7A),
+                                                            ],
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            8,
+                                                          ),
+                                                    ),
+                                                    child: Icon(
+                                                      baby.gender.toLowerCase() ==
+                                                              'male'
+                                                          ? Icons.boy
+                                                          : baby.gender
+                                                                    .toLowerCase() ==
+                                                                'female'
+                                                          ? Icons.girl
+                                                          : Icons.child_care,
+                                                      color: Colors.white,
+                                                      size: 16,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 12),
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Text(
+                                                          baby.name,
+                                                          style:
+                                                              const TextStyle(
+                                                                fontSize: 15,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                color: Color(
+                                                                  0xFF2E7D5A,
+                                                                ),
+                                                              ),
+                                                          maxLines: 1,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                        if (baby
+                                                            .dateOfBirth
+                                                            .isNotEmpty)
+                                                          Text(
+                                                            baby.dateOfBirth,
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              color: Colors
+                                                                  .grey[600],
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             );
                                           }).toList(),

@@ -17,6 +17,7 @@ import './add_baby_screen.dart';
 import './baby_specific_records_screen.dart';
 import './my_pregnancy_records_screen.dart';
 import './emergency_contact_screen.dart';
+import './settings_screen.dart';
 
 class MotherHomeScreen extends StatefulWidget {
   const MotherHomeScreen({super.key});
@@ -440,6 +441,20 @@ class MotherDashboardScreen extends StatelessWidget {
                   );
                 },
               ),
+              _CategoryCard(
+                icon: Icons.settings,
+                title: 'Settings',
+                description: 'App preferences & accessibility',
+                color: const Color(0xFF607D8B),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SettingsScreen(),
+                    ),
+                  );
+                },
+              ),
             ],
           ),
 
@@ -455,16 +470,17 @@ class MotherDashboardScreen extends StatelessWidget {
     required String subtitle,
     required List<_CategoryCard> cards,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             fontFamily: 'SpotifyCircular',
-            color: Color(0xFF2E7D5A),
+            color: isDark ? const Color(0xFF4FC3A1) : const Color(0xFF2E7D5A),
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -474,7 +490,7 @@ class MotherDashboardScreen extends StatelessWidget {
           subtitle,
           style: TextStyle(
             fontSize: 13,
-            color: Colors.grey[600],
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
             fontFamily: 'SpotifyCircular',
           ),
           maxLines: 3,
@@ -555,6 +571,8 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -579,11 +597,11 @@ class _CategoryCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     fontFamily: 'SpotifyCircular',
-                    color: Color(0xFF2E2E2E),
+                    color: isDark ? Colors.white : const Color(0xFF2E2E2E),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -595,7 +613,7 @@ class _CategoryCard extends StatelessWidget {
                   description,
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.grey[600],
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
                     fontFamily: 'SpotifyCircular',
                   ),
                   maxLines: 3,
