@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
 import '../../../../config/api_config.dart';
 import '../../../../services/user_service.dart';
 import '../../../../services/mothers_service.dart';
+import '../../../../providers/theme_provider.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
+import '../../../../features/shared/contacts_tab.dart';
 import 'doctor_baby_selection_screen.dart';
 
 class DoctorDashboard extends StatefulWidget {
@@ -28,7 +31,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
       DashboardTab(providerData: widget.providerData),
       const PatientsTab(),
       const AppointmentsTab(),
-      const AnalyticsTab(),
+      const ContactsTab(),
       ProfileTab(providerData: widget.providerData),
     ];
   }
@@ -111,10 +114,7 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
             icon: Icon(Icons.calendar_today),
             label: 'Appointments',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Analytics',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.contacts), label: 'Contact'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
@@ -244,14 +244,23 @@ class _DashboardTabState extends State<DashboardTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
+            ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -259,11 +268,13 @@ class _DashboardTabState extends State<DashboardTab> {
           children: [
             Text(
               'Welcome, ${widget.providerData != null ? (widget.providerData!['providerType'] == 'DOCTOR' ? 'Dr. ' : '') + (widget.providerData!['fullName'] ?? 'Doctor') : 'Dr. Doctor'}!',
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2E7D5A),
+                color: isDark
+                    ? const Color(0xFF2E7D5A)
+                    : const Color(0xFF2E7D5A),
               ),
             ),
             const SizedBox(height: 20),
@@ -336,12 +347,12 @@ class _DashboardTabState extends State<DashboardTab> {
                           ? const CircularProgressIndicator(
                               color: Color(0xFF4FC3A1),
                             )
-                          : const Text(
+                          : Text(
                               'No recent activities',
                               style: TextStyle(
                                 fontFamily: 'SpotifyCircular',
                                 fontSize: 16,
-                                color: Colors.grey,
+                                color: isDark ? Colors.grey[500] : Colors.grey,
                               ),
                             ),
                     )
@@ -407,19 +418,24 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,20 +455,20 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF2E7D5A),
+              color: isDark ? Colors.grey[200] : const Color(0xFF2E7D5A),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 12,
-              color: Colors.grey,
+              color: isDark ? Colors.grey[500] : Colors.grey,
             ),
           ),
         ],
@@ -476,20 +492,25 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Row(
         children: [
@@ -529,10 +550,10 @@ class _ActivityCard extends StatelessWidget {
           ),
           Text(
             time,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 12,
-              color: Colors.grey,
+              color: isDark ? Colors.grey[500] : Colors.grey,
             ),
           ),
         ],
@@ -623,14 +644,23 @@ class _PatientsTabState extends State<PatientsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
+            ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Column(
@@ -1280,14 +1310,23 @@ class _AppointmentsTabState extends State<AppointmentsTab>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFF8FFFE), Color(0xFFE8F5F2), Color(0xFFF0F9F7)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFF8FFFE),
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                ],
+              ),
+            ),
       child: Column(
         children: [
           // Header with stats
@@ -2244,281 +2283,406 @@ class AnalyticsTab extends StatelessWidget {
   }
 }
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   final Map<String, dynamic>? providerData;
 
   const ProfileTab({super.key, this.providerData});
 
   @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  @override
   Widget build(BuildContext context) {
-    if (providerData == null) {
-      return const Center(
-        child: Text(
-          'No provider data available',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-            fontFamily: 'SpotifyCircular',
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    if (widget.providerData == null) {
+      return Container(
+        color: isDark ? const Color(0xFF121212) : null,
+        child: Center(
+          child: Text(
+            'No provider data available',
+            style: TextStyle(
+              fontSize: 16,
+              color: isDark ? Colors.grey[500] : Colors.grey,
+              fontFamily: 'SpotifyCircular',
+            ),
           ),
         ),
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Profile Header
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF2E7D5A), Color(0xFF1E5D3F)],
+    return Container(
+      color: isDark ? const Color(0xFF121212) : const Color(0xFFF5F5F5),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Profile Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF2E7D5A), Color(0xFF1E5D3F)],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white.withOpacity(0.2),
-                  child: const Icon(
-                    Icons.medical_services,
-                    size: 40,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  providerData!['fullName'] ?? 'Doctor',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontFamily: 'SpotifyCircular',
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Doctor - ${providerData!['specialization'] ?? 'General Medicine'}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.white.withOpacity(0.9),
-                    fontFamily: 'SpotifyCircular',
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Professional Information
-          _buildInfoSection('Professional Information', [
-            _buildInfoRow(
-              'Medical License',
-              providerData!['medicalLicenseNumber'] ?? 'N/A',
-            ),
-            _buildInfoRow('Institution', providerData!['institution'] ?? 'N/A'),
-            _buildInfoRow(
-              'Specialization',
-              providerData!['specialization'] ?? 'General Medicine',
-            ),
-            _buildInfoRow(
-              'Years of Experience',
-              '${providerData!['yearsOfExperience'] ?? 0} years',
-            ),
-          ]),
-
-          const SizedBox(height: 24),
-
-          // Contact Information
-          _buildInfoSection('Contact Information', [
-            _buildInfoRow('Email', providerData!['email'] ?? 'N/A'),
-            _buildInfoRow('Phone', providerData!['phoneNumber'] ?? 'N/A'),
-          ]),
-
-          const SizedBox(height: 32),
-
-          // Action Buttons
-          Column(
-            children: [
-              // First row - Privacy & Security
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            const HealthcareProviderPrivacyScreen(
-                              userRole: 'DOCTOR',
-                            ),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2E7D5A),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              child: Column(
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.white.withOpacity(0.2),
+                    child: const Icon(
+                      Icons.medical_services,
+                      size: 40,
+                      color: Colors.white,
                     ),
                   ),
-                  icon: const Icon(Icons.security, color: Colors.white),
-                  label: const Text(
-                    'Privacy & Security',
-                    style: TextStyle(
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.providerData!['fullName'] ?? 'Doctor',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                       fontFamily: 'SpotifyCircular',
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Second row - Edit Profile and Logout
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement edit profile
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Edit profile feature coming soon'),
-                            backgroundColor: Color(0xFF2E7D5A),
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFF2E7D5A)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.edit, color: Color(0xFF2E7D5A)),
-                      label: const Text(
-                        'Edit Profile',
-                        style: TextStyle(
-                          color: Color(0xFF2E7D5A),
-                          fontFamily: 'SpotifyCircular',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        // Implement logout functionality
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            title: const Text(
-                              'Logout',
-                              style: TextStyle(
-                                fontFamily: 'SpotifyCircular',
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF2E7D5A),
-                              ),
-                            ),
-                            content: const Text(
-                              'Are you sure you want to logout?',
-                              style: TextStyle(fontFamily: 'SpotifyCircular'),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    fontFamily: 'SpotifyCircular',
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  // Navigate back to login screen and clear the navigation stack
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    '/',
-                                    (route) => false,
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2E7D5A),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Logout',
-                                  style: TextStyle(
-                                    fontFamily: 'SpotifyCircular',
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFF2E7D5A)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      icon: const Icon(Icons.logout, color: Color(0xFF2E7D5A)),
-                      label: const Text(
-                        'Logout',
-                        style: TextStyle(
-                          color: Color(0xFF2E7D5A),
-                          fontFamily: 'SpotifyCircular',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Doctor - ${widget.providerData!['specialization'] ?? 'General Medicine'}',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white.withOpacity(0.9),
+                      fontFamily: 'SpotifyCircular',
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ],
+            ),
+
+            const SizedBox(height: 24),
+
+            // Professional Information
+            _buildInfoSection(context, 'Professional Information', [
+              _buildInfoRow(
+                context,
+                'Medical License',
+                widget.providerData!['medicalLicenseNumber'] ?? 'N/A',
+              ),
+              _buildInfoRow(
+                context,
+                'Institution',
+                widget.providerData!['institution'] ?? 'N/A',
+              ),
+              _buildInfoRow(
+                context,
+                'Specialization',
+                widget.providerData!['specialization'] ?? 'General Medicine',
+              ),
+              _buildInfoRow(
+                context,
+                'Years of Experience',
+                '${widget.providerData!['yearsOfExperience'] ?? 0} years',
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // Contact Information
+            _buildInfoSection(context, 'Contact Information', [
+              _buildInfoRow(
+                context,
+                'Email',
+                widget.providerData!['email'] ?? 'N/A',
+              ),
+              _buildInfoRow(
+                context,
+                'Phone',
+                widget.providerData!['phoneNumber'] ?? 'N/A',
+              ),
+            ]),
+
+            const SizedBox(height: 24),
+
+            // Theme Mode Card
+            _buildThemeModeCard(themeProvider, isDark),
+
+            const SizedBox(height: 24),
+
+            // Action Buttons
+            Column(
+              children: [
+                // First row - Privacy & Security
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const HealthcareProviderPrivacyScreen(
+                                userRole: 'DOCTOR',
+                              ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2E7D5A),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.security, color: Colors.white),
+                    label: const Text(
+                      'Privacy & Security',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'SpotifyCircular',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Second row - Edit Profile and Logout
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // TODO: Implement edit profile
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Edit profile feature coming soon'),
+                              backgroundColor: Color(0xFF2E7D5A),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Color(0xFF2E7D5A)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(Icons.edit, color: Color(0xFF2E7D5A)),
+                        label: const Text(
+                          'Edit Profile',
+                          style: TextStyle(
+                            color: Color(0xFF2E7D5A),
+                            fontFamily: 'SpotifyCircular',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // Implement logout functionality
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              title: const Text(
+                                'Logout',
+                                style: TextStyle(
+                                  fontFamily: 'SpotifyCircular',
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2E7D5A),
+                                ),
+                              ),
+                              content: const Text(
+                                'Are you sure you want to logout?',
+                                style: TextStyle(fontFamily: 'SpotifyCircular'),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      fontFamily: 'SpotifyCircular',
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    // Navigate back to login screen and clear the navigation stack
+                                    Navigator.pushNamedAndRemoveUntil(
+                                      context,
+                                      '/',
+                                      (route) => false,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF2E7D5A),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Logout',
+                                    style: TextStyle(
+                                      fontFamily: 'SpotifyCircular',
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: Color(0xFF2E7D5A)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(
+                          Icons.logout,
+                          color: Color(0xFF2E7D5A),
+                        ),
+                        label: const Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Color(0xFF2E7D5A),
+                            fontFamily: 'SpotifyCircular',
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoSection(String title, List<Widget> children) {
+  Widget _buildThemeModeCard(ThemeProvider themeProvider, bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E7D5A).withOpacity(isDark ? 0.15 : 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                isDark ? Icons.dark_mode : Icons.light_mode,
+                color: const Color(0xFF2E7D5A),
+                size: 28,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Dark Mode',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: isDark
+                          ? Colors.grey[200]
+                          : const Color(0xFF2D3748),
+                      fontFamily: 'SpotifyCircular',
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isDark ? 'Switch to light theme' : 'Switch to dark theme',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
+                      fontFamily: 'SpotifyCircular',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Transform.scale(
+              scale: 0.9,
+              child: Switch(
+                value: isDark,
+                onChanged: (value) {
+                  themeProvider.toggleTheme();
+                },
+                activeColor: const Color(0xFF2E7D5A),
+                activeTrackColor: const Color(0xFF2E7D5A).withOpacity(0.5),
+                inactiveThumbColor: Colors.grey[400],
+                inactiveTrackColor: Colors.grey[300],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection(
+    BuildContext context,
+    String title,
+    List<Widget> children,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2527,10 +2691,12 @@ class ProfileTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
+                color: isDark
+                    ? const Color(0xFF2E7D5A)
+                    : const Color(0xFF2D3748),
                 fontFamily: 'SpotifyCircular',
               ),
             ),
@@ -2541,7 +2707,9 @@ class ProfileTab extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
+  Widget _buildInfoRow(BuildContext context, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Row(
@@ -2553,7 +2721,7 @@ class ProfileTab extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[500] : Colors.grey[600],
                 fontFamily: 'SpotifyCircular',
               ),
             ),
@@ -2561,10 +2729,10 @@ class ProfileTab extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF2D3748),
+                color: isDark ? Colors.grey[200] : const Color(0xFF2D3748),
                 fontFamily: 'SpotifyCircular',
               ),
             ),

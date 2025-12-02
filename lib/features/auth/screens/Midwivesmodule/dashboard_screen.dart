@@ -12,6 +12,7 @@ import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:provider/provider.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_thiriposa_records_screen.dart';
 import 'package:maternal_health/features/midwife/screens/midwife_vaccinations_screen.dart';
 import 'package:maternal_health/features/midwife/screens/all_mothers_records_screen.dart';
@@ -20,7 +21,9 @@ import 'package:maternal_health/services/user_service.dart';
 import 'package:maternal_health/services/activity_service.dart';
 import 'package:maternal_health/services/mothers_service.dart';
 import 'package:maternal_health/config/api_config.dart';
+import 'package:maternal_health/providers/theme_provider.dart';
 import '../shared/healthcare_provider_privacy_screen.dart';
+import 'package:maternal_health/features/shared/contacts_tab.dart';
 import 'pregnant_mothers_list_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -39,7 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     const MidwifeDashboardTab(),
     const PatientsTab(), // Updated PatientsTab with buttons
     const AppointmentsTab(),
-    const AnalyticsTab(),
+    const ContactsTab(),
     const ProfileTab(),
   ];
 
@@ -263,14 +266,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 child: Icon(
                   _selectedIndex == 3
-                      ? Icons.analytics
-                      : Icons.analytics_outlined,
+                      ? Icons.contacts
+                      : Icons.contacts_outlined,
                   color: _selectedIndex == 3
                       ? const Color(0xFF4FC3A1)
                       : Colors.grey[600],
                 ),
               ),
-              label: 'Analytics',
+              label: 'Contact',
             ),
             BottomNavigationBarItem(
               icon: Container(
@@ -517,14 +520,23 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
+            ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -533,11 +545,13 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
             // Dynamic welcome message based on actual midwife profile
             Text(
               _getWelcomeMessage(),
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2E7D5A),
+                color: isDark
+                    ? const Color(0xFF4FC3A1)
+                    : const Color(0xFF2E7D5A),
               ),
             ),
             const SizedBox(height: 20),
@@ -710,14 +724,16 @@ class _MidwifeDashboardTabState extends State<MidwifeDashboardTab> {
 
   // Build recent activities list with real data
   Widget _buildRecentActivitiesList() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     if (recentActivities.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No recent activities',
           style: TextStyle(
             fontFamily: 'SpotifyCircular',
             fontSize: 16,
-            color: Colors.grey,
+            color: isDark ? Colors.grey[500] : Colors.grey,
           ),
         ),
       );
@@ -781,19 +797,24 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -803,7 +824,7 @@ class _StatCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withOpacity(isDark ? 0.15 : 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color, size: 20),
@@ -813,20 +834,20 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             value.toString(), // Convert value to string
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 24,
               fontWeight: FontWeight.w700,
-              color: Color(0xFF2E7D5A),
+              color: isDark ? Colors.grey[200] : const Color(0xFF2E7D5A),
             ),
           ),
           const SizedBox(height: 4),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 12,
-              color: Colors.grey,
+              color: isDark ? Colors.grey[500] : Colors.grey,
             ),
           ),
         ],
@@ -850,27 +871,32 @@ class _ActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: isDark ? Border.all(color: Colors.grey[800]!, width: 1) : null,
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF4FC3A1).withOpacity(0.1),
+              color: const Color(0xFF4FC3A1).withOpacity(isDark ? 0.15 : 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: const Color(0xFF4FC3A1), size: 24),
@@ -882,20 +908,20 @@ class _ActivityCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF2E7D5A),
+                    color: isDark ? Colors.grey[200] : const Color(0xFF2E7D5A),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: 'SpotifyCircular',
                     fontSize: 14,
-                    color: Colors.grey,
+                    color: isDark ? Colors.grey[500] : Colors.grey,
                   ),
                 ),
               ],
@@ -903,10 +929,10 @@ class _ActivityCard extends StatelessWidget {
           ),
           Text(
             time,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'SpotifyCircular',
               fontSize: 12,
-              color: Colors.grey,
+              color: isDark ? Colors.grey[500] : Colors.grey,
             ),
           ),
         ],
@@ -920,26 +946,37 @@ class PatientsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
+            ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Patient Records Management',
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2E7D5A),
+                color: isDark
+                    ? const Color(0xFF4FC3A1)
+                    : const Color(0xFF2E7D5A),
               ),
             ),
             const SizedBox(height: 8),
@@ -948,7 +985,7 @@ class PatientsTab extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[500] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 24),
@@ -1070,9 +1107,17 @@ class PatientsTab extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: isDark ? 0 : 4,
+      color: isDark ? const Color(0xFF1E1E1E) : null,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: isDark
+            ? BorderSide(color: Colors.grey[800]!, width: 1)
+            : BorderSide.none,
+      ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
@@ -1080,11 +1125,13 @@ class PatientsTab extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
-            ),
+            gradient: isDark
+                ? null
+                : LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
+                  ),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -1101,7 +1148,7 @@ class PatientsTab extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.2),
+                      color: color.withOpacity(isDark ? 0.15 : 0.2),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(icon, size: 32, color: color),
@@ -1114,7 +1161,9 @@ class PatientsTab extends StatelessWidget {
                         fontFamily: 'SpotifyCircular',
                         fontSize: titleSize,
                         fontWeight: FontWeight.w600,
-                        color: const Color(0xFF2E7D5A),
+                        color: isDark
+                            ? Colors.grey[200]
+                            : const Color(0xFF2E7D5A),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -1128,7 +1177,7 @@ class PatientsTab extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'SpotifyCircular',
                         fontSize: subtitleSize,
-                        color: Colors.grey[600],
+                        color: isDark ? Colors.grey[500] : Colors.grey[600],
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -1156,14 +1205,23 @@ class AnalyticsTab extends StatefulWidget {
 class _AnalyticsTabState extends State<AnalyticsTab> {
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
+            ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: const Center(
@@ -1433,26 +1491,37 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFE8F5F2), Color(0xFFF0F9F7), Color(0xFFFFFFFF)],
-        ),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF121212) : null,
+        gradient: isDark
+            ? null
+            : const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                  Color(0xFFFFFFFF),
+                ],
+              ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'My Profile',
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF2E7D5A),
+                color: isDark
+                    ? const Color(0xFF4FC3A1)
+                    : const Color(0xFF2E7D5A),
               ),
             ),
             const SizedBox(height: 8),
@@ -1461,7 +1530,7 @@ class _ProfileTabState extends State<ProfileTab> {
               style: TextStyle(
                 fontFamily: 'SpotifyCircular',
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: isDark ? Colors.grey[500] : Colors.grey[600],
               ),
             ),
             const SizedBox(height: 20),
@@ -1490,7 +1559,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       const SizedBox(height: 16),
                       Text(
                         'Failed to load profile',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           color: Colors.red,
                           fontFamily: 'SpotifyCircular',
@@ -1504,7 +1573,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           errorMessage!,
                           style: TextStyle(
                             fontSize: 14,
-                            color: Colors.grey[600],
+                            color: isDark ? Colors.grey[500] : Colors.grey[600],
                             fontFamily: 'SpotifyCircular',
                           ),
                           textAlign: TextAlign.center,
@@ -1672,6 +1741,9 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildAccountSettingsCard() {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -1682,6 +1754,11 @@ class _ProfileTabState extends State<ProfileTab> {
           children: [
             _buildSectionTitle('Account Settings'),
             const SizedBox(height: 16),
+
+            // Theme Toggle
+            _buildThemeToggle(themeProvider, isDark),
+
+            const Divider(height: 24),
 
             _buildSettingsOption(
               Icons.lock,
@@ -1747,28 +1824,97 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
+  Widget _buildThemeToggle(ThemeProvider themeProvider, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF4FC3A1).withOpacity(isDark ? 0.15 : 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              isDark ? Icons.dark_mode : Icons.light_mode,
+              size: 20,
+              color: const Color(0xFF4FC3A1),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Dark Mode',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.grey[200] : const Color(0xFF2E7D5A),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isDark ? 'Switch to light theme' : 'Switch to dark theme',
+                  style: TextStyle(
+                    fontFamily: 'SpotifyCircular',
+                    fontSize: 14,
+                    color: isDark ? Colors.grey[500] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Transform.scale(
+            scale: 0.9,
+            child: Switch(
+              value: isDark,
+              onChanged: (value) {
+                themeProvider.toggleTheme();
+              },
+              activeColor: const Color(0xFF4FC3A1),
+              activeTrackColor: const Color(0xFF4FC3A1).withOpacity(0.5),
+              inactiveThumbColor: Colors.grey[400],
+              inactiveTrackColor: Colors.grey[300],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionTitle(String title) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: 'SpotifyCircular',
         fontSize: 18,
         fontWeight: FontWeight.w600,
-        color: Color(0xFF2E7D5A),
+        color: isDark ? const Color(0xFF4FC3A1) : const Color(0xFF2E7D5A),
       ),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
+            color: isDark
+                ? const Color(0xFF4FC3A1).withOpacity(0.15)
+                : Colors.grey.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, size: 20, color: Colors.grey[600]),
+          child: Icon(
+            icon,
+            size: 20,
+            color: isDark ? const Color(0xFF4FC3A1) : Colors.grey[600],
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -1780,17 +1926,17 @@ class _ProfileTabState extends State<ProfileTab> {
                 style: TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: isDark ? Colors.grey[500] : Colors.grey[600],
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'SpotifyCircular',
                   fontSize: 16,
-                  color: Color(0xFF2E7D5A),
+                  color: isDark ? Colors.grey[200] : const Color(0xFF2E7D5A),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -1807,6 +1953,7 @@ class _ProfileTabState extends State<ProfileTab> {
     String subtitle,
     VoidCallback onTap,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
@@ -1817,7 +1964,7 @@ class _ProfileTabState extends State<ProfileTab> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFF4FC3A1).withOpacity(0.1),
+                color: const Color(0xFF4FC3A1).withOpacity(isDark ? 0.15 : 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, size: 20, color: const Color(0xFF4FC3A1)),
@@ -1829,11 +1976,13 @@ class _ProfileTabState extends State<ProfileTab> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2E7D5A),
+                      color: isDark
+                          ? Colors.grey[200]
+                          : const Color(0xFF2E7D5A),
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1842,13 +1991,17 @@ class _ProfileTabState extends State<ProfileTab> {
                     style: TextStyle(
                       fontFamily: 'SpotifyCircular',
                       fontSize: 14,
-                      color: Colors.grey[600],
+                      color: isDark ? Colors.grey[500] : Colors.grey[600],
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
           ],
         ),
       ),
@@ -2309,14 +2462,23 @@ class _AppointmentsTabState extends State<AppointmentsTab>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFFF8FFFE), Color(0xFFE8F5F2), Color(0xFFF0F9F7)],
-        ),
-      ),
+      color: isDark ? const Color(0xFF121212) : null,
+      decoration: isDark
+          ? null
+          : const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFF8FFFE),
+                  Color(0xFFE8F5F2),
+                  Color(0xFFF0F9F7),
+                ],
+              ),
+            ),
       child: Column(
         children: [
           // Header with stats
