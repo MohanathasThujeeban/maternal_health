@@ -8,6 +8,8 @@ import 'healthcare_provider_login_screen.dart';
 import '../services/api_service.dart';
 import '../../../services/user_service.dart';
 import '../../../widgets/custom_loading.dart';
+import '../../../services/admin_service.dart';
+import '../../admin/screens/admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
         passwordController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please enter NIC Number and password'),
+          content: Text('Please enter NIC Number'),
           backgroundColor: Colors.red,
         ),
       );
@@ -54,10 +56,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       print('🔑 Starting login process...');
-      final result = await ApiService.login(
-        nicController.text.trim(),
-        passwordController.text.trim(),
-      );
+
+      // Check if admin credentials
+      final nicOrEmail = nicController.text.trim();
+      final password = passwordController.text.trim();
+
+      if (nicOrEmail == 'admin@bloomcare' && password == 'Admin@123') {
+        // Admin login
+        print('👑 Admin login detected');
+        final adminResult = await AdminService.adminLogin(nicOrEmail, password);
+
+        if (!mounted) return;
+
+        if (adminResult['success']) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Welcome Admin!'),
+              backgroundColor: Color(0xFF6366F1),
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AdminDashboardScreen(),
+            ),
+          );
+          return;
+        }
+      }
+
+      // Regular user login
+      final result = await ApiService.login(nicOrEmail, password);
 
       print('📊 Login result: $result');
 
